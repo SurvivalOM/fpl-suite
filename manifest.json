@@ -1,0 +1,17 @@
+{
+ "name": "FPL Command Center",
+ "short_name": "Command Center",
+ "start_url": "./index.html",
+ "scope": "./",
+ "display": "standalone",
+ "background_color": "#EBEEF4",
+ "theme_color": "#15356E",
+ "icons": [
+  {
+   "src": "./icon.svg",
+   "sizes": "any",
+   "type": "image/svg+xml",
+   "purpose": "any"
+  }
+ ]
+}

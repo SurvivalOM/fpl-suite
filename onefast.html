@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%232c376b'/><g transform='translate(32,30)' stroke='%23E8CD7C' stroke-width='3' fill='none' stroke-linecap='round'><circle cx='0' cy='0' r='3.4' fill='%23E8CD7C' stroke='none'/><path d='M8 -7 A11 11 0 0 1 8 7'/><path d='M15 -13 A20 20 0 0 1 15 13'/><path d='M-8 -7 A11 11 0 0 0 -8 7'/><path d='M-15 -13 A20 20 0 0 0 -15 13'/></g></svg>">
+<title>One Fast — Listening Dashboard</title>
+<style>
+  :root{
+    --indigo:#2c376b; --indigo-2:#3b4a8a; --indigo-soft:#e7e9f5;
+    --gold:#c2922e; --gold-2:#e8cd7c;
+    --cream:#fbf7ee; --cream-2:#eef0f8; --panel:#fffdf8;
+    --ink:#20242e; --muted:#5d6376; --rule:#e3e1d2;
+    --hl:#fbeec3; --hl-edge:#e3c264;
+  }
+  [data-theme="dark"]{
+    --indigo:#26304f; --indigo-2:#9aa6e6; --indigo-soft:#222842;
+    --gold:#e2b75c; --gold-2:#e8cd7c;
+    --cream:#13151c; --cream-2:#1a1d27; --panel:#1b1e28;
+    --ink:#eee9da; --muted:#a6abba; --rule:rgba(238,233,218,.14);
+    --hl:#3a3414; --hl-edge:#6a5a1f;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0; height:100%}
+  body{
+    background:var(--cream); color:var(--ink);
+    font-family:"Palatino Linotype","Book Antiqua",Palatino,Garamond,Georgia,serif;
+    display:flex; flex-direction:column; height:100vh; overflow:hidden;
+  }
+  /* ---- top brand bar ---- */
+  .topbar{display:flex; align-items:center; gap:14px; padding:10px 18px; background:var(--indigo); color:#fff; flex:0 0 auto}
+  .topbar .lf{font-size:20px; line-height:1}
+  .topbar .nm{font-size:17px; font-weight:700; letter-spacing:.02em}
+  .topbar .tag{font-size:12px; background:rgba(255,255,255,.18); padding:3px 9px; border-radius:20px; letter-spacing:.08em; text-transform:uppercase}
+  .topbar .stat{margin-left:auto; font-size:12.5px; opacity:.92; text-align:right; line-height:1.4}
+  .topbar .thm{margin-left:14px; background:rgba(255,255,255,.16); color:#fff; border:none; border-radius:8px; padding:6px 11px; font-size:12.5px; cursor:pointer; font-family:inherit}
+  /* ---- main split ---- */
+  .split{display:flex; flex:1 1 auto; min-height:0}
+  aside{width:316px; flex:0 0 auto; background:var(--cream-2); border-right:1px solid var(--rule); overflow:auto; padding:14px 12px 40px}
+  aside .toctitle{font-size:13px; font-weight:700; color:var(--indigo-2); text-transform:uppercase; letter-spacing:.06em; margin:2px 6px 10px; padding-bottom:6px; border-bottom:1px solid var(--rule)}
+  .tocrow{display:flex; align-items:flex-start; gap:8px; padding:7px 8px; border-radius:8px; cursor:pointer; margin-top:8px}
+  .tocrow:hover{background:var(--panel)}
+  .tocrow.active{background:var(--panel); box-shadow:inset 3px 0 0 var(--gold)}
+  .tocrow input{margin-top:4px; cursor:pointer; accent-color:var(--indigo)}
+  .tocrow .tt{flex:1 1 auto; font-size:15px; line-height:1.3; font-weight:700; color:var(--indigo-2)}
+  .tocrow .tt .ch{display:block; font-size:11px; font-weight:700; color:var(--gold); text-transform:uppercase; letter-spacing:.06em}
+  .tocrow .ww{font-size:11px; color:var(--muted); white-space:nowrap}
+  .tocrow.heard .tt{color:var(--muted)} .tocrow.heard .tt .ch{color:var(--muted)}
+  .subrow{display:flex; align-items:flex-start; gap:7px; font-size:12.7px; color:var(--muted); padding:4px 8px 4px 28px; line-height:1.32; border-radius:6px; cursor:pointer}
+  .subrow:hover{background:var(--panel)}
+  .subrow:hover .stt{color:var(--indigo-2)}
+  .subrow.active{background:var(--panel)}
+  .subrow.active .stt{color:var(--indigo-2); font-weight:700}
+  /* ---- reader ---- */
+  main{flex:1 1 auto; min-width:0; display:flex; flex-direction:column}
+  .bar{display:flex; align-items:center; gap:8px; flex-wrap:wrap; padding:10px 16px; background:var(--panel); border-bottom:1px solid var(--rule); flex:0 0 auto}
+  .bar button{font-family:inherit; font-size:14px; border:1px solid var(--rule); background:var(--panel); color:var(--ink); border-radius:9px; padding:7px 11px; cursor:pointer; transition:.12s}
+  .bar button:hover{border-color:var(--gold)}
+  .bar button.play{background:var(--indigo); color:#fff; border-color:var(--indigo); font-weight:700; min-width:104px}
+  .bar button.play:hover{background:var(--indigo-2)}
+  .bar .sep{width:1px; height:24px; background:var(--rule); margin:0 4px}
+  .bar label{font-size:12.5px; color:var(--muted); display:flex; align-items:center; gap:5px}
+  .bar select, .bar input[type=range]{font-family:inherit; font-size:12.5px}
+  .bar .right{margin-left:auto; display:flex; align-items:center; gap:12px}
+  .reader{overflow:auto; padding:30px 0 80px; flex:1 1 auto}
+  .reader .inner{max-width:680px; margin:0 auto; padding:0 28px}
+  .sec-part{font-size:12.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--gold); font-weight:700}
+  h1.sec{color:var(--indigo-2); font-size:30px; margin:.16em 0 .35em; line-height:1.2}
+  .reader h2.subsec{color:var(--indigo-2); font-size:22px; line-height:1.26; margin:1.5em 0 .45em; padding-top:1.1em; border-top:1px solid var(--rule)}
+  #content h2.subsec:first-of-type{border-top:none; padding-top:0; margin-top:.15em}
+  .reader p{font-size:18.5px; line-height:1.68; margin:.7em 0}
+  .reader p.mean{border-left:3px solid var(--gold); padding-left:15px}
+  .reader p.why{border-left:3px solid var(--indigo-2); padding-left:15px; color:var(--muted); font-style:italic}
+  .reader blockquote.sloka{background:var(--indigo-soft); border:1px solid var(--rule); border-left:4px solid var(--gold); border-radius:10px; padding:18px 22px; margin:1.3em 0; text-align:center}
+  .reader blockquote.sloka .vl{display:block; font-style:italic; font-size:20px; color:var(--indigo-2); line-height:1.78}
+  .reader blockquote.sloka cite{display:block; margin-top:10px; font-style:normal; font-size:14px; color:var(--muted); letter-spacing:.05em}
+  .reader blockquote.scripture{background:var(--cream-2); border:1px solid var(--rule); border-left:4px solid var(--indigo-2); border-radius:10px; padding:14px 22px; margin:1.3em 0}
+  .reader blockquote.scripture .snt{font-size:18.5px; line-height:1.68}
+  .reader blockquote.scripture cite{display:block; margin-top:10px; font-style:normal; font-size:14px; color:var(--muted); letter-spacing:.05em}
+  .snt{cursor:pointer; border-radius:4px; transition:background .12s}
+  .snt:hover{background:var(--hl)}
+  .snt.on{background:var(--hl); box-shadow:0 0 0 2px var(--hl-edge)}
+  /* ---- notes + pager ---- */
+  .notes{max-width:680px; margin:30px auto 0; padding:24px 28px 0; border-top:1px solid var(--rule)}
+  .notes .lab{display:flex; align-items:center; gap:8px; font-size:13px; color:var(--indigo-2); font-weight:700; margin-bottom:6px}
+  .notes .lab .sv{font-weight:400; color:var(--muted); font-size:12px}
+  .notes textarea{width:100%; min-height:84px; font-family:inherit; font-size:15px; line-height:1.5; padding:11px 13px; border:1px solid var(--rule); border-radius:10px; background:var(--panel); color:var(--ink); resize:vertical}
+  .notes textarea:focus{outline:none; border-color:var(--gold)}
+  .pager{max-width:680px; margin:24px auto 0; padding:0 28px; display:flex; justify-content:space-between; gap:10px}
+  .pager button{font-family:inherit; font-size:14px; border:1px solid var(--rule); background:var(--panel); border-radius:9px; padding:9px 14px; cursor:pointer; color:var(--indigo-2)}
+  .pager button:hover{border-color:var(--gold)}
+  .pager button[disabled]{opacity:.4; cursor:default}
+  @media (max-width:760px){
+    .split{flex-direction:column}
+    aside{width:auto; max-height:34vh; border-right:none; border-bottom:1px solid var(--rule)}
+  }
+</style>
+</head>
+<body>
+  <div class="topbar">
+    <span class="lf">&#9790;</span>
+    <span class="nm">One Fast Can Change Your Life</span>
+    <span class="tag">Ekadashi &middot; Listening</span>
+    <span class="stat" id="stat"></span>
+    <button class="thm" id="btnTheme">Dark</button>
+  </div>
+
+  <div class="split">
+    <aside id="toc"></aside>
+    <main>
+      <div class="bar">
+        <button class="play" id="btnPlay">&#9654; Play</button>
+        <button id="btnStop">&#9632; Stop</button>
+        <span class="sep"></span>
+        <button id="btnPrevS" title="Previous sentence">&#9664; Sent</button>
+        <button id="btnNextS" title="Next sentence">Sent &#9654;</button>
+        <span class="sep"></span>
+        <label><input type="checkbox" id="autoAdv" checked> Auto&#8209;advance parts</label>
+        <div class="right">
+          <label>Speed <input type="range" id="rate" min="0.6" max="3" step="0.05" value="1"></label>
+          <label>Voice <select id="voice"></select></label>
+        </div>
+      </div>
+
+      <div class="reader" id="reader">
+        <div class="inner">
+          <div id="content"></div>
+          <div class="notes">
+            <div class="lab"><span>Notes on this part</span><span class="sv" id="noteSv"></span></div>
+            <textarea id="note" placeholder="Your thoughts on this part&hellip;"></textarea>
+          </div>
+          <div class="pager">
+            <button id="prevCh">&#8249; Previous part</button>
+            <button id="nextCh">Next part &#8250;</button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+<script>
+(function(){
+  var P=function(x){return {t:'p',x:x};};
+  var MEAN=function(x){return {t:'mean',x:x};};
+  var WHY=function(x){return {t:'why',x:x};};
+  var SLOKA=function(v,c){return {t:'sloka',v:v,cite:c};};
+  var SCR=function(x,c){return {t:'scr',x:x,cite:c};};
+
+  var BOOK=[
+    { part:"Part One — What We All Want: A Reset", secs:[
+      { title:"", blocks:[
+        P("There is a wish almost everyone carries, quietly, and rarely says out loud."),
+        P("I wish I could start over."),
+        P("Not the whole of life, perhaps. Just this part. The habit that has its hand around your throat. The year that went wrong. The weight, in the body, in the mind, on the heart, that you have carried so long you have forgotten it is not actually you."),
+        P("You have felt it. The longing for a clean page. A reset."),
+        P("We try to buy it. A new diet on Monday. A new app, a new planner, a new city. And for a few days something lifts, then the old weight settles back, and we quietly decide that people like us do not really get to begin again."),
+        P("This little book is here to tell you something the world forgot, and the ancients never did."),
+        P("You can begin again. And it is far simpler, and far closer, than you think."),
+        P("It takes one day.")
+      ]},
+      { title:"What are we really asking for?", blocks:[
+        P("Look under all our wanting, past the thousand things, and only a few remain."),
+        P("We want to feel light again. Unburdened."),
+        P("We want a body that is not quietly working against us."),
+        P("We want a mind that will be still for one hour."),
+        P("We want to know we are forgiven, that the past is not a sentence we serve forever."),
+        P("And beneath even that, we want to be near something that will not leave. A hand larger than ours, somewhere on the wheel."),
+        P("We chase all of it through more, more food, more buying, more noise. And the old secret, known to every tradition that ever made a person whole, is that the way back is not through more."),
+        P("It is through less. Through one day of less.")
+      ]},
+      { title:"A promise, said plainly", blocks:[
+        P("This book makes a single claim, and it is a large one."),
+        P("There is one day, repeated quietly through the year, on the eleventh day of the moon, that can reset a life. A day on which you eat lightly, or simply, or not at all; rest the body; and turn the heart toward God."),
+        P("The scriptures call that day Ekadashi. And they do not treat it as a small thing. They call it the king of all sacred vows."),
+        P("Let me say at once what this is not."),
+        P("It is not a diet, though the body is renewed by it. It is not a magic coin you drop in to buy a wish, it is not a lottery ticket. It is something quieter and far larger: a standing appointment with the Divine, kept with the simplest offering a human being can make, the willing setting-down of the plate."),
+        P("The title of this book means exactly what it says. One fast, one honest day, can change your life.")
+      ]},
+      { title:"Two resets in one day", blocks:[
+        P("Here is the quiet genius of this single day. It works on both of the things you are made of, at the same time."),
+        P("One day given to God, and a rest given to the body."),
+        P("To the soul, the day is a turning. With the table cleared and the senses quieted, the heart finds room to remember the One it keeps forgetting. The old weight of past wrongs, what the scriptures call karma, begins to lift."),
+        P("To the body, the day is a housekeeping. We will see, later and honestly, what modern science has begun to find: that when the food stops for a while, the body turns inward and clears out its own accumulated junk. A reset, written even into our cells."),
+        P("The very word for fasting says so. In the old language it is not a word for starving. It is upavasa, to dwell near. The empty plate was never the point. The nearness was."),
+        P("We will open that word fully in the next chapter. For now, just hold it: this is not about going without. It is about drawing close.")
+      ]},
+      { title:"Who this is for", blocks:[
+        P("Let us clear the doorway, because a crowded doorway turns people away."),
+        P("This is for the believer and the doubter both. You do not need perfect faith to begin. You need a little honesty and a little need, and most of us have plenty of both."),
+        P("It is for the busy. One day in fifteen. No temple required, no fixed hour, no special clothes."),
+        P("It is for the unwell-at-heart, the one with the habit, the failure, the past they cannot say aloud. Especially for you. You will see, before these pages end, that this gift was practically made for the ones who believe they are too far gone."),
+        P("It is for those who already love God by another name. You will not be asked to trade Him for anyone else's. Give your God one day; call Him as your own heart already knows Him. The door is wide on purpose."),
+        P("And one honest word, here at the very start, to be repeated wherever it matters: a fast is kept by your ability, never against your health. There are gentle ways and strict ways, and a way for everyone, the frail, the young, the ill, the expecting. No one is asked to harm the body to please God. He measures the heart, not the hunger."),
+        P("If you are breathing, this is for you.")
+      ]},
+      { title:"Why I can promise so much", blocks:[
+        P("Let me be honest with you, here at the beginning."),
+        P("I am not asking you to take my word for any of it. I am not a holy man on a high seat. I am a friend who stumbled onto something and could not keep quiet about it."),
+        P("Everything in these pages stands on ground far older and surer than me, the scriptures, the sages, and the saints who actually kept this day and were changed by it. I will bring them to you in their own voice: the verse, then its meaning in plain words, then a line on why it is here. And where the modern laboratory has something honest to add, I will bring that too, carefully, and never overstated."),
+        P("You can weigh every claim for yourself."),
+        P("All I ask is the small thing your own tired heart has been asking for all along."),
+        P("One day. One reset."),
+        P("Turn the page, and let us begin with the word the world mistranslated, and the secret hidden inside it.")
+      ]}
+    ]},
+    { part:"Part Two — Upavasa: To Dwell Near", secs:[
+      { title:"", blocks:[
+        P("Say the word fasting and watch what happens in the room."),
+        P("Someone winces. Someone thinks of hunger, a long grey day with a clock that will not move. Someone thinks of dieting, of the body as an enemy to be starved into shape. Someone thinks of punishment, of going without in order to pay for something."),
+        P("Hold all of that loosely for a moment. Because the people who gave us this practice meant something almost opposite by it."),
+        P("They had no word for starving yourself. They had a word for drawing near.")
+      ]},
+      { title:"The word the world mistranslated", blocks:[
+        P("In the old language, the word for a fast is upavasa."),
+        P("It is two small pieces, joined. Upa, near, close, beside. Vasa, to dwell, to stay, to reside."),
+        P("Upavasa. To dwell near."),
+        P("Read it again, slowly, because it quietly changes everything that follows."),
+        P("The day was never built around the empty plate. The empty plate is only a means, a way of clearing the table so you can come and sit close to Someone. Take away the food, the noise, the busy hands, and what is left is room. Room to dwell near God for one day."),
+        P("A faster who only goes hungry has missed the whole thing. He has kept the shell and lost the kernel. But a faster who uses that lightness to draw close, even a little, even clumsily, has done exactly what the word always meant."),
+        P("This is the first thing to unlearn. You are not going without. You are going toward.")
+      ]},
+      { title:"Eleven — the secret folded into the day", blocks:[
+        P("There is a second secret, hidden in the name of the day itself."),
+        P("Ekadashi. Eka is one. Dasha is ten. One and ten, eleven. The eleventh day of the moon."),
+        P("Why eleven? Because the sages counted something in us that also comes to eleven."),
+        P("Five senses gather the world in, sight, sound, smell, taste, touch. Five more act upon it, speech, the hands, the feet, and the body's two lower organs. And ruling over all of them, the restless eleventh: the mind."),
+        P("Eleven instruments, forever reaching outward, forever pulling us in eleven directions at once. They are the reason we cannot sit still. They are the reason the cry of the last chapter goes unanswered, we are simply too scattered to listen."),
+        P("And here is the design, hidden in plain sight. On the eleventh day, you gather the eleven. For one day you turn them all, gently, the same way, toward God. The eyes to His form. The ears to His name. The tongue from rich food to His praise. The hands to His service. The mind to remembrance."),
+        P("That is the inner meaning of upavasa. Not eleven senses starved. Eleven senses brought home.")
+      ]},
+      { title:"A means, not an end", blocks:[
+        P("So let us put to rest a question that stops many people at the door."),
+        P("Do you really please God just by being hungry?"),
+        P("No. And the scriptures never said you did."),
+        P("You do not reach God by skipping a meal the way you might collect points in a game. Hunger, by itself, buys nothing. It is not a lottery ticket."),
+        P("What the fast does is quieter and cleverer than that. When the body is full and comfortable, it talks loudly, and the soul can barely get a word in. Lighten the body for one day, lower its constant demands, and suddenly there is silence enough to remember, to read a line of scripture and actually feel it, to speak a holy name and actually mean it."),
+        P("The fasting is the means. The remembrance is the end."),
+        P("This is why a fast kept with a hard, proud, empty heart does little, while a fast kept with a soft and turning heart can do so much. Keep the discipline, yes. But keep it for the sake of the nearness it makes room for. Hold the rule and the spirit together. Lose the spirit, and all you have is a difficult diet. Add the spirit, and the same plain day becomes holy.")
+      ]},
+      { title:"The day works on both of you", blocks:[
+        P("There is one more reason this single day is so wisely made. You are not only a soul. You are a soul living inside a body, and the fast is a gift to both at once."),
+        P("To the soul, as we have seen, it is nearness: one day of dwelling close."),
+        P("To the body, it is rest. The oldest healers of this land called fasting the finest of all medicines, and we will come, later and honestly, to what the modern laboratory is only now beginning to confirm. For now it is enough to know this: the same act that draws the soul near also lets the body set down its endless labour and quietly repair itself."),
+        P("One day. Two kinds of healing. This is the quiet genius the ancients folded into the eleventh day, and the world, in a hurry, mistranslated as going without.")
+      ]},
+      { title:"So, what is a fast?", blocks:[
+        P("Let us answer the question we began with."),
+        P("A fast is not a punishment. It is not a diet. It is not a coin dropped in a slot."),
+        P("It is a standing appointment to dwell near, kept by lightening the body so the soul can come close, and by turning all eleven of your restless senses, for one day, toward the One they were made for."),
+        P("You can keep it gently or strictly; there is a way for every body and every beginning, and we will lay that ladder out before long. But whatever rung you stand on, the meaning never changes."),
+        P("Come near. That is all the day is asking of you."),
+        P("Now, why was such a kind and simple gift placed in our hands at all? And why does it matter so much in an age like ours? Turn the page.")
+      ]}
+    ]},
+    { part:"Part Three — A Heavy Age, a Light Gift", secs:[
+      { title:"", blocks:[
+        P("You do not need to be told that the times are heavy. You feel it."),
+        P("The mind that will not rest. The day that blurs into the next. The low hum of worry under even the good hours. We carry more than any people before us, more food, more comfort, more information, and somehow less peace."),
+        P("The sages who saw furthest gave this age a name. They called it the age of quarrel and forgetfulness: a time when bodies weaken, attention shatters, and the soul, buried under noise, forgets the One it belongs to."),
+        P("It would be easy to read that and lose heart. But here the old books do something wonderful. Having named the disease, they hand us the cure, and the cure is astonishingly light.")
+      ]},
+      { title:"The kindest gift, made simple on purpose", blocks:[
+        P("In the brighter ages, reaching God was real, but heavy. One age asked for silent meditation held unbroken for years. Another asked for vast fire-sacrifices that only kings could afford. Beautiful paths, but for the strong, the rich, the undistracted few."),
+        P("Look at us now. Who can meditate without breaking for years? Who can sit still for ten minutes without reaching for a screen?"),
+        P("So for an age like ours, busy, weak, distracted, short on both time and faith, the method was made to match. Not harder. Easier. Among the simplest things a human being can do: for one day in fifteen, eat lightly or not at all, and lean the heart toward God."),
+        P("That is the gift. One day."),
+        P("And as we will now see, it is not a small gift dressed up in large words. By the verdict of the scriptures themselves, this one light day is the very highest of all fasts.")
+      ]},
+      { title:"The Day of Hari", blocks:[
+        P("First, the name of the day tells you whose day it is."),
+        P("Ekadashi has another name: Hari-vasara, the Day of Hari, the Day of the Lord. And another: Madhava-tithi, the sacred day of Madhava, a name of God. The eleventh day of every fortnight does not belong to us, to spend on ourselves. By its very name, it is already His."),
+        P("And recall the eleven from the last chapter, the eleven senses that forever pull us outward. The Lord's own day falls on the eleventh, as if to say: on this day, gather all eleven, and bring them home to Me.")
+      ]},
+      { title:"The king of vows, the mother of all fasts", blocks:[
+        P("Now to the claim that should make you sit up."),
+        P("Across the scriptures, this one fast is not merely counted among the great spiritual practices. It is set above them. The compilers of devotion call it vrata-raja, the king of vows. The people who keep it call it, simply, the mother of all fasts."),
+        P("This is not loose praise. Listen to how far the old texts are willing to go."),
+        SCR("Through a single Day of Hari, one Ekadashi, a person obtains what the wise declare to be the fruit of thousands of vows to Shiva, and of tens of millions of vows to the Sun and to Brahma.","from the Skanda Purana"),
+        WHY("Why it is here. read that once more. A single Ekadashi is said to hold within it the fruit of thousands, even crores, of other sacred vows. It is not one good practice among many. It is the practice that gathers all the others up inside itself."),
+        P("And the Padma Purana says it even more plainly:"),
+        SCR("In all the three worlds, there is no fast that is even comparable to the Ekadashi fast.","Padma Purana (Kriya-yoga-sara)"),
+        WHY("Why it is here. no fast comparable. Not one of the finest. The finest, the standard against which every other fast is measured. When scripture speaks this way, it is pointing at something it wants you to take very seriously.")
+      ]},
+      { title:"One fast — and you need no other", blocks:[
+        P("Now draw the simple conclusion the scriptures intend."),
+        P("If one Ekadashi carries the fruit of a thousand other vows, then you do not need to gather a hundred different fasts and disciplines to make real progress. You do not need to go searching for some better, rarer, more difficult practice somewhere else."),
+        P("The highest one has already been placed in your hands. And it returns to you every fortnight, free."),
+        P("Keep this single day well, and you have kept the mother of them all."),
+        P("This is a great relief, and it is meant to be one. In a life already crowded, you are not being handed one more heavy obligation to fail at. You are being handed the one practice that quietly contains the rest. Follow Ekadashi, and no other fast is required of you. One fast is enough.")
+      ]},
+      { title:"And still, the door stays open", blocks:[
+        P("You might expect the highest of all fasts to be fenced off behind the strictest of rules. It is the opposite. The mercy of this day is as wide as its glory."),
+        P("The Lord Himself, glorifying Ekadashi to the saintly king Yudhishthira, says that even a fast kept imperfectly, even partly, even clumsily, still carries an enormous reward; and that merely hearing the glories of this day begins to wash away sin. The tradition throws the practice open to everyone between the ages of eight and eighty, of every walk of life, women and men alike, excusing only the very young, the very old, and those whom the body genuinely will not allow."),
+        P("Hold both of these in your hands at once. The highest fast there is. And the gentlest door there is. Supreme in what it gives; open to anyone who will simply try."),
+        P("That is the light gift, set down in a heavy age."),
+        P("So this servant-day that frees us, this Day of Hari that outweighs a thousand vows, where did she come from? Why do the scriptures speak of Ekadashi not as a date on a calendar, but as a person? Turn the page, and meet her.")
+      ]}
+    ]},
+    { part:"Part Four — Who Is Ekadashi?", secs:[
+      { title:"", blocks:[
+        P("We have been speaking of Ekadashi as a day. It is time to tell you a secret the scriptures never hid, but which most people somehow miss."),
+        P("Ekadashi is not only a day."),
+        P("She is a person, and, as you will see, far more than a person."),
+        P("The old texts do not merely say, on the eleventh day, observe a fast. They speak of Ekadashi as a living being, a radiant woman, a power, born from the body of God Himself. When you keep her day, you are not ticking a box on a calendar. You are taking the hand of someone who came into existence to set you free."),
+        P("Let me tell you where she came from. There are two stories, and they are two faces of a single truth.")
+      ]},
+      { title:"Born from the Lord's own body", blocks:[
+        P("Long ago, the scriptures say, a fearsome demon named Mura terrorized the worlds. He drove the gods from their thrones and could not be stopped. They fled, as the helpless always do, to Vishnu, the Lord who protects."),
+        P("The Lord came. He fought Mura, not for a day, but for a thousand celestial years, weapon against weapon, until at last it came down to bare hands. And the demon was so strong that even the Lord, to take a moment's rest, withdrew into a cave high in the Himalayas at Badarikashram, and lay down to sleep."),
+        P("Mura saw his chance. He crept into the cave to kill the sleeping Lord."),
+        P("And then something extraordinary happened. From the body of the resting Lord, a brilliant maiden stepped forth, armed, blazing, terrible and beautiful at once. She was His own energy, made visible. She met Mura where he stood, and with a single stroke, she destroyed him."),
+        P("When the Lord awoke and saw the demon fallen, He was filled with wonder. Who are you, He asked, who has done what even I had paused before?"),
+        P("She had appeared on the eleventh day of the waning moon. And so the Lord gave her a name, Ekadashi, the Eleventh, and a boon to match her glory: that whoever would fast on her day, remembering Him, would be freed from sin and drawn home to Him."),
+        P("This is the Padma Purana's account, in its thirty-eighth chapter. And notice what it is quietly telling you. Ekadashi is not a rule. She is a weapon of God's own mercy, a power that comes from His very body to destroy what attacks us while we sleep.")
+      ]},
+      { title:"Born from the Lord's own compassion", blocks:[
+        P("There is a second story, and it shows you her other face."),
+        P("In it, the sage Jaimini asks his teacher Vyasa the very questions you might ask: What is Ekadashi? Why does it matter so much? What becomes of a person who ignores it?"),
+        P("Vyasa answers with a strange and tender tale. After creation, he says, the Lord brought into being a creature made entirely of sin, Papa-purusha, sin given a body, whose task was to punish the wicked in the realm of death. And the punishment was real. When the Lord once visited that realm, He heard it: the cries of countless souls, suffering for what they had done, with no way out."),
+        P("The Lord's heart could not bear it. And the scriptures say His compassion itself took a form, a woman, stepping out of His mercy the way light steps out of the sun. Wherever she moved among the suffering, she made a promise: anyone who, on this day, would serve the Lord and call His names, she would free from the weight of their sins."),
+        P("The suffering souls heard her, and began to chant. And one by one, they were lifted out of their misery."),
+        P("The Lord asked her, Who are you?"),
+        P("I am your servant, she said. Eka-dasi, your one servant. Your own compassion sent me here. Grant me only this: that anyone who, on the eleventh day, turns to You and calls Your names, be freed from all their sins and carried toward Your home."),
+        P("He granted it. And so the same Ekadashi who could slay a demon could also empty a hell, not by force this time, but by sheer mercy."),
+        P("She herself said it best, back in the first story, when the Lord marvelled at how swiftly she had struck down Mura. I am the very form of Your compassion, she told Him. I can grant liberation even faster than You can."),
+        P("That is who waits inside the eleventh day.")
+      ]},
+      { title:"More than a servant — His very form", blocks:[
+        P("Twice now you have heard her call herself Eka-dasi, the Lord's servant. That is her humility. But the scriptures will not let her hide behind it, and neither should we."),
+        P("She did not come from somewhere else to serve the Lord. She came out of Him. And in the old understanding, what comes out of God, made wholly of God, is not separate from God. The energy and its source are one."),
+        P("So the texts say it without flinching: the day of Ekadashi is itself a form of the Lord. The Markandeya Purana and the Vishnu Purana describe the Ekadashi tithi as a form of Vishnu Himself. Having appeared from Him, she is non-different from Him, and, like Him, a blessing to all the three worlds."),
+        P("This is why those who love her sing that Ekadashi is the Lord's own face, His mercy wearing time and grace; that in the eleventh day, Vishnu's very form is here."),
+        P("Sit with that for a moment. The day you are being asked to keep is not a fence the Lord set up outside Himself, around some field of rules. It is Him, His own compassion, poured into the shape of a single, gentle, recurring day, so that you would have something small and regular to take hold of.")
+      ]},
+      { title:"So merciful, and so protective", blocks:[
+        P("A form this loving is also a form that guards. The scriptures are emphatic on both counts: Ekadashi is supremely merciful, and supremely protective."),
+        P("Her mercy you have already seen, she can empty a hell with a single promise."),
+        P("Her protection runs just as deep, and it reaches further than you might expect. The texts say that one who faithfully keeps her day comes under a shelter that extends even past death. At the final hour, when the soul is most afraid, the messengers of death themselves will not approach the one who has kept Ekadashi. Instead, the Lord's own messengers come, and carry that soul home. And we will meet, before this book is done, the great king Ambarisha, for whom the Lord's own weapon turned back the curse of a furious sage, because the king had honoured this day."),
+        P("This is what it means that she is a person, and a form of God at that. A rule cannot love you, and a date on a calendar cannot protect you. But she can do both. She is fierce toward everything that would ruin you, and endlessly gentle toward you."),
+        P("So understand what you are truly doing when you keep Ekadashi. You are not performing a dry duty, alone. You are placing yourself in the care of the Lord's own mercy, wearing the shape of a day, a power that fights for you and shelters you, in this life and at the very end of it."),
+        P("You never fast alone. You fast in her company.")
+      ]},
+      { title:"Two swift mercies", blocks:[
+        P("There is one more thing worth knowing."),
+        P("The scriptures say the Lord has given this age two especially swift mercies, and Ekadashi is one of them. The other is the small sacred plant Tulasi. The Hari-bhakti-vilasa promises that one who, on the day of Ekadashi, chants the holy names and offers the Lord even a single Tulasi leaf, returns to God for certain."),
+        P("Two gifts, born of the same divine compassion, one a day, one a leaf, and each of them a shortcut home. If Tulasi is already part of your life, you will find that she and this sacred day work beautifully together. If she is not, that is simply another door, for another time."),
+        P("So now you know her. Not a square on a grid, but the Lord's own mercy in the form of a day: a person who frees the bound, shelters the dying, and strikes down the demon in the dark."),
+        P("But this leaves a question we have not yet answered. Why grains? Why should keeping her day mean setting aside something as ordinary as rice and bread? And where, exactly, did the Lord tell sin to go and hide?"),
+        P("Turn the page.")
+      ]}
+    ]},
+    { part:"Part Five — Why the Eleventh Day, and Why No Grains", secs:[
+      { title:"", blocks:[
+        P("If you have been reading carefully, two fair questions have been forming."),
+        P("Of all the days in the month, why the eleventh? And of all the foods on the table, why single out grains, rice, wheat, bread, beans, as the thing to set aside?"),
+        P("These are good questions. The kind a thoughtful person should ask before taking up any practice. And the tradition is not afraid of them. It answers on two levels at once, one for the heart that trusts a story, and one for the mind that wants a reason. Let us take both.")
+      ]},
+      { title:"Why the eleventh: the moon, the waters, and the mind", blocks:[
+        P("Look up at the night sky, and you are looking at the quiet engine behind this whole practice."),
+        P("The moon moves the seas. Twice a day, without ever touching them, it lifts whole oceans into tides and lets them fall again. This is not poetry; it is plain fact. The moon pulls on water."),
+        P("Now hold two more things beside that, things the ancients knew, and that you can feel for yourself."),
+        P("First, your own body is mostly water, close to three-quarters of you. Whatever tugs at the sea tugs, in some small measure, at you."),
+        P("Second, the old seers said the moon governs not only the waters but the mind, the restless, tidal, up-and-down thing in us that will not sit still. Many cultures have carried the same intuition ever since: that when the moon swells or empties, minds grow restless and sleep grows thin."),
+        P("And the pull, the tradition observed, climbs to its height across the tenth, eleventh, and twelfth days of the moon. The eleventh is the high-water mark, the day the unseen tide in body and mind runs strongest."),
+        P("So why the eleventh? Because it is precisely the day when the senses are most pulled and the mind is most stirred. It is the hardest day to stay still, and therefore the wisest day to practise stillness. Recall the eleven senses from before. The day named for the eleven is exactly the day to gather all eleven, and hold them gently home.")
+      ]},
+      { title:"Why no grains: where the Lord told sin to hide", blocks:[
+        P("Now the second question, why grains? Here the tradition tells the story we left hanging at the end of the last chapter."),
+        P("You remember Papa-purusha, sin given a body, who was left with no one to punish once Ekadashi began freeing the suffering. He came to the Lord in distress: Your day has emptied my hands. Where, in all your creation, can I even stand?"),
+        P("And the Lord, who is kind even to sin, gave him a single refuge. On the eleventh day, and only that day, sin could go and hide inside grains."),
+        P("So the old books say it plainly: on Ekadashi, what is ordinarily wholesome becomes a hiding place. To eat grains on that one day is to take that lodger in. To set them aside is to keep the house clean for a single day, so that the Lord, and not the world's weight, can fill it."),
+        P("If your heart trusts that story, it is enough. You need no other reason. Keep the day, leave the grain, and let the rest take care of itself.")
+      ]},
+      { title:"The same truth, said plainly", blocks:[
+        P("But perhaps you are the other kind of reader, the one who hears sin hides in grains and feels the eyebrow lift. That is perfectly all right. The tradition has a plainer face for you, too, and it points to exactly the same act."),
+        P("Grains are heavy. They sit long in the body. And, here the moon returns, grains and beans tend to hold water in you, the very thing the moon is pulling on hardest on the eleventh day. Heavy, water-laden food, on the one day the inner tide runs highest, makes the body sluggish and the mind harder to quiet. Set the grains down, and you lighten exactly what was about to be stirred."),
+        P("Believer and skeptic, then, arrive at the same doorstep. One says: leave the grain, for sin hides there today. The other says: leave the grain, for it weighs you down on the very day you most need to be light. Both are right. Both lead to the same simple plate, and the same result, a body and a mind clear enough to draw near."),
+        P("You do not have to settle which reason convinces you. You only have to keep the day.")
+      ]},
+      { title:"The law beneath it all: lightness, not torture", blocks:[
+        P("There is one more thing to settle, before anyone runs too far in the other direction."),
+        P("None of this means that the more you punish the body, the holier you become. Quite the opposite. The same scriptures that ask you to fast warn, in the Lord's own words, against extremes."),
+        SLOKA(["nātyaśnatas tu yogo 'sti","na caikāntam anaśnataḥ","na cāti-svapna-śīlasya","jāgrato naiva cārjuna"],"Bhagavad-gita 6.16"),
+        SLOKA(["yuktāhāra-vihārasya","yukta-ceṣṭasya karmasu","yukta-svapnāvabodhasya","yogo bhavati duḥkha-hā"],"Bhagavad-gita 6.17"),
+        MEAN("What it means. There is no yoga for one who eats too much, nor for one who eats nothing at all; nor for one who sleeps too much, nor for one who stays awake too long, O Arjuna. For one who is moderate in eating and recreation, balanced in his work, and regulated in sleep, yoga becomes the destroyer of all sorrow."),
+        WHY("Why it is here. read it twice, because it guards the whole practice. The Lord does not praise the one who eats nothing. He praises the one who is balanced. Fasting on Ekadashi is not a contest in suffering, and it never was. It is a lightening, just enough less, so that the soul has room. That is why the tradition built a whole ladder of ways to keep the day, from the gentlest to the strictest, with a rung for every kind of body. We will come to that ladder before long."),
+        P("So now you know the why. Why the eleventh day, the high tide of the senses. And why no grains, the one hiding place, on that day, for what weighs us down. A wise design, top to bottom, to make the mind quiet enough to come close."),
+        P("But how many such days are there in a year, and what are their names? Turn the page, and let us count them, every one.")
+      ]}
+    ]},
+    { part:"Part Six — The Count of the Sacred Days", secs:[
+      { title:"", blocks:[
+        P("Here is a kindness built into the calendar itself: you are never far from the next Ekadashi."),
+        P("She comes twice in every lunar month, once as the moon waxes toward full, once as it wanes toward dark. Roughly every fifteen days, the eleventh day returns, and with it another open door."),
+        P("Count them across the year, and you arrive at twenty-four. Twelve months, two each."),
+        P("In certain years, an extra month is folded into the calendar to keep the moon and the sun in step, and then two more Ekadashis appear, making twenty-six. This very year is one of those rare years. We will meet those two at the end."),
+        P("Twenty-four doorways a year. Miss one, and another is already on its way. You do not have to be perfect across a lifetime. You only have to catch the next one."),
+        P("Each of these days carries its own name, its own story, its own particular gift. You do not need to memorize them, a simple calendar will always tell you which one is next. But it is worth walking through them once, the way you might walk through a garden naming the flowers, just to feel how richly this single practice is provided for."),
+        P("So come. Let us count the sacred days.")
+      ]},
+      { title:"Spring", blocks:[
+        P("As the year warms, the first doorways open."),
+        P("There is Kamada, the desire-fulfilling, said to lift even old curses and grant the heart's right longings. Beside it falls Papamochani, whose very name means the remover of sins."),
+        P("Then comes Mohini, which frees the keeper from moha, the web of illusion and grief that tangles us. And Varuthini, said to grant protection and great fortune.")
+      ]},
+      { title:"Summer", blocks:[
+        P("As the heat builds comes the most famous fast of them all: Nirjala, the waterless. This is Bhima's day, the single day that, kept fully, is said to carry the merit of all the others combined. We will tell its whole story further on."),
+        P("Beside it stands Apara, the limitless, said to wash away even the gravest sins.")
+      ]},
+      { title:"The Lord's long sleep", blocks:[
+        P("Now the monsoon arrives, and with it one of the great turning-points of the year."),
+        P("On Devshayani Ekadashi, the scriptures say, the Lord lies down for His cosmic sleep, and the four sacred months called Chaturmas begin, a season when seekers everywhere deepen their vows. Beside it falls Yogini, said to free a person from sin and sickness alike."),
+        P("Through those months the doorways keep opening. There is Putrada, the purifying giver of a worthy child, and Kamika, which fulfils desires and cleanses the heart. Then comes Parivartini, the day the sleeping Lord is said to turn upon His side, and Annada, which gives relief and dissolves sin, remembered through the story of the truthful king Harishchandra.")
+      ]},
+      { title:"The Lord awakens", blocks:[
+        P("Then, in autumn, the long sleep ends."),
+        P("First come Papankusha, the goad that drives off sin, and Indira, kept to free one's departed ancestors from suffering. And then the great day: Prabodhini, also called Devutthana, when the Lord rises from His sleep and Chaturmas closes. It is among the holiest days of the entire year. Near it falls Rama Ekadashi, which carries the keeper toward liberation.")
+      ]},
+      { title:"The turn of the year", blocks:[
+        P("As winter comes, two of the most precious days arrive."),
+        P("Mokshada, the giver of liberation, falls on the very day the Bhagavad-gita was first spoken to Arjuna; it is kept in the South with great grandeur as Vaikuntha Ekadashi, the day it is said the gates of the Lord's own abode stand open. And near it falls Utpanna, the day Ekadashi herself first appeared from the body of the Lord. Her own birthday, and for many, the day to begin the practice for life."),
+        P("The cold months bring still more. There is a second Putrada, and Saphala, the fruitful, said to make one's honest efforts succeed. Then Jaya, victory, which is said to lift a soul even from ghostly fates, and Shattila, kept with sesame and charity, a great cleanser of the heart.")
+      ]},
+      { title:"The year closes", blocks:[
+        P("As spring returns, the circle nearly completes."),
+        P("Amalaki honours the sacred amalaki tree, in which the Lord is felt to dwell; it is a great purifier of body and soul. And Vijaya, victory, is the day, the scriptures recall, on which Lord Rama himself fasted before crossing the sea to rescue Sita. It is kept by those who face a great obstacle and need to win through."),
+        P("And there the twenty-four are counted: a full year of doorways, never more than a fortnight apart.")
+      ]},
+      { title:"The two that visit rarely", blocks:[
+        P("Twice every few years, to keep the moon's calendar true to the sun's, an extra month is folded in, the leap month, called Purushottama, the month of the Lord Himself. And in that month, two more Ekadashis appear, kept by few and treasured by those who know them."),
+        P("Padmini, the lotus, is among the most purifying of all the fasts. And Parama means simply the supreme, said to grant the rarest of fortunes to the soul who keeps it."),
+        P("This very year held both. If you kept them, you kept something most people never even hear of. If you did not, they will return, and now you will know their names.")
+      ]},
+      { title:"You do not have to hold them all", blocks:[
+        P("Do not let the long list weigh on you. You are not asked to memorize a calendar, or to keep every single day from the very start."),
+        P("The names are gathered here only so you can see how completely this one practice is woven through the whole turning year, a gift offered, and offered again, and again, never letting more than a fortnight pass without another chance to draw near."),
+        P("All you truly need is the next one. A simple calendar, or a companion that keeps the dates for you, will always tell you when she comes again."),
+        P("And when she does, the only remaining question is a gentle one: how shall you keep her? Lightly, or strictly? With water, or without? There is, as promised, a rung for every kind of body. Turn the page, and let us climb that ladder.")
+      ]}
+    ]},
+    { part:"Part Seven — The Levels of the Fast", secs:[
+      { title:"", blocks:[
+        P("We ended the last chapter with a gentle question. When the eleventh day comes, how shall you keep her, lightly, or strictly, with water or without?"),
+        P("Here is the answer, and it is one of the kindest things about this whole practice."),
+        P("However you can."),
+        P("There is not one fast. There is a ladder of them, a whole staircase of ways to keep the day, from the gentlest first step to the highest summit. The scriptures themselves lay it out this way, on purpose, so that no one is ever turned away for being weak, or busy, or unwell, or simply new."),
+        P("You do not have to begin at the top. You are only asked to find your level, and, over the years, to climb.")
+      ]},
+      { title:"A ladder, not a cliff", blocks:[
+        P("Most people who never try Ekadashi imagine it as one single, fearsome thing: no food, no water, all day, or nothing. A cliff to be scaled in a single leap."),
+        P("It was never that."),
+        P("The tradition that asks you to fast is the very same tradition that says the practice is for everyone from the age of eight to eighty, of every kind and condition. A rule meant for everyone cannot demand the same of everyone. So it was graded, softened at the bottom, kept high at the top, with a real and honoured place on it for the child, the labourer, the patient, and the beginner, right beside the place for the seasoned saint."),
+        P("There is no shame on the lower levels. A gentle fast, kept with a turning heart, pleases the Lord more than a severe one kept with pride or resentment. Begin where you honestly are."),
+        P("Here, then, is the ladder, from its gentlest step to its highest.")
+      ]},
+      { title:"The six levels", blocks:[
+        P("First, the non-grain day. The gentlest step, and the one most people begin with. You eat through the day more or less as usual, but you leave out all grains and beans: no rice, no wheat, no bread, no lentils. (By long custom, onion and garlic are set aside too.) In their place come fruit, vegetables, milk, nuts, roots, potato. The body is barely strained, yet the day is honoured and the grain is left untouched. If this is all you can do, know that it is a true and complete keeping of Ekadashi."),
+        P("Second, the single meal. A step up. Through the day you take nothing, and eat just once, one simple, grain-free meal, traditionally before sunset. Most of the day is given to the fast; one honest meal carries you through."),
+        P("Third, fruits and milk. Higher still: no cooked food at all. Through the day you take only fresh fruit and milk, with water. Light, clean, and very old, the fast of those who want the body quiet, but not quite empty."),
+        P("Fourth, milk alone. Now even the fruit is set down. Only milk, and milk-based drinks, with water. The body runs light and clear, and the mind runs clear with it."),
+        P("Fifth, water only. No food of any kind. Through the whole day, only water. This is a serious fast, and a powerful one, the body fully at rest, the senses fully quieted."),
+        P("Sixth, the waterless fast. The summit. Nirjala: no food and no water at all, from one sunrise to the next. It is the fast Bhima kept, the one the scriptures say holds the merit of all the others. At its fullest, it is crowned by the night vigil: staying awake in prayer and the holy name, so that not even sleep interrupts the nearness. This is the peak of the mountain. Few stand on it, and none should rush to it.")
+      ]},
+      { title:"Climb slowly", blocks:[
+        P("Look at the ladder, and do not be frightened by the top of it. You are not meant to leap there. You are meant to climb, a level at a time, over months and years, as the body strengthens and the heart grows willing."),
+        P("Many keepers begin with the non-grain day for a year or two, then try the single meal, then fruits, and only much later, if ever, the higher levels. That is not weakness. That is wisdom. A mountain is climbed slowly, with breath and care, or it is not climbed at all."),
+        P("And never forget what every level is for. We said it early, and it holds here: the fast is the means, the nearness is the end. The highest level kept with a hard, distracted heart is only impressive hunger. The lowest level kept with the heart turned toward God is a true Ekadashi. Choose your level by your body, but choose your heart for Him.")
+      ]},
+      { title:"Keep the body safe — this matters", blocks:[
+        P("Now a word that is not optional, and that must be said plainly, because the love of God never asks you to harm the body He gave you."),
+        P("The high levels, water-only, and above all the waterless fast, are not for everyone. For some, they can be genuinely dangerous."),
+        P("If you are a child, or elderly; if you are pregnant or nursing; if you are diabetic, or on medication for blood pressure, the kidneys, the heart, or anything that must be taken with food; if you are unwell, frail, recovering, or doing hard physical labour in the heat, then the strict fasts are simply not your level, and there is no fault in that whatsoever. Stay low. Keep your water. Keep your fruit. Simplify, rather than strain."),
+        P("Remember Bhima: the scriptures show him fainting beneath the waterless fast. That fainting is the warning, not the goal. No one is asked to collapse for God. If a fast ever leaves you dizzy, weak, or ill, you are not being holy, you are being unwise. Drink the water. Eat the fruit. Live to keep the next one."),
+        P("God does not weigh the hardness of your fast. He weighs the love in it. A single glass of water, taken in humility by someone who cannot safely do more, is dearer to Him than a proud collapse. He measures the heart, never the hunger."),
+        P("So now you have your ladder, and your own safe place upon it. You know which day is coming, and how you will keep it."),
+        P("There is only one thing left to learn, and it is the most important of all. Once the plate is set aside, what do you actually do with the day? How is one fast truly given to God? Turn the page.")
+      ]}
+    ]},
+    { part:"Part Eight — One Day Given to God", secs:[
+      { title:"", blocks:[
+        P("We have come to the most important chapter in this book."),
+        P("You know now what Ekadashi is, why it falls where it does, and how, at whatever level your body allows, to set the food aside. But all of that is only the container. We have not yet poured anything into it."),
+        P("And an empty container is not the point."),
+        P("A fast is not won by an empty stomach. It is won by a full heart. The whole purpose of clearing the plate is to make room, and room left empty is just hunger. Room filled with God is the thing itself."),
+        P("So let us learn the other half of the fast, the half that turns a hard day into a holy one.")
+      ]},
+      { title:"Why hunger alone is not enough", blocks:[
+        P("Return for a moment to a verse we met earlier, because it holds the secret of this whole chapter. The Lord says:"),
+        SLOKA(["viṣayā vinivartante","nirāhārasya dehinaḥ","rasa-varjaṁ raso 'py asya","paraṁ dṛṣṭvā nivartate"],"Bhagavad-gita 2.59"),
+        MEAN("What it means. For the embodied soul who abstains from food, the objects of the senses fall away, but the taste for them remains. Even that lingering taste departs when one has tasted the Supreme."),
+        WHY("Why it is here. read it slowly, because it is the most honest thing anyone will ever tell you about fasting. Stop eating, and the food leaves your hand, but the wanting does not leave your mind. You can sit hungry all day and think of nothing but the meal you will break it with. That is not nearness. That is just a postponed dinner."),
+        P("What finally empties the wanting is not more willpower. It is a better taste. When the heart catches even a single drop of the sweetness of God, the old cravings quietly lose their grip. This is the whole secret: you do not win the fast by fighting the hunger. You win it by feasting the soul, until the body's hunger hardly matters."),
+        P("So the real question of the day is not how do I bear the emptiness? It is how do I fill it with Him?"),
+        P("Here is how.")
+      ]},
+      { title:"What to do with the day", blocks:[
+        P("Take the time and attention that food and its busyness usually swallow up, and give it, in small, natural ways, to God."),
+        P("Chant His name. This is the heart of it. Soft on the lips, or aloud with others, the holy name is the simplest and surest way to keep the mind near Him all day long. If you already have a God and a name you love, use it, the door is wide. There is a companion book devoted entirely to this one practice, but you need nothing elaborate to begin: just say the Name, and keep saying it."),
+        P("Hear and read. Open a page of scripture, the Gita, the stories of the Lord, the lives of the saints. On an ordinary day there is never time. Today there is. Let the mind be fed what it so rarely gets."),
+        P("Pray, simply. Talk to Him as you would to someone who loves you. Thank Him. Ask Him. Sit quietly with Him. The fast clears a strange and lovely silence in the day; do not rush to fill it with screens."),
+        P("Serve. Water a Tulasi plant, tend the altar, help a person in need, cook something pure and offer it to Him first. Love put into the hands is a prayer the body can pray."),
+        P("Notice what all of this has in common. None of it is grim. None of it is gritted teeth. The day given to God is not a test of how much suffering you can endure. It is a date you keep with the One you love, and like any good date, the hours pass quickly, because your attention is somewhere happy. The hunger is still there, somewhere in the background. You are simply too pleasantly occupied to be ruled by it.")
+      ]},
+      { title:"The shape of the day", blocks:[
+        P("In practice, the day has a gentle shape, and it is worth knowing, so you can keep it well."),
+        P("It does not begin at breakfast. The careful keeper prepares the evening before, on the tenth day, Dashami, taking a light, simple, grain-free meal by sunset, so that the body comes to the fast already clean and unburdened."),
+        P("Then comes Ekadashi itself: the full day, kept at your chosen level, and filled with the remembrance we have just described."),
+        P("And it is not broken the instant the sun goes down. The fast is carried gently through the night and broken only the next morning, on the twelfth day, Dvadashi, at the proper time. So the complete observance spans not twelve hours, but closer to thirty-six: from the eve of the tenth, through the whole of the eleventh, into the morning of the twelfth. A long, quiet arc, held lightly."),
+        P("That final step, the breaking, has a rule of its own, and a beautiful story to teach it.")
+      ]},
+      { title:"Breaking it right: the lesson of King Ambarisha", blocks:[
+        P("A fast is not finished the moment you simply start eating again. It is finished rightly only when you break it within a particular window the next morning, called the parana. Break too early, and the vow is left incomplete. Let the window slip past, and the same. The day asks for one last small act of care."),
+        P("How seriously is this taken? There is an old account of a king named Ambarisha, who, with his queen, kept Ekadashi and Dvadashi faithfully for a whole year. As his final fast drew toward its close, the moment came to break it within the parana window, and at that exact moment, a powerful and short-tempered sage, Durvasa, arrived as his guest."),
+        P("Now the king was caught between two duties. To honour a guest, he must wait and feed the sage first, but the sage had gone off to bathe at the river, and the parana window was closing. To break his fast on time, he would have to eat before his guest, a discourtesy he dreaded. Wait, and he would lose the merit of a whole year of vows. Eat, and he risked offending a guest who could curse him with a word."),
+        P("His wise counsellors found him a narrow and perfect path. Water, the scriptures say, is uniquely both food and not-food: a sip of it breaks a fast, and yet does not. So the king took only a little water, breaking his fast within the window, and yet not truly eating before his guest."),
+        P("The sage returned, divined what had happened, and flew into a terrible rage, conjuring a fiery demon to destroy the king. But Ambarisha did not so much as raise a hand to defend himself. He did not need to. The Lord's own disc, the Sudarshana, set there long before to guard His devotee, blazed up of its own accord, destroyed the demon, and chased the furious sage across all the worlds, until at last he returned and begged the humble king's pardon."),
+        P("Two things are folded into that story, and you should carry both. First: the breaking of the fast matters, keep the parana with care. And second, far greater: the one who honours this day comes under a protection that nothing in the three worlds can break. The king never lifted a finger. His day had already placed him in the hands of God."),
+        P("So that is a fast, whole and entire: the plate set aside, the heart turned toward Him, the long quiet arc from the tenth evening to the twelfth morning, and the gentle, careful breaking at the end."),
+        P("This is the soul's half of the gift, one day given to God."),
+        P("But we promised you, from the very first page, that this one day works upon both of the things you are made of. We have given the day to God. Now turn the page, and see what that same day quietly does for the body, and why the modern laboratory is only beginning to catch up to what the sages knew all along.")
+      ]}
+    ]},
+    { part:"Part Nine — A Rest Given to the Body", secs:[
+      { title:"", blocks:[
+        P("From its very first page, this book made a double promise. One day, it said, works upon both of the things you are made of, soul and body, at the very same time."),
+        P("We have given the day to God. Now let us see what that same day quietly does for the body."),
+        P("And here we must be careful, and completely honest, because this is exactly where a lesser book would begin to exaggerate. So let me say plainly how we will walk through it."),
+        P("The ancient science gave its verdict on fasting long ago, confidently, and for everyone. Modern science is only now, in our own lifetimes, beginning to uncover the machinery beneath that verdict. Some of what it is finding is already proven beyond doubt. Some of it is still being worked out, and may take years to settle. We will keep the two carefully apart, and we will never dress a maybe up as a fact."),
+        P("But even held to that honest standard, what is emerging is remarkable. Let us begin where the verdict was first written.")
+      ]},
+      { title:"The verdict, already given", blocks:[
+        P("Thousands of years before a single living cell was ever seen under glass, the sages prescribed this fast not only for the soul, but for the body, for long life, for health, for clarity and vigour. They did not run a trial. They gave a verdict, and they gave it for everyone between eight and eighty."),
+        P("And the oldest science of the body, Ayurveda, the knowledge of life, said it in one unhesitating line."),
+        SLOKA(["laṅghanaṃ paramauṣadham"],"a classical maxim of Ayurveda (the doctrine of laṅghana: Charaka Saṃhitā, Sūtra-sthāna 22; Aṣṭāṅga-Hṛdaya, Sūtra-sthāna 14)"),
+        MEAN("What it means. Fasting is the supreme medicine."),
+        WHY("Why it is here. notice that it does not say fasting is a medicine. It says the supreme one. In Ayurveda, fasting, upavasa, the very word we began this book with, is counted among the core treatments: the thing that rekindles the body's digestive fire, burns off its accumulated toxins, and stands as the first line of care for a great many ills. The ancients were not guessing timidly. They had reached a verdict, and the verdict was: when in doubt, lighten. Rest the body, and it heals itself."),
+        P("That is the claim modern science has spent the last few decades, almost by accident, beginning to confirm. Let us look at what it has found, and let us lead with the most striking part of all.")
+      ]},
+      { title:"The strands at the ends of you", blocks:[
+        P("Inside nearly every cell of your body is a coiled strand of DNA, the long instruction-book that makes you, you. For a long time, scientists noticed that great stretches of that book seemed to spell nothing at all: no instructions, no code. They dismissed it, almost insultingly, as junk DNA."),
+        P("They were wrong. And one piece of that so-called junk turns out to be quietly keeping you alive."),
+        P("At the very ends of each strand sit protective caps, made of this non-coding DNA. Picture the little plastic tip on the end of a shoelace that stops it from fraying, that is almost exactly their job. These caps are called telomeres. Every time a cell divides to renew you, the caps wear down a little. When they are finally worn away, after roughly forty to sixty divisions, the cell can no longer divide safely, and it dies. In a real and measurable sense, the length of those caps is the length of your life. (The scientists who uncovered this were awarded the Nobel Prize in 2009.)"),
+        P("So an enormous question follows: can anything slow the fraying?"),
+        P("And here is where fasting walks onto the stage. In study after study in animals, eating less, and fasting in particular, appears to slow the wearing-down of these caps, and to keep the wider junk of the genome quietly in order, so that the whole instruction-book ages more slowly. By one biological clock, monkeys kept on a lighter diet measured years younger than their true age."),
+        P("Now the honest part, which we will not skip. In humans, the picture is not yet settled. The strongest human trial so far did not find a clear telomere benefit in its first year. So this is not a promise. It is a powerful and growing line of evidence, strong in animals, still being tested in us."),
+        P("But hold the shape of it in your mind. The ancient verdict said: fast, and live long and well. The modern microscope has found, at the very tips of our DNA, a mechanism that ties eating-less to living-longer, and is still busy proving it. The science is running, a little out of breath, to catch up to a verdict handed down thousands of years ago.")
+      ]},
+      { title:"The body that eats its own waste", blocks:[
+        P("Now to the part that is no longer in any doubt."),
+        P("In 2016, another Nobel Prize was awarded, this time for discovering, in detail, something the body does that sounds almost invented. When food stops coming in for a while, the cell turns inward and begins to eat itself."),
+        P("Not destructively. Wisely. It seeks out its own broken proteins, its worn and damaged parts, even invading germs, wraps them up, breaks them down, and recycles them for fuel and repair. Scientists named it autophagy, Greek for self-eating. It is the body's own deep-cleaning crew, and for most of the day that crew sits idle, because digesting a steady stream of food keeps the cell far too busy. Stop the food, and the crew finally gets to work. The studies show it switching on strongly somewhere after the first twelve to twenty-four hours without eating."),
+        P("Read that number again, and remember the shape of the Ekadashi fast from the last chapter: from the eve of the tenth day, through the eleventh, to the morning of the twelfth. Close to thirty-six hours. That is not a coincidence to pass over quickly. The deepest cellular cleaning ramps up across exactly that window, through the first day and into the second. The sages fixed the fast at that length, every fortnight, long before anyone on earth could have measured why. The calendar and the microscope agree.")
+      ]},
+      { title:"New fire, less rust", blocks:[
+        P("There is more, and it is well supported. During a fast, the body does not only clean house, it renovates. It clears away its worn-out power plants, the tiny mitochondria that turn food into energy, and builds fresh ones, so the body runs more efficiently and with less of the slow internal rust we call oxidative stress. The same rest that quiets the soul gives the body's engine room a chance to refit."),
+        P("And the effects you might actually feel are real ones. When the body comes off a constant stream of food, it learns again to burn its own fat for fuel; blood sugar steadies, and the body grows more sensitive to insulin, the very thing that fails in diabetes. The brain, oddly, sharpens rather than dulls: fasting raises a substance that protects and grows our nerve cells, closely tied to memory and clear thinking. And inflammation, the quiet fire beneath so many modern diseases, tends to cool."),
+        P("Here too we stay honest. Much of this is still early, drawn often from animals or from short studies, and none of it is a cure or a guarantee. But the whole weight of it leans one way, toward a body that, given a single day's rest, repairs and renews itself.")
+      ]},
+      { title:"The world has rediscovered the fast", blocks:[
+        P("You may have noticed that the modern world has, quite suddenly, fallen in love with fasting. It calls the practice by new names, intermittent fasting, time-restricted eating, the sixteen-and-eight, one-meal-a-day, the alternate-day fast. Books and clinics and phone apps now sell, as the latest breakthrough in health, the idea of regularly going without food for a stretch."),
+        P("There is nothing wrong with this. It is good news. But pause, and smile at it."),
+        P("The sages handed us exactly this, a regular fast of around thirty-six hours, twice a month, thousands of years ago, and they gave it away for free. They built it into the calendar, not the clinic. And they aimed it, first and always, at the soul. The body's repair was simply the gift that came along with it, unbilled."),
+        P("The modern faster, counting hours on a watch, and the ancient devotee, keeping the eleventh day, are doing very nearly the same thing to their bodies. The only difference is this: one of them is also drawing near to God. The hunger is identical. The destination is not.")
+      ]},
+      { title:"Two languages, one direction", blocks:[
+        P("Stand back now, and look at the whole picture."),
+        P("The scriptures said that fasting on this day washes away accumulated sin. The laboratory has found that fasting prompts the body to clear out its own accumulated waste, down at the level of the cell."),
+        P("We will not be so foolish as to claim those are the same thing. Sin is of the soul; cellular debris is of the body, and a book that confuses the two deserves the raised eyebrow it earns. But notice how they point in the very same direction. Two different languages, one of scripture, one of science, describing a single movement: a turning inward, a clearing-out, a renewal. The soul made clean, and the body made clean, by the same simple act, on the same simple day."),
+        P("That is not proof of anything. It is something quieter and better: a harmony, across thousands of years, between what the saint always knew and what the scientist is only now learning to measure.")
+      ]},
+      { title:"One honest word, before we go on", blocks:[
+        P("So that we leave nothing crooked: everything in this chapter about the body is offered as encouragement, never as medicine. The proven part, the body's deep self-cleaning, is real and settled. The hopeful parts, the caps on our DNA, the longer life, are still being worked out, and we will not pretend otherwise. None of it is a guarantee; the body, like the soul, is not a slot machine. And all of it bows to the rule of the ladder: keep the fast by your ability, and never against your health."),
+        P("We have kept the science honest, and still it leans, with a kind of wonder, toward the very conclusion the sages reached without a single instrument: that this one day is good for you. All of you."),
+        P("The soul has been fed. The body has been rested. So what, in the end, does one such day actually give to the person who keeps it, in this life, and beyond it? Turn the page, and let us gather the fruits.")
+      ]}
+    ]},
+    { part:"Part Ten — The Fruits of One Fast", secs:[
+      { title:"", blocks:[
+        P("We have come a long way together."),
+        P("You know now what this day is, a drawing-near, not a starving. You know who she is, the Lord's own mercy in the shape of a day, fierce and tender at once. You know how to keep her, gently or strictly, and what the keeping quietly does to the body."),
+        P("One question remains, and it is the one most people ask first: what do I actually get?"),
+        P("It is a fair question. Let us answer it fully, and let us answer it honestly, which means beginning with a warning, before we ever reach the gifts.")
+      ]},
+      { title:"The reward, set absurdly high", blocks:[
+        P("First, hear how the Lord Himself priced this single day."),
+        SCR("The religious merit that one who observes a fast on an Ekadashi day obtains is a hundredfold greater than the fruit of a horse-sacrifice. Those who fast on the Ekadashi day are equal to those in whose very bodies dwell the three great gods, Brahma, Vishnu, and Shiva.","Padma Purana, Uttara-khanda, Chapter 38"),
+        WHY("Why it is here. in the ancient world, the horse-sacrifice was the most costly, most glorious rite a king could perform, a thing of immense expense and power. And the Lord says one quiet day of fasting outweighs it a hundred times over. He is not being stingy with this day. He has set its reward far beyond all proportion to the small effort it asks."),
+        P("That is the promise. Now, before you reach for it, the warning.")
+      ]},
+      { title:"It is not a lottery ticket", blocks:[
+        P("Here is the most important sentence in this chapter, and perhaps in the whole book."),
+        P("Ekadashi is not a vending machine."),
+        P("You do not put a fast in one end and pull a wish out the other. It is not a coin you spend to buy a new car, a passed exam, or a cured illness on demand. Anyone who keeps the day that way, gripping it like a lottery ticket, watching for the payout, has misunderstood the whole thing, and will most likely be disappointed."),
+        P("Because the fruits of Ekadashi are not a payment. They are a response. They are what happens between two persons when one of them turns, with love, toward the other. The day is a relationship, not a transaction, and, like every real relationship, it cannot be gamed."),
+        P("So keep this day for the right reason: to draw near to the One who is the day. Do not keep it to extract a prize. Keep it to be with Him, and then watch, almost as a surprise, all the rest begin to follow."),
+        P("With that firmly in place, let us see what does follow.")
+      ]},
+      { title:"What it gives in this life", blocks:[
+        P("The first fruits are quiet ones, and you may feel them sooner than you expect."),
+        P("A stiller mind. On a day when the body is light and the senses are reined in, the endless inner noise drops a little, and something beneath it, a peace you had forgotten, begins to show through."),
+        P("A strange new freedom. Every time you say not today to the body's demand for food, you learn, in your own bones, a thing the whole world forgets: that you are not your appetites. You are the one who can say no to them. A person who can fast is a person no longer wholly owned by his cravings, and that freedom quietly spreads into every other corner of life."),
+        P("A lighter load. The scriptures promise, again and again, that this day lifts the weight of past wrongs, that old karma, the long account of our mistakes, is steadily cleared by it. You may never see the ledger. But many who keep the day speak of a lightness, as though something heavy had been quietly set down."),
+        P("And the old books do not hesitate to promise still more, health, relief from distress, good fortune, a steadiness in life. We hold those exactly as we promised to: as real gifts that tend to come, never as guarantees you may demand. Keep the day for Him; and receive whatever comes as His.")
+      ]},
+      { title:"What it gives beyond this life", blocks:[
+        P("But the deepest fruits of one fast are not spent in this life at all. They are saved."),
+        P("We saw it already, in her story: the one who keeps this day comes under a protection that reaches past the very edge of death. When the final hour arrives, the scriptures say, the messengers of fear cannot approach the faithful keeper of Ekadashi; the Lord's own messengers come instead, and carry the soul gently home."),
+        P("Think of what that means. The small, light days you keep now, a fortnight apart, barely noticed by anyone, are quietly building something that will meet you at the one moment you cannot avoid. Of all the investments a person can make, this may be the surest, and the cheapest: one day, twice a month, set against the only deadline that is truly certain."),
+        P("And at the very end of that road stands the greatest fruit the scriptures name, liberation itself. The soul, washed clean across a lifetime of these small turnings, is drawn out at last from the long cycle of birth and death, and carried home to the Lord's own abode.")
+      ]},
+      { title:"The fruit that is the whole tree", blocks:[
+        P("And now the truth that gathers up all the rest."),
+        P("For all this talk of fruits, peace and freedom and lightness, protection and liberation, the real gift of Ekadashi was never any of these things. They are the leaves. Here is the tree."),
+        P("The true fruit of the day is the Lord Himself."),
+        P("Remember who she is. Ekadashi is not a clerk handing out rewards from a window; she is the Lord's own mercy, come in the form of a day for the single purpose of drawing you to Him. So the final gift of keeping her is not a better life, nor even a better death. It is nearness to God, the very thing the cry on the first page of this book was always reaching for."),
+        P("Everything else, the peace, the health, the lighter karma, the open gates at death, is only the overflow. What she truly gives is not a thing at all. She gives the Giver."),
+        P("That is the fruit of one fast."),
+        P("So who, then, is allowed to reach for it? Surely a gift this great must be reserved for the strong, the pure, the already-holy? Turn the page, and meet the strongest man who ever lived, brought to his knees by a single day, and the mercy that caught him.")
+      ]}
+    ]},
+    { part:"Part Eleven — One Day for the Whole Year", secs:[
+      { title:"", blocks:[
+        P("We ended the last chapter with a question. A gift this great, surely it must be reserved for the strong, the disciplined, the already-holy?"),
+        P("The scriptures answer that question with a story. And they choose, of all people, the strongest man who ever lived, to show you that strength was never the point."),
+        P("His name was Bhima.")
+      ]},
+      { title:"The mighty man who could not fast", blocks:[
+        P("Bhima was a Pandava, one of the five royal brothers of the Mahabharata, and a giant among them. He had, it is said, the strength of ten thousand elephants. He bent iron, broke armies, and carried his brothers on his back. There was no enemy on earth he feared."),
+        P("But there was one thing the mightiest man alive could not do."),
+        P("He could not go hungry."),
+        P("Within Bhima, the scriptures say, there burned a fire of hunger so fierce that it had its own name, Vrika, the wolf, and it gave him his title, Vrikodara, wolf-belly. That fire would not be denied. To skip a single meal was, for Bhima, an agony the rest of us can scarcely imagine."),
+        P("And this was his private grief. For all around him, his family were devoted keepers of Ekadashi. His mother Kunti, his saintly brother Yudhishthira, his wife Draupadi, Arjuna, the twins, every one of them fasted faithfully on the eleventh day, twice a month, and gently urged him to join them."),
+        P("He could not. The one thing his holy family did with ease, the great Bhima, who could do anything, simply could not do. Twenty-four days a year, he sat with his appetite while those he loved drew near to God without him."),
+        P("Have you ever felt that? That everyone else seems able to do the good thing, and you, for all your wanting, cannot? Then Bhima is your brother.")
+      ]},
+      { title:"The question you have been wanting to ask", blocks:[
+        P("At last, in his distress, Bhima went to the wisest man he knew, his own grandfather, the sage Vyasa, who had compiled the scriptures themselves."),
+        P("And he asked him the most honest question in this whole book. It is, very likely, the question you have been holding too."),
+        P("Grandfather, he said, everyone I love keeps every Ekadashi, and I cannot keep even one. The hunger in me will not allow it. So tell me, is there one fast? Just one, in all the year, that a man like me could manage, and that would give me the merit of all the rest?"),
+        P("Read that again, for it is a daring thing to ask. He is not asking for an easy way out. He is asking whether mercy is large enough to meet a man at his very weakest point, whether the door can be made wide enough even for him."),
+        P("And the answer is the heart of this chapter.")
+      ]},
+      { title:"The one day that holds the year", blocks:[
+        P("Vyasa smiled, and said yes."),
+        P("There is one such day, he told Bhima. It falls once a year, in the heat of early summer. On that day you will keep a single, complete fast, no food, and this time not even water, from one sunrise to the next."),
+        P("Keep that one day fully, Vyasa promised, and you will receive the merit of all the Ekadashis of the entire year. A whole year's devotion, folded into a single day."),
+        P("That day is called Nirjala, the waterless, and to this day it is also called Bhima Ekadashi, and the Pandava Ekadashi, after the giant for whom it was given. The Brahma-vaivarta Purana preserves the whole exchange."),
+        P("Look at what the Lord's mercy has just done. It has bent all the way down to meet the one person who could do the least. It did not say to Bhima, be stronger. It said, here, one day, and I will count it as all of them. That is not the logic of a stern accountant. That is the logic of love.")
+      ]},
+      { title:"He fell — and he did not let go", blocks:[
+        P("And Bhima kept it."),
+        P("The mighty man, who could uproot trees, was brought to his knees by a single day without water. The scriptures say that by the end of it he trembled, and swayed, and fainted, and fell."),
+        P("But he did not break the vow. He held on, through the faint, to the next sunrise, and he completed it. The strongest man alive, undone and yet unbroken by one small day given to God."),
+        P("It is a stirring picture. But here we must stop, and say something very plainly, because the story is so easily misread.")
+      ]},
+      { title:"Read this carefully: the faint is the warning", blocks:[
+        P("Bhima's fainting is not the goal of this story. It is the warning inside it."),
+        P("Nirjala falls in the fiercest heat of the year, and a full day with no water, in that heat, is genuinely dangerous for many people. Bhima was a superhuman warrior, and even he collapsed. You are not being asked to."),
+        P("So hear this clearly. If you are a child or elderly; if you are pregnant or nursing; if you are diabetic, or on medication for the heart, the kidneys, or blood pressure; if you are unwell, or labouring in the sun, the waterless fast is not for you, and there is no failure whatsoever in that. Keep your water. Take fruit. Keep the day gently, on a lower level of the ladder. That gentle day pleases the Lord every bit as much as Bhima's did."),
+        P("Bhima's story was never meant to push the weak past their limit. It was meant to comfort them. Do not collapse to prove a point. The faint is the danger to avoid, not a badge to earn.")
+      ]},
+      { title:"Why this story is really for you", blocks:[
+        P("Now feel what this story was truly given for."),
+        P("If, somewhere in these pages, a quiet voice in you has been saying, this is beautiful, but I am not the fasting type, I could never do it, then understand that the scriptures saw you coming. At the very centre of this practice they placed not a tale of an effortless saint, but the tale of a man who could barely fast at all, and who was met by mercy anyway."),
+        P("You do not have to be strong. Bhima wasn't, in this one thing, and Bhima is the hero of the story. You only have to be willing, to find your level, and to begin."),
+        P("The mercy of this day was built, from the very beginning, to reach the one who is sure she cannot. Which means it was built for very nearly everyone."),
+        P("And if it was built even for the strongest man, who could not fast, then for whom else? Is anyone, anywhere, truly shut out? Turn the page. The answer may surprise you.")
+      ]}
+    ]},
+    { part:"Part Twelve — No One Is Turned Away", secs:[
+      { title:"", blocks:[
+        P("We have just watched the strongest man who ever lived be let in, the one who could barely fast at all. So now ask the question plainly:"),
+        P("Is there anyone the door is closed to?"),
+        P("This chapter has a single task: to show you that there is not. Not the weak, not the fallen, not the stranger to this faith. The day was built, from the very start, to leave no one standing outside."),
+        P("Let us begin with how far one soul will go for this gift, and then see how far down it reaches.")
+      ]},
+      { title:"The vow worth more than a kingdom", blocks:[
+        P("There was once a king named Rukmangada, a great lover of God, who held Ekadashi so dear that he made it the law of his whole realm: everyone who was able would keep the day. And under his rule the people grew so pure that something strange began to happen, the lord of death found his dark regions emptying out, for the souls who kept Ekadashi were no longer falling into them."),
+        P("So, to test the king, a celestial enchantress named Mohini was sent to him, beautiful beyond resisting. Bewitched, the king promised her, before she would be his, that he would grant her any wish she named."),
+        P("For years all was well, and still he never missed his fast. Then, on one Ekadashi, she sprang the trap. Keep me, or keep your vow, she said, but you shall not do both. Break your fast today, or lose me forever."),
+        P("The king did not waver the way she had expected. He offered her his treasury, his kingdom, his very life, anything at all, but the fast, he said, he simply could not break."),
+        P("So she asked for the one thing she was certain no father could give: the life of his own beloved son."),
+        P("It is a terrible moment, and the scriptures do not pretend otherwise. The king was torn to the depths of his soul. And yet, such was the family he had raised, his son and his queen, as devoted as he, would not let him break his word to God; they begged him to keep his vow, whatever it cost them."),
+        P("But the test was never allowed to finish. At the very brink, before any harm could be done, the Lord Himself intervened. He had seen a faith that would surrender everything, wealth, throne, even a child, rather than break trust with His day. And He gathered the whole family up, the king, the queen, the son, and carried them home to His own eternal abode. (The Narada Purana keeps this account.)"),
+        P("You and I will never be tested like that, and we are not meant to be. The story is not a command; it is a measuring-rod. It shows you, at the furthest extreme, how precious this one day is, and how completely the Lord stands behind the soul who treasures it."),
+        P("That is how high the vow can rise. Now see how low its mercy can reach.")
+      ]},
+      { title:"The door for the fallen", blocks:[
+        P("If this practice worked only for saintly kings, it would be a beautiful thing, and a useless one, for most of us are not saintly kings. We come with mixed hearts and crowded pasts."),
+        P("Here is the mercy of it. The old books are full of the unlikely being lifted by this day, not only the pure, but the careless, the worldly, the once-cruel, the deeply fallen. The day does not check your record at the door."),
+        P("We saw it already, in the very first telling of her story: when Ekadashi began her work, it was the suffering and the sinful she freed first, the ones already fallen into the regions of punishment. That is who she was made for."),
+        P("And recall the astonishing leniency we met early on, that even a fast kept imperfectly, clumsily, partly, even half by accident, still washes sin away; that even hearing the glories of this day begins to cleanse the one who hears. A practice that counts even your stumbling attempts is a practice that has decided, in advance, not to lose you."),
+        P("So if some quiet voice has whispered that your past is too dark, your habits too deep, your faith too thin, let the scriptures answer it to your face. This gift was built precisely for the one who fears he is too far gone. There is no one too low for the eleventh day.")
+      ]},
+      { title:"Keep your own God", blocks:[
+        P("And now the last wall to come down, the highest one of all."),
+        P("Perhaps you have read this whole book warmly, and yet from a certain distance, thinking: but this is a Hindu practice, and I am not of it. So the door, surely, is not truly mine."),
+        P("It is. Fully."),
+        P("What this day actually asks of you belongs to no single religion: lighten the body for one day, and lift the heart to God. That is not the property of any one people. It is a principle as open as the air, and it works for anyone willing to live it."),
+        P("You are not asked to convert, nor to abandon the God you already love, nor to call Him by a name that is strange to you. Keep your own faith. Keep your own God. On the eleventh day, simply give Him one day, fast as you are able, and turn the freed hours toward Him, in your own words and your own way. The practice will be every bit as real, and every bit as dear to Him."),
+        P("A door that turns no faith away is a door with no one left outside it.")
+      ]},
+      { title:"So — no one", blocks:[
+        P("Gather them up now, all the ones we have met."),
+        P("Bhima, who was too weak to fast, let in. Ambarisha, who kept it faithfully, guarded by God's own hand. Rukmangada, who would give up everything rather than break it, carried home. The fallen and the careless, lifted by their stumbling attempts. And you, of whatever faith, or none, who has read this far: invited, by name."),
+        P("There is, in the end, only one way to be shut out of this gift. And it is not by being too weak, too sinful, too busy, or too foreign."),
+        P("It is by never trying."),
+        P("That door, and that door alone, you hold the key to yourself. No one else can close it on you, and no one else can open it for you."),
+        P("So let us make sure it never stays closed. You know now what the day is, who she is, why she comes, how to keep her, and that she is truly meant for you. One thing remains: to actually begin. Turn the page, and let us walk, together, through your very first Ekadashi.")
+      ]}
+    ]},
+    { part:"Part Thirteen — How to Begin, This Fortnight", secs:[
+      { title:"", blocks:[
+        P("You now know more about Ekadashi than most people who have kept it all their lives."),
+        P("You know what it is, and who she is. You know why the day falls where it does, and why the grain is set aside. You know the levels, the fruits, the stories, and that the door stands open for you."),
+        P("But knowing is not keeping. A map studied at the table has carried no one a single step."),
+        P("So let us close the book of theory and open the door of practice. Not someday. This fortnight. Here, in five simple steps, is how to keep your very first Ekadashi.")
+      ]},
+      { title:"One — Find the next day", blocks:[
+        P("You are never more than about two weeks from an Ekadashi. There is almost certainly one coming within days."),
+        P("So find it. A glance at a Hindu calendar or panchang will tell you. And we have built a small companion app for exactly this, it keeps every Ekadashi date, shows you the morning and the time to break the fast, and quietly reminds you, so the day never slips past unnoticed. (You will find the same gentle reminders by subscribing to our channel, Ekadashi Fasting.) However you choose to do it, note just two things: the date of the fast, and the morning after it."),
+        P("And do not wait for a grand, perfect beginning, a new year, a birthday, the day you finally have your life in order. That day never comes. The next Ekadashi is the perfect one, precisely because it is the next one. Circle it. It is now an appointment.")
+      ]},
+      { title:"Two — Choose your level", blocks:[
+        P("Return, in your mind, to the ladder."),
+        P("Look honestly at your body and your life, and pick the level you can truly stand on. If you are new, and most readers keeping a first fast are, begin at the bottom, and begin there without a shred of shame: the non-grain day. Through the day you eat much as you normally would, simply leaving out all grains and beans. Nothing more is required to keep a true Ekadashi."),
+        P("And keep the old safeguard in view: if you are unwell, elderly, pregnant, a child, or under any medical care that fasting could affect, stay gentle, keep your water and fruit, and never strain. The lowest level kept in love outshines the highest level kept in harm."),
+        P("Decide your level now, before the day arrives. A choice made in advance is one the hungry afternoon cannot talk you out of.")
+      ]},
+      { title:"Three — Set the night before", blocks:[
+        P("The fast does not begin at dawn. It begins the evening before."),
+        P("On that night, Dashami, eat your last meal light, simple, and grain-free, and finish it before you sleep. You will then wake to the fast already begun, your body clean and ready, instead of heavy from a late, large dinner."),
+        P("And before you sleep, do three small things. Settle, finally, on your level. Set a reminder, if you are forgetful. And whisper, to whatever God you love, that tomorrow is His."),
+        P("That is all the preparation a first fast needs.")
+      ]},
+      { title:"Four — Keep the day", blocks:[
+        P("Now the day itself, and here is the secret you must not forget."),
+        P("Keeping Ekadashi is two things at once, never only one. With one hand you hold your level: you leave the grains, or take only fruit, or only water, according to what you chose. With the other hand, the more important one, you fill the freed hours with God."),
+        P("So as the day moves on, return to Him, again and again, in any of the small ways we have named. Say His holy name under your breath. Read a page of something sacred. Think of Him in the quiet that the skipped meals leave behind. Do a small service in His name. And if Hare Krishna is not yours, use the name your own heart trusts, He is listening either way."),
+        P("Do not grit your teeth and merely endure the hunger. Court the nearness instead, and let the hunger sink into the background. This is not a day of punishment. It is a date with the One you have been reaching for all your life. Keep it like one.")
+      ]},
+      { title:"Five — Break it well, the next morning", blocks:[
+        P("The fast is to be completed, not abandoned. So finish it with the same care you began it."),
+        P("On the next morning, Dvadashi, break the fast within its proper window, neither rushing it before dawn nor letting the morning slip away. Break it simply: if you fasted on water, take a little fruit first; if on fruit, return gently to grains. A quiet word of thanks to the Lord, and the day is sealed."),
+        P("And then, notice how you feel. Lighter, very often, than a skipped meal has any right to make you. That lightness is the first small fruit, and it is real.")
+      ]},
+      { title:"Then, do it again", blocks:[
+        P("That is one Ekadashi, kept whole. You have done the very thing this entire book was written to bring you to."),
+        P("Now the only instruction that remains is the easiest, and the hardest: do it again. In a fortnight, the next one comes. Keep that one too. And the one after."),
+        P("Do not aim, today, at a flawless lifetime of fasts, that thought has crushed more good beginnings than any failure ever did. Aim only at the next one. A practice is not built by a heroic year; it is built by the next honest day, laid quietly upon the last.")
+      ]},
+      { title:"Begin imperfectly", blocks:[
+        P("One last permission, and perhaps the most freeing in the whole book."),
+        P("You will not do this perfectly. You will forget a date. You will keep a day half-heartedly, or break one you meant to hold. You will climb the ladder, slip back a level, and climb again."),
+        P("Keep going anyway."),
+        P("Remember the mercy we kept meeting, that even a fast kept clumsily, partially, imperfectly, still counts; that she does not lose the one who stumbles toward her. The only fast that truly fails is the one never attempted. The best one you will ever keep is simply the next one."),
+        P("So begin. Imperfectly, gently, this very fortnight, but begin."),
+        P("You have learned what one fast can do. There is only one thing left to ask: when you have kept this day, and kept it again, and let it work quietly upon you over the months and years, where, in the end, does it take you? Turn the page, and let us come, at last, back to the One.")
+      ]}
+    ]},
+    { part:"Part Fourteen — Coming Back to the One Day", secs:[
+      { title:"", blocks:[
+        P("We began, many pages ago, with a quiet wish, the one almost everyone carries, and rarely says aloud. I wish I could start over."),
+        P("Look how far that small wish has carried us.")
+      ]},
+      { title:"The whole journey, in one breath", blocks:[
+        P("We found that the fresh start we longed for was not a someday, but a day, the eleventh of the moon, returning faithfully twice a month, free."),
+        P("We learned its true name: upavasa, to dwell near. Not a going-without, but a drawing-close."),
+        P("We saw that the scriptures place this one light day above every other fast, the king of vows, the mother of them all, so that to keep it is to hold, in a single day, what a thousand other practices reach for."),
+        P("We met her, Ekadashi herself, not a square on a calendar, but a person: a form of the Lord's own mercy, born from His body, merciful enough to empty a hell and strong enough to slay a demon; a power that fights for you and shelters you, even past death."),
+        P("We learned why the day falls where it does, and why the grain is set aside. We climbed the gentle ladder of levels, each of us finding the one we could honestly stand on. We learned to fill the freed hours with His name, and to let the body, in its rest, quietly heal itself, the soul fed and the body cleansed by one and the same act."),
+        P("We heard the stories, the strongest man who could not fast, and was let in; the king the Lord's own hand protected; the king who held the vow above his crown. And we saw that the door has no one outside it: not the weak, not the fallen, not the soul of any other faith."),
+        P("And then we learned, simply, to begin."),
+        P("It has been a long road. But notice, all of it, every page, folds back into one small thing you can do this very fortnight. One day. That is the whole book.")
+      ]},
+      { title:"The great reversal", blocks:[
+        P("Now, at the summit, let me show you the most astonishing thing of all, the secret hidden at the centre of this, and of every true path to God."),
+        P("You give Him one day. And He gives you Himself."),
+        P("Sit with how lopsided that trade is. You set aside a few meals. You turn your heart toward Him for a single turning of the sun. And in exchange, the Lord of everything, who needs nothing, who owns the worlds, leans down, accepts your small offering as though it were precious, and begins to give you the one thing the human heart has ever truly wanted: Himself. His nearness. The end of the long ache of separation."),
+        P("This is the open secret of His nature. He cannot be bought with wealth, or won by force, or earned by cleverness. But He is helplessly moved by love, even a little of it, offered in even a small thing. A leaf. A sound. A day."),
+        P("He is, in the end, so easily reached. We were the ones who made it complicated. He made it a single day, and waited.")
+      ]},
+      { title:"What more could you want?", blocks:[
+        P("So pause here, and ask yourself honestly: what more were you looking for?"),
+        P("You wanted peace; this quiets the heart. You wanted to be clean; this washes the past. You wanted to be well; this rests and renews the body. You wanted to be held by something that will not leave; this opens a real, two-way line to the One who never does."),
+        P("It was all here the whole time, in the most ordinary-looking thing imaginable, a day you simply give back to God."),
+        P("You do not need to go searching any further. You do not need a better, rarer, harder practice. The highest one was placed in your hands on the very first page, and it returns to you every fortnight, for the rest of your life.")
+      ]},
+      { title:"Come back, and back, and back", blocks:[
+        P("There is only this left to say."),
+        P("Life will scatter you. It scatters everyone. There will be seasons when you forget the day, when the world is too loud, when the old hungers win and the heart goes cold and far away."),
+        P("When that happens, and it will, do not despair, and do not stay away."),
+        P("Just come back to the one day."),
+        P("It is always there, never more than a fortnight off, holding the door exactly where you left it. You do not have to earn your way back in. You have only to keep the next one. The eleventh day asks nothing about your past, only your presence, again, today."),
+        P("One fast can change your life. That was the promise on the cover, and it is true. But here is the fuller truth, now that you have walked the whole way: a life of these single days, each one small, strung quietly together across the years like beads upon a thread, is a life walked all the way home."),
+        P("So keep coming back to the One. One day at a time."),
+        P("There is one last voice you have not yet heard clearly in these pages, the voice of the one who wrote them. Turn the page, and let me, at last, say a word to you myself.")
+      ]}
+    ]},
+    { part:"Part Fifteen — A Word from the Author", secs:[
+      { title:"", blocks:[
+        P("Through this whole book, I have mostly hidden behind the word we, and on the few occasions I said I, I kept myself small and out of the way, so that nothing would stand between you and the gift."),
+        P("Now, at the very end, let me step out from behind the page, just for a moment, and speak to you plainly. As myself. As one person to another.")
+      ]},
+      { title:"A friend, not a teacher", blocks:[
+        P("First, let me tell you what I am not."),
+        P("I am not a guru. I am not a holy man, not a saint, not anyone's spiritual authority. I have no seat to sit on, and no right to instruct you."),
+        P("I am only a friend who stumbled onto something quietly enormous, and could not, in good conscience, keep it to himself."),
+        P("Everything in these pages that is true and good is not mine. I borrowed it, every word of it, from the scriptures, from the saints, from the patient teachers who carried this gift down through the centuries so that it could reach an ordinary person like me, and then like you. I only gathered it up and tried to hand it to you in plain words. Whatever is wise here belongs to them. Whatever is clumsy or mistaken belongs to me alone.")
+      ]},
+      { title:"Why my name is not on this book", blocks:[
+        P("You may have noticed something. Nowhere in these pages have I told you who I am. There is a small pen-name at the end, and nothing more. You might wonder why."),
+        P("It is for a simple reason. This gift is not mine to sign."),
+        P("I did not invent the eleventh day. I did not discover what it does, nor earn the right to give it away. I am only a courier, who was handed something precious and asked to deliver it. And it would be a strange and vain thing for a courier to print his own name large across a treasure that was never his to begin with."),
+        P("So weigh the fast, not the hand that passed it to you. If something in this book helps you, and I pray it does, do not give the thanks to me. Give it to the Lord, and to Ekadashi, and to the saints who kept this alive. And if something here fails you, blame my poor telling, never the gift itself. The jewel is flawless. Only the wrapping was mine.")
+      ]},
+      { title:"A small confession", blocks:[
+        P("Let me be honest with you, the way a friend should."),
+        P("I did not come to this as a believer. I came late, and I came doubting, the kind of person who would once have rolled his eyes at a book like this one. For a long time I was certain that fasting was either a diet or a superstition, and that a sacred day was nothing but a square on someone else's calendar."),
+        P("I was wrong, and it took me far too long to find out. So I write to you not from the summit, but from somewhere partway up the path, still a beginner, still climbing the levels slowly, still, to my shame, forgetting days I had meant to keep. I am not ahead of you. I am right beside you, learning as I go."),
+        P("If anything, that is exactly why I dared to write. You do not need a saint to tell you about this. You need someone who resisted it, and was won over anyway, so that when the doubting voice in you speaks up, you will know it has already been answered, in me.")
+      ]},
+      { title:"Why I wrote it anyway", blocks:[
+        P("I wrote because one day genuinely changed something in me, and because it grieved me that so many people will live their whole lives and never once be told that such a day exists."),
+        P("Or worse, that they will hear of it only wrapped in fear, and rules, and a long list of things they are doing wrong. That is not how it was given to me, and it is not how I wanted to give it to you. I wanted to hand it over the way it truly is: as mercy. As an invitation. As one of the kindest, easiest, most generous gifts ever placed within human reach."),
+        P("One day. That is all it asks. I could not keep quiet about something so small that gives so much.")
+      ]},
+      { title:"Now it is yours", blocks:[
+        P("So here it is, fully in your hands."),
+        P("Keep the day, gently, imperfectly, at whatever level you can. Let it do its quiet work on you, over the fortnights and the years. And when, one day, you find that it has changed something in you too, do the one thing that keeps a gift like this alive."),
+        P("Pass it on. Tell someone else. Lend them this little book, or simply tell them, in your own words, about the one day that can change a life. That is how this reached you, across all those centuries, one friend quietly telling another. Be the next link in that chain.")
+      ]},
+      { title:"With gratitude", blocks:[
+        P("I bow to the Lord, who made the way home so impossibly easy."),
+        P("I bow to Ekadashi, His own mercy in the form of a day, who asks so little of us, and gives so much."),
+        P("I bow to the teachers and the saints who carried this gift faithfully across the ages, and into my undeserving hands."),
+        P("And I bow to you, the reader, of whatever faith, or none, who gave these pages your time, and your trust. May the one day bless you, and rest you, and carry you, at last, all the way home."),
+        P("Your friend and servant,"),
+        P("Dina Bandhu Bhakta Charan Sevak"),
+        P("a servant at the feet of the devotees, and a friend to anyone who is searching.")
+      ]}
+    ]}
+  ];
+
+  function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+  function clamp(v,a,b){return Math.max(a,Math.min(b,v));}
+  function splitSents(t){return t.replace(/\s+/g,' ').trim().split(/(?<=[.!?])\s+(?=[A-Z"'(])/);}
+  function partKick(s){return s.split('—')[0].trim();}
+  function partTitle(s){return s.split('—').slice(1).join('—').trim();}
+  function partWords(p){var n=0;BOOK[p].secs.forEach(function(sec){n+=sec.title.split(/\s+/).length;sec.blocks.forEach(function(b){if(b.t!=='sloka')n+=b.x.split(/\s+/).length;});});return n;}
+
+  var synth=window.speechSynthesis;
+  var content=document.getElementById('content'), reader=document.getElementById('reader'), aside=document.getElementById('toc');
+  var stat=document.getElementById('stat'), noteEl=document.getElementById('note'), noteSv=document.getElementById('noteSv');
+  var btnPlay=document.getElementById('btnPlay'), autoAdv=document.getElementById('autoAdv'), rateEl=document.getElementById('rate'), voiceEl=document.getElementById('voice');
+  var curPart=0, sents=[], idx=0, speaking=false, paused=false, curU=null, rate=1;
+
+  /* ---------- TOC ---------- */
+  function buildTOC(){
+    var h='<div class="toctitle">Contents</div>';
+    BOOK.forEach(function(part,p){
+      var heard=localStorage.getItem('of_heard_p'+p)==='1';
+      h+='<div class="tocrow'+(heard?' heard':'')+'" data-p="'+p+'">'
+        +'<input type="checkbox" class="phd" data-p="'+p+'"'+(heard?' checked':'')+'>'
+        +'<div class="tt"><span class="ch">'+esc(partKick(part.part))+'</span>'+esc(partTitle(part.part))+'</div>'
+        +'<span class="ww">'+partWords(p)+' w</span></div>';
+      part.secs.forEach(function(sec,si){
+        if(sec.title) h+='<div class="subrow" data-p="'+p+'" data-s="'+si+'"><span class="stt">'+esc(sec.title)+'</span></div>';
+      });
+    });
+    aside.innerHTML=h;
+    aside.querySelectorAll('.tocrow').forEach(function(r){
+      r.addEventListener('click',function(e){ if(e.target.classList.contains('phd'))return; loadPart(+r.dataset.p,false); });
+    });
+    aside.querySelectorAll('.phd').forEach(function(cb){
+      cb.addEventListener('click',function(e){ e.stopPropagation(); var p=+cb.dataset.p; localStorage.setItem('of_heard_p'+p, cb.checked?'1':'0'); aside.querySelector('.tocrow[data-p="'+p+'"]').classList.toggle('heard',cb.checked); });
+    });
+    aside.querySelectorAll('.subrow').forEach(function(sr){
+      sr.addEventListener('click',function(){ var p=+sr.dataset.p, s=+sr.dataset.s; if(p!==curPart){ loadPart(p,false); } var h2=content.querySelector('#sec-'+p+'-'+s); if(h2) h2.scrollIntoView({block:'start',behavior:'smooth'}); });
+    });
+  }
+  function setActiveTOC(){
+    aside.querySelectorAll('.tocrow').forEach(function(r){ r.classList.toggle('active', +r.dataset.p===curPart); });
+  }
+
+  /* ---------- render a part ---------- */
+  function partHTML(p){
+    var part=BOOK[p];
+    var h='<div class="sec-part">'+esc(partKick(part.part))+'</div><h1 class="sec">'+esc(partTitle(part.part))+'</h1>';
+    part.secs.forEach(function(sec,si){
+      if(sec.title){ h+='<h2 class="subsec" id="sec-'+p+'-'+si+'"><span class="snt" data-s="'+si+'">'+esc(sec.title)+'</span></h2>'; } else { h+='<span id="sec-'+p+'-'+si+'"></span>'; }
+      sec.blocks.forEach(function(b){
+        if(b.t==='sloka'){
+          h+='<blockquote class="sloka">'+b.v.map(function(l){return '<span class="vl snt" data-s="'+si+'">'+esc(l)+'</span>';}).join('')+'<cite>— '+esc(b.cite)+'</cite></blockquote>';
+        } else if(b.t==='scr'){
+          h+='<blockquote class="scripture">'+splitSents(b.x).map(function(s){return '<span class="snt" data-s="'+si+'">'+esc(s)+'</span> ';}).join('')+'<cite>— '+esc(b.cite)+'</cite></blockquote>';
+        } else {
+          var cls=b.t==='mean'?' class="mean"':b.t==='why'?' class="why"':'';
+          h+='<p'+cls+'>'+splitSents(b.x).map(function(s){return '<span class="snt" data-s="'+si+'">'+esc(s)+'</span> ';}).join('')+'</p>';
+        }
+      });
+    });
+    return h;
+  }
+  function loadPart(p,autoplay){
+    curU=null; if(synth) synth.cancel(); speaking=false; paused=false;
+    curPart=clamp(p,0,BOOK.length-1);
+    content.innerHTML=partHTML(curPart);
+    sents=[];
+    content.querySelectorAll('.snt').forEach(function(el){ var i=sents.length; sents.push({text:el.textContent,el:el,s:+el.dataset.s}); el.addEventListener('click',function(){ speakFrom(i); }); });
+    idx=0;
+    noteEl.value=localStorage.getItem('of_note_p'+curPart)||''; noteSv.textContent='';
+    setActiveTOC();
+    document.getElementById('prevCh').disabled=curPart===0;
+    document.getElementById('nextCh').disabled=curPart===BOOK.length-1;
+    reader.scrollTop=0;
+    localStorage.setItem('of_part',curPart);
+    setPlayUI(); paint();
+    if(autoplay) speakFrom(0);
+  }
+
+  /* ---------- player ---------- */
+  function curVoice(){ var id=localStorage.getItem('of_voice'); if(!id)return null; var vs=synth?synth.getVoices():[]; for(var i=0;i<vs.length;i++) if(vs[i].name===id) return vs[i]; return null; }
+  function setPlayUI(){ btnPlay.innerHTML=(speaking&&!paused)?'&#10073;&#10073; Pause':'&#9654; Play'; }
+  function paint(){
+    sents.forEach(function(o,i){ o.el.classList.toggle('on', i===idx); });
+    var o=sents[idx];
+    if(o){
+      var r=o.el.getBoundingClientRect(), rr=reader.getBoundingClientRect();
+      if(r.top<rr.top+70||r.bottom>rr.bottom-40){ o.el.scrollIntoView({block:'center',behavior:'smooth'}); }
+      aside.querySelectorAll('.subrow').forEach(function(sr){ sr.classList.toggle('active', +sr.dataset.p===curPart && +sr.dataset.s===o.s); });
+    }
+    stat.innerHTML='Part '+(curPart+1)+' of '+BOOK.length+'<br>'+(sents.length?(idx+1)+' / '+sents.length+' lines':'');
+  }
+  function speakFrom(i){
+    if(!synth||!sents.length) return;
+    curU=null; synth.cancel();
+    idx=clamp(i,0,sents.length-1);
+    var u=new SpeechSynthesisUtterance(sents[idx].text);
+    u.rate=rate; var v=curVoice(); if(v)u.voice=v;
+    u.onend=function(){
+      if(u!==curU) return;
+      if(idx<sents.length-1){ speakFrom(idx+1); }
+      else if(autoAdv.checked && curPart<BOOK.length-1){ loadPart(curPart+1,true); }
+      else { speaking=false; paused=false; setPlayUI(); }
+    };
+    curU=u; speaking=true; paused=false; synth.speak(u); setPlayUI(); paint();
+    localStorage.setItem('of_part',curPart); localStorage.setItem('of_idx',idx);
+  }
+  function playPause(){
+    if(!synth) return;
+    if(speaking && !paused){ paused=true; synth.pause(); setPlayUI(); }
+    else if(speaking && paused){ paused=false; synth.resume(); setPlayUI(); }
+    else { speakFrom(idx); }
+  }
+  function stop(){ curU=null; if(synth) synth.cancel(); speaking=false; paused=false; setPlayUI(); }
+  function jump(i){ i=clamp(i,0,sents.length-1); if(speaking&&!paused){ speakFrom(i); } else { idx=i; paint(); localStorage.setItem('of_idx',idx); } }
+
+  btnPlay.addEventListener('click',playPause);
+  document.getElementById('btnStop').addEventListener('click',stop);
+  document.getElementById('btnPrevS').addEventListener('click',function(){ jump(idx-1); });
+  document.getElementById('btnNextS').addEventListener('click',function(){ jump(idx+1); });
+  document.getElementById('prevCh').addEventListener('click',function(){ if(curPart>0) loadPart(curPart-1,false); });
+  document.getElementById('nextCh').addEventListener('click',function(){ if(curPart<BOOK.length-1) loadPart(curPart+1,false); });
+  rateEl.addEventListener('input',function(){ rate=parseFloat(rateEl.value); if(speaking&&!paused) speakFrom(idx); });
+  noteEl.addEventListener('input',function(){ localStorage.setItem('of_note_p'+curPart,noteEl.value); noteSv.textContent='saved'; setTimeout(function(){noteSv.textContent='';},1200); });
+
+  /* ---------- voices ---------- */
+  function loadVoices(){
+    var vs=synth?synth.getVoices():[]; var en=vs.filter(function(v){return /^en/i.test(v.lang);}); if(!en.length)en=vs;
+    voiceEl.innerHTML=''; en.forEach(function(v){ var o=document.createElement('option'); o.value=v.name; o.textContent=v.name.replace(/Microsoft|Google|Online|\(Natural\)/gi,'').trim()+' ('+v.lang+')'; voiceEl.appendChild(o); });
+    var saved=localStorage.getItem('of_voice'); if(saved)voiceEl.value=saved;
+  }
+  voiceEl.addEventListener('change',function(){ localStorage.setItem('of_voice',voiceEl.value); if(speaking&&!paused) speakFrom(idx); });
+  if(synth){ loadVoices(); if(typeof synth.onvoiceschanged!=='undefined') synth.onvoiceschanged=loadVoices; }
+
+  /* ---------- theme ---------- */
+  var tb=document.getElementById('btnTheme');
+  function applyTheme(t){ if(t==='dark'){document.documentElement.setAttribute('data-theme','dark');tb.textContent='Light';}else{document.documentElement.removeAttribute('data-theme');tb.textContent='Dark';} }
+  applyTheme(localStorage.getItem('of_theme')||'light');
+  tb.addEventListener('click',function(){ var t=(localStorage.getItem('of_theme')==='dark')?'light':'dark'; localStorage.setItem('of_theme',t); applyTheme(t); });
+
+  /* ---------- keepalive (Chrome cuts long TTS) ---------- */
+  setInterval(function(){ try{ if(speaking&&!paused&&synth&&!synth.paused){ synth.resume(); } }catch(e){} },8000);
+  window.addEventListener('beforeunload',function(){ if(synth) synth.cancel(); });
+
+  /* ---------- init ---------- */
+  buildTOC();
+  rate=parseFloat(rateEl.value)||1;
+  var startPart=parseInt(localStorage.getItem('of_part')||'0',10); if(isNaN(startPart)||startPart<0||startPart>=BOOK.length)startPart=0;
+  loadPart(startPart,false);
+  var savedIdx=parseInt(localStorage.getItem('of_idx')||'0',10); if(!isNaN(savedIdx)){ idx=clamp(savedIdx,0,sents.length-1); paint(); }
+})();
+</script>
+</body>
+</html>

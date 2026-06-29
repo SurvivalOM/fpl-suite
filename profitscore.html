@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ProFit Score — Professional Fitness</title>
+<style>
+  :root{
+    --bg:#f5f4ef; --card:#ffffff; --navy:#1B2C54; --navy2:#2c4170; --gold:#C6A249;
+    --ink:#1d2433; --mut:#6b7488; --line:#e6e3d8;
+    --red:#d8453f; --amber:#e0a32a; --green:#3f9d52;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 "Segoe UI",system-ui,sans-serif;padding:22px;}
+  .wrap{max-width:920px;margin:0 auto;}
+  header{text-align:center;margin-bottom:6px;}
+  h1{font-size:27px;margin:0;color:var(--navy);letter-spacing:.5px;}
+  .formula{font-size:14px;color:var(--mut);margin:4px 0 2px;}
+  .formula b{color:var(--navy);}
+  .hook{font-size:13px;color:var(--gold);font-weight:700;letter-spacing:.4px;text-transform:uppercase;}
+
+  .draftbar{background:#fff7e6;border:1px solid #ecd9a8;color:#7a5b12;border-radius:10px;padding:8px 12px;font-size:13px;margin:14px 0;text-align:center;}
+
+  .readout{background:var(--navy);color:#fff;border-radius:16px;padding:18px 20px;margin:0 0 18px;display:flex;flex-wrap:wrap;align-items:center;gap:18px;justify-content:center;}
+  .dp{display:flex;gap:26px;}
+  .dp .b{text-align:center;}
+  .dp .num{font-size:40px;font-weight:800;line-height:1;color:var(--gold);}
+  .dp .lab{font-size:12px;letter-spacing:1px;text-transform:uppercase;color:#b9c4dd;margin-top:4px;}
+  .domino{flex:1;min-width:230px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);border-radius:12px;padding:10px 14px;}
+  .domino .t{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:#b9c4dd;}
+  .domino .d{font-size:19px;font-weight:700;color:#fff;margin:2px 0;}
+  .domino .fix{font-size:13px;color:#e8edf6;}
+
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  @media(max-width:720px){.grid{grid-template-columns:1fr;}}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;}
+  .panel h2{font-size:15px;margin:0 0 2px;color:var(--navy);}
+  .panel .sub{font-size:12px;color:var(--mut);margin:0 0 12px;}
+
+  .row{padding:9px 0;border-top:1px solid var(--line);}
+  .row:first-of-type{border-top:none;}
+  .rowtop{display:flex;align-items:baseline;gap:8px;}
+  .rkey{font-weight:800;color:var(--gold);width:14px;}
+  .rlabel{font-weight:700;font-size:14px;}
+  .rconcept{font-size:12px;color:var(--mut);}
+  .rval{margin-left:auto;font-weight:800;font-size:18px;min-width:26px;text-align:right;}
+  .rdesc{font-size:12px;color:var(--mut);margin:2px 0 6px 22px;}
+  input[type=range]{width:100%;margin:0;accent-color:var(--navy);}
+
+  .actions{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0 8px;align-items:center;}
+  button{border:none;border-radius:10px;padding:10px 16px;font-size:14px;font-weight:700;cursor:pointer;}
+  .save{background:var(--navy);color:#fff;}
+  .save:hover{background:var(--navy2);}
+  .ghost{background:#eceae1;color:var(--navy);}
+  .trend{font-size:13px;color:var(--mut);margin-left:auto;}
+  textarea{width:100%;border:1px solid var(--line);border-radius:10px;padding:10px;font:14px/1.5 inherit;margin-top:8px;resize:vertical;min-height:56px;}
+
+  .hist{margin-top:14px;border-top:1px solid var(--line);padding-top:10px;}
+  .hist h3{font-size:13px;color:var(--navy);margin:0 0 6px;}
+  .hist table{width:100%;border-collapse:collapse;font-size:13px;}
+  .hist td{padding:4px 6px;border-bottom:1px solid var(--line);color:var(--ink);}
+  .hist td:first-child{color:var(--mut);}
+  .mxnote{font-size:12px;color:var(--mut);background:#eef1f6;border:1px solid #dce2ec;border-radius:10px;padding:10px 12px;margin-top:14px;}
+  .mxnote b{color:var(--navy);}
+  footer{text-align:center;font-size:12px;color:var(--mut);margin-top:18px;}
+  .tabs{display:flex;gap:8px;justify-content:center;margin:14px 0 4px;}
+  .tabbtn{background:#eceae1;color:var(--navy);border-radius:999px;padding:8px 18px;font-size:13.5px;font-weight:700;cursor:pointer;border:1px solid var(--line);}
+  .tabbtn.on{background:var(--navy);color:#fff;border-color:var(--navy);}
+  .gsearch{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0;}
+  .gsearch input{flex:1;min-width:220px;border:1px solid var(--line);border-radius:10px;padding:11px 13px;font:15px inherit;}
+  .chips{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 16px;}
+  .chip2{background:#eceae1;border:1px solid var(--line);border-radius:999px;padding:5px 12px;font-size:12px;cursor:pointer;color:var(--navy);font-weight:600;}
+  .chip2:hover{background:var(--gold);color:#1B2C54;border-color:var(--gold);}
+  .gtitle{font-size:21px;font-weight:800;color:var(--navy);margin:2px 0 2px;}
+  .gsub{font-size:12.5px;color:var(--mut);margin-bottom:14px;}
+  .gtag{display:inline-block;font-size:9.5px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;padding:2px 8px;border-radius:999px;margin-left:7px;vertical-align:middle;}
+  .gtag.spear{background:#fdecec;color:var(--red);}
+  .gtag.core{background:#fff5e0;color:#a5781a;}
+  .gtag.base{background:#eceae1;color:#6b7488;}
+  .gdrv{padding:8px 0;border-top:1px solid var(--line);}
+  .gdrv:first-child{border-top:none;}
+  .gdrv .nm{font-weight:700;font-size:14px;color:var(--ink);}
+  .gdrv .wy{font-size:12.5px;color:var(--mut);margin-top:1px;}
+  .pk{padding:10px 0;border-top:1px solid var(--line);}
+  .pk:first-child{border-top:none;}
+  .pk .pl{font-weight:800;color:var(--gold);font-size:11px;letter-spacing:.5px;text-transform:uppercase;}
+  .pk .pv{font-size:13.5px;margin-top:2px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>ProFit&nbsp;Score</h1>
+    <div class="formula"><b>Profit = DRIVERS × PACKS × Time</b></div>
+    <div class="formula" style="margin-top:0">Universal Professional Fitness × Profession-Specific Fitness</div>
+    <div class="hook">What's your DRIVERS-PACKS?</div>
+  </header>
+
+  <div class="tabs">
+    <button class="tabbtn on" id="tab-score-btn">📊 My Score</button>
+    <button class="tabbtn" id="tab-guide-btn">🧭 Profession Guide</button>
+  </div>
+
+  <div id="view-score">
+
+  <div class="draftbar">📝 <b>Draft read of today (Day 7)</b> — these are honest starting guesses. <b>Drag each slider to your truth.</b> PACKS especially is yours to set — only you can judge your craft.</div>
+
+  <div class="readout">
+    <div class="dp">
+      <div class="b"><div class="num" id="dScore">–</div><div class="lab">DRIVERS · engine</div></div>
+      <div class="b"><div class="num" id="pScore">–</div><div class="lab">PACKS · fit</div></div>
+    </div>
+    <div class="domino">
+      <div class="t">🁢 Lead domino — this week's ONE correction</div>
+      <div class="d" id="domName">–</div>
+      <div class="fix" id="domFix">Your lowest standard. Per the Zero-Multiplier: you cannot out-earn a zero in your fitness.</div>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="panel">
+      <h2>DRIVERS — the 7 universal standards</h2>
+      <div class="sub">The fitness to pilot <i>anything</i>. Rate each 1–10.</div>
+      <div id="drivers"></div>
+    </div>
+    <div class="panel">
+      <h2>PACKS — the 5 profession-specific</h2>
+      <div class="sub">The suit/helmet/instruments for <i>your</i> vehicle. Rate each 1–10.</div>
+      <div id="packs"></div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="save" id="saveBtn">📌 Save this week's audit</button>
+    <button class="ghost" id="resetBtn">Reset sliders</button>
+    <span class="trend" id="trend"></span>
+  </div>
+  <textarea id="notes" placeholder="Weekly note — what slipped, what you'll correct (the One-Correction Rule)…"></textarea>
+
+  <div class="mxnote">
+    <b>How this ties to your MX tracker:</b> three DRIVERS are visible in your time data, so let those guide your honest score —
+    <b>Rigor (Discipline)</b> ← did you hit your 18 rounds &amp; protect the routine? ·
+    <b>Vitality (Energy)</b> ← sleep + prasadam vs. broken sleep &amp; outside food ·
+    <b>Execution</b> ← did you <i>ship</i>, or just stay in motion? The other standards are self-judged.
+  </div>
+
+  <div class="hist" id="histWrap" style="display:none">
+    <h3>Weekly trend</h3>
+    <table id="histTable"></table>
+  </div>
+
+  </div><!-- /view-score -->
+
+  <div id="view-guide" style="display:none">
+    <div class="panel">
+      <h2>What does your profession need?</h2>
+      <div class="sub">Type any role — it returns the <b>DRIVERS</b> (universal fitness) that role leans on, and the <b>PACKS</b> (profession-specific) it demands.</div>
+      <div class="gsearch">
+        <input id="profInput" placeholder="e.g. surgeon, founder, software engineer, teacher…" autocomplete="off" />
+        <button class="save" id="profGo">Suggest</button>
+      </div>
+      <div class="chips" id="profChips"></div>
+      <div id="profResult"></div>
+    </div>
+  </div>
+
+  <footer>ProFit Score · DRIVERS × PACKS · the Clarity Compass · scores saved on this device only</footer>
+</div>
+
+<script>
+(function(){
+  var DRIVERS = [
+    {k:'D', label:'Decision', concept:'Decision', desc:'Decide and move — indecision is a decision.', seed:7},
+    {k:'R', label:'Responsibility', concept:'Responsibility', desc:'Own the outcome — fault is backward, responsibility forward.', seed:8},
+    {k:'I', label:'Integrity', concept:'Integrity', desc:'Consistent under pressure — the market does not forgive hiding.', seed:8},
+    {k:'V', label:'Vitality', concept:'Energy', desc:'Fuel & recovery — recovery is maintenance, not laziness.', seed:6},
+    {k:'E', label:'Execution', concept:'Execution', desc:'Ship it — brilliance impresses once, reliability compounds.', seed:6},
+    {k:'R', label:'Rigor', concept:'Discipline', desc:'Show up daily — motivation is weather, discipline is climate.', seed:5},
+    {k:'S', label:'Sharpening', concept:'Learning', desc:'Stay ahead of the curve, or become part of it.', seed:7}
+  ];
+  var PACKS = [
+    {k:'P', label:'Persona', concept:'', desc:'The UI of your professional self — perception carries competence.', seed:7},
+    {k:'A', label:'Attitude', concept:'', desc:'Posture under pressure — Hunter / Guardian / Weaver.', seed:7},
+    {k:'C', label:'Clarity', concept:'', desc:'Your true scoreboard — watch the metric that matters.', seed:9},
+    {k:'K', label:'Knowledge', concept:'', desc:'Deep, tacit understanding of your machine.', seed:8},
+    {k:'S', label:'Skills', concept:'', desc:'What you reliably execute — your craft’s handling.', seed:7}
+  ];
+  var LS='profitscore-v1', LSW='profitscore-weeks-v1';
+
+  function colorFor(v){ return v>=8?'var(--green)':(v>=5?'var(--amber)':'var(--red)'); }
+
+  function buildRows(arr, mount, group){
+    arr.forEach(function(item, i){
+      var id = group+'-'+i;
+      var row=document.createElement('div'); row.className='row';
+      var concept = item.concept && item.concept!==item.label ? ' <span class="rconcept">('+item.concept+')</span>' : '';
+      row.innerHTML =
+        '<div class="rowtop"><span class="rkey">'+item.k+'</span>'+
+        '<span class="rlabel">'+item.label+'</span>'+concept+
+        '<span class="rval" id="v-'+id+'">'+item.seed+'</span></div>'+
+        '<div class="rdesc">'+item.desc+'</div>'+
+        '<input type="range" min="1" max="10" step="1" value="'+item.seed+'" id="'+id+'">';
+      mount.appendChild(row);
+      var inp=row.querySelector('#'+id), val=row.querySelector('#v-'+id);
+      inp.style.accentColor = colorFor(+inp.value);
+      inp.addEventListener('input', function(){ val.textContent=inp.value; inp.style.accentColor=colorFor(+inp.value); compute(); save(); });
+    });
+  }
+
+  function vals(arr, group){ return arr.map(function(_,i){ return +document.getElementById(group+'-'+i).value; }); }
+  function mean(a){ return a.reduce(function(x,y){return x+y;},0)/a.length; }
+
+  function compute(){
+    var dv=vals(DRIVERS,'d'), pv=vals(PACKS,'p');
+    var d=mean(dv), p=mean(pv);
+    document.getElementById('dScore').textContent = d.toFixed(1);
+    document.getElementById('pScore').textContent = p.toFixed(1);
+    // lead domino = lowest single standard across all 12 (multiplicative thinking)
+    var all = DRIVERS.map(function(it,i){return {name:it.label+(it.concept&&it.concept!==it.label?' ('+it.concept+')':''), v:dv[i]};})
+             .concat(PACKS.map(function(it,i){return {name:it.label, v:pv[i]};}));
+    var lo = all.reduce(function(a,b){ return b.v<a.v? b : a; }, all[0]);
+    document.getElementById('domName').textContent = lo.name + ' — ' + lo.v + '/10';
+    var fix = lo.v>=8 ? 'Strong across the board — hold the line and keep compounding.' :
+              'Fix only this one this week (the One-Correction Rule). Raise your floor and the whole score lifts.';
+    document.getElementById('domFix').textContent = fix;
+  }
+
+  function save(){
+    var d=vals(DRIVERS,'d'), p=vals(PACKS,'p');
+    localStorage.setItem(LS, JSON.stringify({d:d,p:p,notes:document.getElementById('notes').value}));
+  }
+  function load(){
+    try{ var s=JSON.parse(localStorage.getItem(LS)); if(!s) return;
+      s.d&&s.d.forEach(function(v,i){ var el=document.getElementById('d-'+i); if(el){el.value=v; document.getElementById('v-d-'+i).textContent=v; el.style.accentColor=colorFor(v);} });
+      s.p&&s.p.forEach(function(v,i){ var el=document.getElementById('p-'+i); if(el){el.value=v; document.getElementById('v-p-'+i).textContent=v; el.style.accentColor=colorFor(v);} });
+      if(s.notes) document.getElementById('notes').value=s.notes;
+    }catch(e){}
+  }
+
+  function renderHist(){
+    var weeks; try{ weeks=JSON.parse(localStorage.getItem(LSW))||[]; }catch(e){ weeks=[]; }
+    var wrap=document.getElementById('histWrap'), tbl=document.getElementById('histTable');
+    if(!weeks.length){ wrap.style.display='none'; document.getElementById('trend').textContent=''; return; }
+    wrap.style.display='block';
+    tbl.innerHTML = weeks.slice(-8).reverse().map(function(w){
+      return '<tr><td>'+w.date+'</td><td>D '+w.d.toFixed(1)+' / P '+w.p.toFixed(1)+'</td><td>domino: '+w.domino+'</td></tr>';
+    }).join('');
+    var last=weeks[weeks.length-1];
+    document.getElementById('trend').textContent = weeks.length+' audit(s) saved · last: D '+last.d.toFixed(1)+' / P '+last.p.toFixed(1);
+  }
+
+  document.getElementById('saveBtn').addEventListener('click', function(){
+    var d=mean(vals(DRIVERS,'d')), p=mean(vals(PACKS,'p'));
+    var all = DRIVERS.map(function(it,i){return {name:it.label, v:vals(DRIVERS,'d')[i]};})
+             .concat(PACKS.map(function(it,i){return {name:it.label, v:vals(PACKS,'p')[i]};}));
+    var lo = all.reduce(function(a,b){ return b.v<a.v? b : a; }, all[0]);
+    var weeks; try{ weeks=JSON.parse(localStorage.getItem(LSW))||[]; }catch(e){ weeks=[]; }
+    var now=new Date();
+    var date=now.getFullYear()+'-'+('0'+(now.getMonth()+1)).slice(-2)+'-'+('0'+now.getDate()).slice(-2);
+    weeks.push({date:date, d:d, p:p, domino:lo.name+' ('+lo.v+')'});
+    localStorage.setItem(LSW, JSON.stringify(weeks));
+    renderHist();
+    this.textContent='✓ Saved'; var b=this; setTimeout(function(){ b.textContent='📌 Save this week’s audit'; },1400);
+  });
+  document.getElementById('resetBtn').addEventListener('click', function(){
+    DRIVERS.forEach(function(it,i){ var el=document.getElementById('d-'+i); el.value=it.seed; document.getElementById('v-d-'+i).textContent=it.seed; el.style.accentColor=colorFor(it.seed); });
+    PACKS.forEach(function(it,i){ var el=document.getElementById('p-'+i); el.value=it.seed; document.getElementById('v-p-'+i).textContent=it.seed; el.style.accentColor=colorFor(it.seed); });
+    compute(); save();
+  });
+  document.getElementById('notes').addEventListener('input', save);
+
+  buildRows(DRIVERS, document.getElementById('drivers'), 'd');
+  buildRows(PACKS, document.getElementById('packs'), 'p');
+  load();
+  compute();
+  renderHist();
+
+  // ---------- Profession Guide ----------
+  var ATT = {
+    Hunter:'Hunter — “No is just data. Chaos is opportunity. I eat what I kill.”',
+    Guardian:'Guardian — “No is the final answer. Chaos is a threat. I protect the castle.”',
+    Weaver:'Weaver — “People are messy. My job is to untangle the knots.”',
+    Maker:'Maker — “The work speaks. I master the craft and finish.”',
+    Healer:'Healer — “Stay calm, stay vigilant, do no harm.”'
+  };
+  var MET = {
+    Maker:'Deep-work hours & quality shipped — not hours at the desk.',
+    Manager:'Team velocity & outcomes — not meetings attended.',
+    Rainmaker:'Revenue closed & trust built — not calls made.',
+    Healer:'Patient outcomes & safety — not patients seen.',
+    Educator:'Student growth & mastery — not lectures delivered.',
+    Guardian:'Accuracy & risk averted — not hours logged.'
+  };
+  var PROF = [
+    {t:'Surgeon / Doctor', m:['surgeon','doctor','physician','medical','dentist','clinician'], dr:[['Integrity','lives depend on zero shortcuts'],['Rigor (Discipline)','sterile protocol, every single time'],['Vitality (Energy)','hours of focus under physical strain'],['Decision','split-second calls mid-procedure']], persona:'Calm Authority — steady hands and steady voice; the patient and team must feel certainty.', att:'Healer', cl:'Healer', kn:'Anatomy, procedures, and the pattern-library of complications — tacit reps far beyond textbooks.', sk:'Precise technical execution, steady hands, and composure in a crisis.'},
+    {t:'Founder / Entrepreneur', m:['founder','entrepreneur','ceo','startup','co-founder','business owner'], dr:[['Decision','dozens of irreversible calls on 40–70% data'],['Execution','ship the ugly V1, then iterate fast'],['Responsibility','you own every outcome — no one to blame'],['Vitality (Energy)','endurance for the multi-year grind']], persona:'Confident Visionary — investors and team need to see certainty even in chaos.', att:'Hunter', cl:'Rainmaker', kn:'Your customer, the market, and your unit economics — cold.', sk:'Selling, hiring, and ruthless prioritisation.'},
+    {t:'Salesperson / Account Exec', m:['sales','salesperson','account executive','seller','bdr','sdr','business development'], dr:[['Vitality (Energy)','resilience against constant rejection'],['Execution','ask for the close, every time'],['Rigor (Discipline)','consistent pipeline and follow-up'],['Responsibility','own the number']], persona:'Trusted Advisor — warm, credible, never desperate.', att:'Hunter', cl:'Rainmaker', kn:'Buyer psychology and your product’s real value.', sk:'Discovery, objection-handling, and closing.'},
+    {t:'Software Engineer', m:['software','engineer','developer','programmer','coder','swe','devops','full stack','backend','frontend'], dr:[['Execution','ship working code, not perfect code'],['Sharpening (Learning)','the stack shifts under your feet'],['Rigor (Discipline)','tests, reviews, consistency'],['Integrity','quality you can’t see still matters']], persona:'Precise Problem-Solver — quiet competence; the work speaks.', att:'Maker', cl:'Maker', kn:'Your system and tools, mastered by reps and debugging.', sk:'Coding, debugging, and clean architecture.'},
+    {t:'Teacher / Professor', m:['teacher','professor','tutor','educator','faculty','lecturer','instructor'], dr:[['Vitality (Energy)','presence for a room, all day'],['Responsibility','own each student’s growth'],['Integrity','model what you teach'],['Sharpening (Learning)','keep the material alive']], persona:'Warm Authority — approachable but respected.', att:'Weaver', cl:'Educator', kn:'Your subject + how people actually learn.', sk:'Explaining simply, listening, and managing a room.'},
+    {t:'Lawyer / Attorney', m:['lawyer','attorney','advocate','counsel','legal','solicitor'], dr:[['Integrity','your word is the whole asset'],['Rigor (Discipline)','no detail unchecked'],['Decision','advise under uncertainty'],['Sharpening (Learning)','the law keeps shifting']], persona:'Composed Advocate — unflappable and exact.', att:'Guardian', cl:'Guardian', kn:'Case law, precedent, and the edge-cases — cold.', sk:'Argument, drafting, and risk-spotting.'},
+    {t:'Accountant / Auditor', m:['accountant','auditor','accounting','bookkeeper','cpa'], dr:[['Integrity','accuracy is non-negotiable'],['Rigor (Discipline)','reconcile to the last rupee'],['Responsibility','own the numbers']], persona:'Precise & Dependable — trust is built on zero errors.', att:'Guardian', cl:'Guardian', kn:'Standards, tax law, and the rules — cold.', sk:'Accuracy, reconciliation, and thoroughness.'},
+    {t:'Designer (UX / Graphic)', m:['designer','design','ux','ui','graphic'], dr:[['Sharpening (Learning)','taste and tools evolve fast'],['Execution','ship the design, don’t polish forever'],['Vitality (Energy)','sustained creative focus'],['Integrity','honest, usable work']], persona:'Quiet Craftsman — the work makes the case.', att:'Maker', cl:'Maker', kn:'Your craft, tools, and the user’s real need.', sk:'Deep focus, iteration, and finishing.'},
+    {t:'Manager / Team Lead', m:['manager','team lead','supervisor','director','head of'], dr:[['Responsibility','own the team’s outcomes'],['Decision','unblock and choose, daily'],['Integrity','fairness builds the trust'],['Sharpening (Learning)','people are the hardest system']], persona:'Steady, Credible Leader — your calm gives the team oxygen.', att:'Weaver', cl:'Manager', kn:'Your people, and the system they run.', sk:'Prioritising, delegating, and deciding.'},
+    {t:'Consultant', m:['consultant','consulting','advisor','strategist'], dr:[['Sharpening (Learning)','master new domains fast'],['Integrity','independent, honest counsel'],['Decision','recommend under ambiguity'],['Execution','deliver, don’t just analyse']], persona:'Objective Expert — detached, credible, clear.', att:'Hunter', cl:'Rainmaker', kn:'Frameworks + the client’s actual problem.', sk:'Diagnosis, synthesis, and persuasion.'},
+    {t:'Creator / YouTuber', m:['creator','youtuber','influencer','content','streamer','podcaster','vlogger'], dr:[['Execution','publish consistently — done beats perfect'],['Rigor (Discipline)','show up when motivation doesn’t'],['Sharpening (Learning)','platforms and trends shift weekly'],['Vitality (Energy)','sustain output without burnout']], persona:'Relatable & Authentic — trust is the whole game.', att:'Maker', cl:'Maker', kn:'Your audience, the platform’s algorithm, and storytelling.', sk:'Hooks, scripting, and editing.'},
+    {t:'Writer / Author', m:['writer','author','journalist','copywriter','novelist','blogger'], dr:[['Rigor (Discipline)','words on the page daily'],['Execution','finish and publish'],['Sharpening (Learning)','read widely, sharpen the craft'],['Integrity','tell the truth, well']], persona:'Quiet Craftsman — the writing carries you.', att:'Maker', cl:'Maker', kn:'Your subject + the craft of language.', sk:'Drafting, editing, and finishing.'},
+    {t:'Nurse', m:['nurse','nursing','caregiver','paramedic'], dr:[['Vitality (Energy)','long shifts, full presence'],['Integrity','vigilance saves lives'],['Responsibility','own the patient’s care'],['Rigor (Discipline)','protocol under pressure']], persona:'Calm, Caring Competence — reassurance is medicine.', att:'Healer', cl:'Healer', kn:'Clinical knowledge + the human in the bed.', sk:'Careful execution, monitoring, and composure.'},
+    {t:'Marketer', m:['marketer','marketing','growth','brand','seo'], dr:[['Execution','run the test, ship the campaign'],['Sharpening (Learning)','channels change constantly'],['Decision','bet the budget on signal'],['Responsibility','own the funnel’s numbers']], persona:'Sharp Storyteller — clarity that converts.', att:'Hunter', cl:'Rainmaker', kn:'The customer, the channels, and the data.', sk:'Positioning, testing, and analysis.'},
+    {t:'Trader / Investor', m:['trader','investor','analyst','portfolio','equities','fund'], dr:[['Decision','act on incomplete data, fast'],['Integrity','follow your own rules'],['Rigor (Discipline)','risk control over ego'],['Vitality (Energy)','steady nerves under volatility']], persona:'Disciplined Operator — unemotional under fire.', att:'Guardian', cl:'Rainmaker', kn:'Markets, instruments, and your own biases.', sk:'Analysis, risk-sizing, and emotional control.'},
+    {t:'Product Manager', m:['product manager','product owner','product lead'], dr:[['Decision','prioritise ruthlessly — say no'],['Responsibility','own the outcome, not the output'],['Execution','ship and learn'],['Sharpening (Learning)','read user + market signal']], persona:'Calm Orchestrator — clarity amid competing voices.', att:'Weaver', cl:'Manager', kn:'The user, the business, and the technical trade-offs.', sk:'Prioritisation, communication, and synthesis.'},
+    {t:'Chef / Culinary', m:['chef','cook','culinary','kitchen','baker'], dr:[['Rigor (Discipline)','consistency, plate after plate'],['Vitality (Energy)','heat, speed, long service'],['Execution','the dish ships hot, now'],['Integrity','quality when no one’s watching']], persona:'Commanding Calm — the line follows your tempo.', att:'Maker', cl:'Maker', kn:'Ingredients, technique, and timing.', sk:'Speed, precision, and consistency under fire.'},
+    {t:'Architect / Civil Engineer', m:['architect','civil engineer','structural','construction'], dr:[['Integrity','safety is not negotiable'],['Rigor (Discipline)','codes and tolerances, exactly'],['Decision','commit the design'],['Sharpening (Learning)','materials and methods evolve']], persona:'Trusted Authority — precision inspires confidence.', att:'Guardian', cl:'Maker', kn:'Materials, codes, and physics — cold.', sk:'Design, calculation, and coordination.'},
+    {t:'Scientist / Researcher', m:['scientist','researcher','research','academic','professor of'], dr:[['Sharpening (Learning)','live at the edge of the field'],['Integrity','the data is sacred'],['Rigor (Discipline)','method over wishful thinking'],['Vitality (Energy)','endurance for the long experiment']], persona:'Rigorous Truth-Seeker — credibility through honesty.', att:'Maker', cl:'Maker', kn:'Your field’s frontier and its method.', sk:'Experiment design, analysis, and writing.'}
+  ];
+  var ARCH = {
+    Rainmaker:{dr:[['Decision','bet under uncertainty'],['Execution','ask, close, deliver'],['Vitality (Energy)','resilience to rejection'],['Responsibility','own the number']], persona:'Confident, trustworthy closer.', att:'Hunter', cl:'Rainmaker', kn:'Your buyer, your offer, and the market.', sk:'Discovery, persuasion, and follow-through.'},
+    Healer:{dr:[['Integrity','do no harm'],['Vitality (Energy)','full presence under strain'],['Responsibility','own the person’s care'],['Rigor (Discipline)','protocol under pressure']], persona:'Calm, reassuring competence.', att:'Healer', cl:'Healer', kn:'Your domain + the human in front of you.', sk:'Diagnosis, careful execution, composure.'},
+    Educator:{dr:[['Responsibility','own their growth'],['Vitality (Energy)','presence and patience'],['Integrity','model what you teach'],['Sharpening (Learning)','keep learning to teach']], persona:'Warm authority.', att:'Weaver', cl:'Educator', kn:'Your subject + how people learn.', sk:'Explaining, listening, untangling.'},
+    Guardian:{dr:[['Integrity','accuracy is sacred'],['Rigor (Discipline)','no detail unchecked'],['Responsibility','own the risk'],['Decision','call it within the rules']], persona:'Precise and dependable.', att:'Guardian', cl:'Guardian', kn:'The rules, standards, and edge-cases — cold.', sk:'Accuracy, thoroughness, risk-spotting.'},
+    Manager:{dr:[['Responsibility','own the team’s outcomes'],['Decision','unblock daily'],['Integrity','fairness builds trust'],['Sharpening (Learning)','people are the hard system']], persona:'Steady, credible leader.', att:'Weaver', cl:'Manager', kn:'Your people + the system they run.', sk:'Prioritising, delegating, deciding.'},
+    Maker:{dr:[['Execution','finish and ship'],['Rigor (Discipline)','show up daily'],['Sharpening (Learning)','sharpen the craft'],['Integrity','quality unseen still counts']], persona:'Quietly excellent craftsman.', att:'Maker', cl:'Maker', kn:'Your craft and tools, mastered by reps.', sk:'Deep focus, iteration, finishing.'}
+  };
+  function classify(q){
+    if(/sell|sales|revenue|deal|business dev|client acq|growth/.test(q)) return 'Rainmaker';
+    if(/care|health|patient|clinic|medic|therap|heal|nurse|doctor/.test(q)) return 'Healer';
+    if(/teach|train|coach|mentor|educat|instruct|faculty|tutor/.test(q)) return 'Educator';
+    if(/audit|complian|legal|\blaw\b|finance|risk|secur|quality|inspect|account/.test(q)) return 'Guardian';
+    if(/manage|lead|coordinat|operations|supervis|director|admin|\bhr\b/.test(q)) return 'Manager';
+    return 'Maker';
+  }
+  function cap(s){ return s.replace(/\b\w/g,function(c){return c.toUpperCase();}); }
+  function findProfile(input){
+    var q=(input||'').toLowerCase().trim(); if(!q) return null;
+    for(var i=0;i<PROF.length;i++){ for(var j=0;j<PROF[i].m.length;j++){ if(q.indexOf(PROF[i].m[j])>-1) return {p:PROF[i], exact:true}; } }
+    var a=classify(q), base=ARCH[a], p={}; for(var k in base) p[k]=base[k]; p.t=cap(q);
+    return {p:p, exact:false, arch:a};
+  }
+  function renderProfile(input){
+    var res=document.getElementById('profResult'); var f=findProfile(input);
+    if(!f){ res.innerHTML='<div class="sub">Type a profession above and hit <b>Suggest</b>.</div>'; return; }
+    var p=f.p, h='';
+    h+='<div class="gtitle">'+p.t+'</div>';
+    h+='<div class="gsub">'+(f.exact?'Tailored profile from the ProFit library.':'No exact match — built from the closest archetype: <b>'+f.arch+'</b>. Tell me the real role and I can hand-tune it.')+'</div>';
+    var ALL7=['Decision','Responsibility','Integrity','Vitality (Energy)','Execution','Rigor (Discipline)','Sharpening (Learning)'];
+    var named=p.dr.map(function(d){return d[0];});
+    h+='<div class="panel" style="margin-bottom:14px"><h2>DRIVERS for this role <span style="font-weight:400;color:var(--mut);font-size:12px">· all 7, role-weighted</span></h2>';
+    p.dr.forEach(function(d,i){ h+='<div class="gdrv"><div class="nm">'+d[0]+'<span class="gtag '+(i===0?'spear':'core')+'">'+(i===0?'spearhead':'high')+'</span></div><div class="wy">'+d[1]+'</div></div>'; });
+    ALL7.forEach(function(nm){ if(named.indexOf(nm)===-1){ h+='<div class="gdrv"><div class="nm">'+nm+'<span class="gtag base">baseline</span></div><div class="wy">Your non-negotiable floor — keep it strong even where this role leans elsewhere.</div></div>'; } });
+    h+='</div>';
+    h+='<div class="panel"><h2>PACKS for this role <span style="font-weight:400;color:var(--mut);font-size:12px">· profession-specific</span></h2>';
+    h+='<div class="pk"><div class="pl">P · Persona</div><div class="pv">'+p.persona+'</div></div>';
+    h+='<div class="pk"><div class="pl">A · Attitude</div><div class="pv">'+ATT[p.att]+'</div></div>';
+    h+='<div class="pk"><div class="pl">C · Clarity — your true metric</div><div class="pv">'+MET[p.cl]+'</div></div>';
+    h+='<div class="pk"><div class="pl">K · Knowledge</div><div class="pv">'+p.kn+'</div></div>';
+    h+='<div class="pk"><div class="pl">S · Skills</div><div class="pv">'+p.sk+'</div></div></div>';
+    res.innerHTML=h;
+  }
+  var CHIPS=['Surgeon','Founder','Salesperson','Software Engineer','Teacher','Lawyer','Accountant','Designer','Manager','Creator','Writer','Nurse','Trader','Product Manager','Chef'];
+  var chipWrap=document.getElementById('profChips');
+  CHIPS.forEach(function(c){ var b=document.createElement('span'); b.className='chip2'; b.textContent=c; b.onclick=function(){ document.getElementById('profInput').value=c; renderProfile(c); }; chipWrap.appendChild(b); });
+  document.getElementById('profGo').addEventListener('click', function(){ renderProfile(document.getElementById('profInput').value); });
+  document.getElementById('profInput').addEventListener('keydown', function(e){ if(e.key==='Enter') renderProfile(this.value); });
+  function showTab(which){
+    document.getElementById('view-score').style.display = which==='score'?'':'none';
+    document.getElementById('view-guide').style.display = which==='guide'?'':'none';
+    document.getElementById('tab-score-btn').classList.toggle('on', which==='score');
+    document.getElementById('tab-guide-btn').classList.toggle('on', which==='guide');
+  }
+  document.getElementById('tab-score-btn').onclick=function(){ showTab('score'); };
+  document.getElementById('tab-guide-btn').onclick=function(){ showTab('guide'); };
+})();
+</script>
+</body>
+</html>

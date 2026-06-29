@@ -1,0 +1,564 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Command Center · Future Proofing Lifestyle</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='16' cy='16' r='15' fill='%2315356E'/><circle cx='16' cy='16' r='12' fill='none' stroke='%23C6A249' stroke-width='1.6'/><polygon points='16,5 19.5,16 12.5,16' fill='%23E8CD7C'/><polygon points='16,27 19.5,16 12.5,16' fill='%23F4F6FC'/><circle cx='16' cy='16' r='2.3' fill='%23C6A249'/></svg>">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+:root{
+ --navy:#15356E;--gold:#D2A23F;--gold2:#F0C060;
+ --bg:#EBEEF4;--card:#fff;--ink:#1b2330;--mut:#6b7280;--line:#E6E9EF;
+ --green:#3f8f1f;--orange:#E0922E;--teal:#1FB6A6;--red:#D8342F;
+ --purple:#8B79C9;--blue:#3F7FD0;--ok:#1D9E75;--warn:#E08A1E;--r:16px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--ink);padding:16px;font-size:14px;line-height:1.45}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:1560px;margin:0 auto}
+/* hero */
+header.hero{background:linear-gradient(120deg,var(--navy),#0e244d);color:#fff;border-radius:var(--r);padding:20px 26px;position:relative;overflow:hidden;box-shadow:0 10px 32px rgba(21,53,110,.28)}
+header.hero:after{content:'';position:absolute;right:-70px;top:-70px;width:260px;height:260px;border-radius:50%;background:radial-gradient(circle,rgba(198,162,73,.32),transparent 70%)}
+.row1{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;position:relative;z-index:1}
+.hero h1{font-size:22px;font-weight:700;letter-spacing:.3px;display:flex;align-items:center;gap:9px}
+.hero .sub{color:var(--gold2);font-size:13px;margin-top:4px;font-weight:500}
+.clock{text-align:right}
+.clock .t{font-size:30px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1}
+.clock .d{font-size:12px;color:#cdd8ee;margin-top:4px}
+.hbtn{display:inline-flex;align-items:center;gap:7px;margin-top:12px;background:var(--gold);color:#15356E;font-weight:700;border:none;border-radius:10px;padding:10px 18px;font-size:13.5px;cursor:pointer;text-decoration:none;box-shadow:0 4px 14px rgba(198,162,73,.40);transition:.15s}
+.hbtn:hover{background:var(--gold2);transform:translateY(-1px);box-shadow:0 6px 18px rgba(198,162,73,.5)}
+.theme{margin-top:15px;display:flex;gap:8px;flex-wrap:wrap;position:relative;z-index:1}
+.chip{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.20);padding:5px 12px;border-radius:20px;font-size:12px;color:#eaf0fb}
+.chip b{color:var(--gold2)}
+/* kpis */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:14px 0}
+.kpi{background:var(--card);border-radius:14px;padding:13px 16px;border:1px solid var(--line);position:relative;overflow:hidden}
+.kpi .accent{position:absolute;left:0;top:0;bottom:0;width:4px}
+.kpi .ic{font-size:17px}
+.kpi .v{font-size:25px;font-weight:700;margin-top:3px;font-variant-numeric:tabular-nums}
+.kpi .v small{font-size:13px;color:var(--mut);font-weight:500}
+.kpi .lab{font-size:10.5px;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
+/* grid */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:14px;align-items:start}
+.card{background:var(--card);border-radius:var(--r);border:1px solid var(--line);padding:15px 18px;box-shadow:0 2px 12px rgba(20,40,80,.045)}
+.card h3{font-size:12px;text-transform:uppercase;letter-spacing:.6px;color:var(--navy);display:flex;align-items:center;gap:7px;margin-bottom:11px;font-weight:700}
+.card h3 .dot{width:9px;height:9px;border-radius:3px}
+.card h3 .x{margin-left:auto;font-size:11px;color:var(--mut);font-weight:500;text-transform:none;letter-spacing:0}
+.span2{grid-column:span 2}
+@media(max-width:740px){.span2{grid-column:span 1}}
+/* todo */
+.todo{display:flex;align-items:center;gap:11px;padding:8px 0;border-bottom:1px solid var(--line);cursor:pointer;font-size:13.5px}
+.todo:last-child{border-bottom:0}
+.box{width:20px;height:20px;border-radius:6px;border:2px solid #cbd2dd;display:flex;align-items:center;justify-content:center;font-size:13px;color:#fff;flex:0 0 auto;transition:.15s}
+.todo.done .box{background:var(--ok);border-color:var(--ok)}
+.todo.done .lbl{color:var(--mut);text-decoration:line-through}
+.lbl{flex:1}.todo .mt{font-size:11px;color:var(--mut)}
+/* priorities */
+.pr{display:flex;gap:11px;align-items:flex-start;padding:9px 0;border-bottom:1px solid var(--line);font-size:13.5px;cursor:pointer}
+.pr:last-child{border-bottom:0}
+.pr .num{background:var(--navy);color:#fff;width:23px;height:23px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:700;flex:0 0 auto}
+/* rows */
+.lr{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line);font-size:13px}
+.lr:last-child{border-bottom:0}
+.lr .n{display:flex;flex-direction:column;gap:1px}
+.lr .n small{color:var(--mut);font-size:11px}
+.badge{font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;color:#fff;white-space:nowrap;letter-spacing:.3px}
+/* bars / ring */
+.bar{height:8px;background:#eef1f6;border-radius:6px;overflow:hidden;margin-top:9px}
+.bar i{display:block;height:100%;border-radius:6px;transition:width .4s}
+.ringwrap{display:flex;align-items:center;gap:16px}
+.ring{width:92px;height:92px;border-radius:50%;display:grid;place-items:center;flex:0 0 auto;cursor:pointer}
+.ring .inner{width:70px;height:70px;background:var(--card);border-radius:50%;display:grid;place-items:center;text-align:center}
+.ring .inner b{font-size:21px;display:block;line-height:1;color:var(--navy)}
+.ring .inner span{font-size:9.5px;color:var(--mut)}
+/* money */
+.money-top{display:flex;gap:9px;margin-bottom:11px}
+.mbox{flex:1;border-radius:12px;padding:11px 8px;text-align:center}
+.mbox b{font-size:17px;display:block;font-variant-numeric:tabular-nums}
+.mbox span{font-size:9.5px;text-transform:uppercase;letter-spacing:.4px;opacity:.85}
+/* quick links */
+.ql{display:flex;flex-wrap:wrap;gap:8px}
+.ql a{background:#f3f5f9;border:1px solid var(--line);border-radius:10px;padding:8px 13px;font-size:12.5px;font-weight:600;display:flex;align-items:center;gap:6px;transition:.15s}
+.ql a:hover{background:var(--navy);color:#fff;border-color:var(--navy)}
+.note{font-size:12px;color:var(--mut);background:var(--bg);border-radius:10px;padding:9px 11px;margin-top:10px}
+.foot{text-align:center;color:var(--mut);font-size:12px;margin:20px 0 6px}
+/* ===== project tracker (two channels) ===== */
+#trkwrap{margin:14px 0}
+.trklegend{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 14px;margin-bottom:10px;font-size:12px;color:var(--mut)}
+.trklegend b{color:var(--navy);font-size:13px}
+.trklegend .lg{font-style:normal;padding:2px 8px;border-radius:7px;font-weight:600;font-size:11px}
+.trklegend .lg.done{background:#534AB7;color:#fff}
+.trklegend .lg.wip{background:transparent;border:1.5px solid #534AB7;color:#534AB7}
+.trklegend .lg.none{background:#eef0f4;color:#9aa0aa}
+.trk{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}
+@media(max-width:860px){.trk{grid-template-columns:1fr}}
+/* masonry — panels pack into shortest column, no gaps */
+.masonry{display:flex;gap:14px;align-items:flex-start;margin:0 0 6px}
+.masonry .mcol{flex:1 1 0;min-width:0;display:flex;flex-direction:column;gap:14px}
+.masonry .trkcol,.masonry .card{margin:0;width:100%}
+.trkcol{background:var(--card);border-radius:var(--r);border:1px solid var(--line);padding:14px 16px;box-shadow:0 2px 12px rgba(20,40,80,.045)}
+.trkhead{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.trkhead .tt{font-size:16px;font-weight:700;color:var(--navy)}
+.trkbrand{font-size:11.5px;color:var(--mut);margin:6px 0 12px;padding-bottom:10px;border-bottom:1px solid var(--line)}
+.trkbrand b{color:var(--navy)}
+.trkbrand a{color:var(--blue);font-weight:600}
+.cnt{font-size:10.5px;font-weight:700;padding:3px 9px;border-radius:20px;color:#fff;white-space:nowrap}
+/* project box (book-cover studio style) */
+.pbox{background:linear-gradient(135deg,#16140d,#090909);border:1px solid var(--gold);border-radius:12px;padding:11px 12px;margin-bottom:10px}
+.pbox:last-of-type{margin-bottom:0}
+.pbox .ptop{display:flex;align-items:center;gap:11px}
+.pbox img{width:40px;height:60px;object-fit:cover;border-radius:5px;box-shadow:0 2px 8px rgba(0,0,0,.55);flex:0 0 auto;background:#000}
+.pbox .pmeta{flex:1;min-width:0}
+.pbox .pn{color:var(--gold2);font-weight:700;font-size:13.5px;line-height:1.2}
+.pbox .ps{color:#9a9a9a;font-size:11px;margin-top:2px}
+.pbox .pcount{font-size:10.5px;font-weight:700;padding:3px 9px;border-radius:20px;color:#fff;white-space:nowrap;flex:0 0 auto}
+.passets{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}
+.pa{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;padding:5px 9px;border-radius:8px;border:1.5px solid transparent;text-decoration:none;line-height:1}
+.pa.done{color:#fff}
+.pa.wip{background:transparent}
+.pa.none{background:rgba(255,255,255,.05);color:#6f6f6f;border-color:rgba(255,255,255,.09);cursor:default}
+a.pa:hover{filter:brightness(1.14);transform:translateY(-1px)}
+/* per-channel book list */
+.bklist{margin-top:13px;border-top:1px dashed var(--line);padding-top:10px}
+.bkh{font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;color:var(--mut);font-weight:700;margin-bottom:4px}
+.bkr{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--line);font-size:12.5px}
+.bkr:last-of-type{border-bottom:0}
+.bkr span{min-width:0}
+.bkmore{display:inline-block;margin-top:9px;color:var(--blue);font-weight:600;font-size:12px}
+/* launch tiles (personal & professional) */
+.launch{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:12px}
+.ltile{display:flex;align-items:center;gap:9px;background:#f3f5f9;border:1px solid var(--line);border-radius:11px;padding:11px 12px;text-decoration:none;font-weight:600;font-size:13px;transition:.15s}
+.ltile:hover{background:var(--navy);color:#fff;border-color:var(--navy)}
+.ltile .lic{font-size:18px}
+</style>
+<link rel="manifest" href="./manifest.json"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Command Center"><script>if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("./sw.js").catch(function(){});});}</script></head>
+<body>
+<div class="wrap">
+ <header class="hero">
+  <div class="row1">
+   <div>
+    <h1><svg width="22" height="22" viewBox="0 0 32 32" style="vertical-align:-4px;margin-right:6px"><circle cx="16" cy="16" r="15" fill="#2A5BAA"/><circle cx="16" cy="16" r="12" fill="none" stroke="#E3C77A" stroke-width="1.8"/><polygon points="16,5 19.5,16 12.5,16" fill="#E8CD7C"/><polygon points="16,27 19.5,16 12.5,16" fill="#F4F6FC"/><circle cx="16" cy="16" r="2.4" fill="#E3C77A"/></svg>Command Center</h1>
+    <div class="sub" id="greet">Future Proofing Lifestyle · the comeback arc</div>
+   </div>
+   <div style="text-align:right">
+    <div class="clock"><div class="t" id="clk">--:--</div><div class="d" id="cdate"></div></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px;flex-wrap:wrap">
+     <a class="hbtn" style="margin-top:0" href="mx.html" target="_blank"><svg width="17" height="17" viewBox="0 0 32 32" style="vertical-align:-3px;margin-right:5px"><rect x="1" y="1" width="30" height="30" rx="7" fill="#2f6b12"/><text x="16" y="22" font-family="Arial" font-size="15" font-weight="700" fill="#E8CD7C" text-anchor="middle">MX</text></svg>MX Tracker →</a>
+     <a class="hbtn" style="margin-top:0;background:#3F7FD0;color:#fff" href="hourly.html" target="_blank"><svg width="17" height="17" viewBox="0 0 32 32" style="vertical-align:-3px;margin-right:5px"><circle cx="16" cy="16" r="15" fill="#0e244d"/><path d="M16 7c-3.6 0-6 2.6-6 6.5 0 4-1.2 5.4-2 6.2-.5.5-.1 1.3.6 1.3h14.8c.7 0 1.1-.8.6-1.3-.8-.8-2-2.2-2-6.2C22 9.6 19.6 7 16 7z" fill="#E3C77A"/><path d="M13.5 23a2.5 2.5 0 0 0 5 0z" fill="#E3C77A"/></svg>Hourly Alarm</a>
+    </div>
+   </div>
+  </div>
+  <div class="theme" id="theme"></div>
+ </header>
+ <div class="kpis" id="kpis"></div>
+ <div class="trklegend"><b>📂 Projects — where we stand</b><span>Each project tracks 4 things: 📖 Book · 🌐 Website · 📱 App · ▶️ YouTube &nbsp;—&nbsp; <i class="lg done">solid = done</i> · <i class="lg wip">outline = building</i> · <i class="lg none">faded = missing</i>. &nbsp;Panels auto-pack to fill any gap.</span></div>
+ <div class="masonry" id="board"></div>
+ <div class="foot">All work offered in service to the Supreme Lord 🙏 &nbsp;·&nbsp; your ticks save on this device &nbsp;·&nbsp; click ⟳ refresh anytime</div>
+</div>
+
+<script>
+/* ============ cover art ============ */
+const CV={hok:"data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20120%20170'%3E%3Crect%20width='120'%20height='170'%20fill='%2315233f'/%3E%3Cpolygon%20points='62,28%2098,132%2026,132'%20fill='%231d3a6b'/%3E%3Cpolygon%20points='62,28%2078,74%2046,74'%20fill='%23c6a249'/%3E%3Ctext%20x='60'%20y='150'%20fill='%23e6c878'%20font-family='Georgia'%20font-size='12'%20text-anchor='middle'%3EHeights%3C/text%3E%3C/svg%3E",
+ leaf:"data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 120'><rect width='80' height='120' fill='%23f3efe2'/><rect x='2.5' y='2.5' width='75' height='115' fill='none' stroke='%231f5e3a' stroke-width='1.3'/><g transform='translate(8,14)'><path d='M44 16c-14 0-26 9-26 24 0 3 1 6 2 8 8-2 24-10 24-32z' fill='%232f7d4f'/><path d='M20 48c6-14 16-22 22-28' stroke='%23f3efe2' stroke-width='2.4' fill='none' stroke-linecap='round'/></g><text x='40' y='99' fill='%231f5e3a' font-family='Georgia,serif' font-size='10' font-weight='700' text-anchor='middle'>ONE LEAF</text><text x='40' y='110' fill='%235b6b50' font-family='Georgia,serif' font-size='8' font-style='italic' text-anchor='middle'>Tulasi</text></svg>",
+ mantra:"data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 120'><rect width='80' height='120' fill='%232c376b'/><rect x='2.5' y='2.5' width='75' height='115' fill='none' stroke='%23C6A249' stroke-width='1.4'/><g transform='translate(40,40)' stroke='%23E8CD7C' stroke-width='2' fill='none' stroke-linecap='round'><circle cx='0' cy='0' r='3.4' fill='%23E8CD7C' stroke='none'/><path d='M8 -7 A10 10 0 0 1 8 7'/><path d='M14 -12 A18 18 0 0 1 14 12'/><path d='M-8 -7 A10 10 0 0 0 -8 7'/><path d='M-14 -12 A18 18 0 0 0 -14 12'/></g><text x='40' y='86' fill='%23F4F6FC' font-family='Georgia,serif' font-size='10' font-weight='700' text-anchor='middle'>ONE</text><text x='40' y='98' fill='%23E8CD7C' font-family='Georgia,serif' font-size='9.5' font-weight='700' text-anchor='middle'>MANTRA</text><text x='40' y='109' fill='%23aab4dd' font-family='Georgia,serif' font-size='7' font-style='italic' text-anchor='middle'>Harinam</text></svg>",
+ fast:'cover-fast.png',
+ cow:"data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 120'><rect width='80' height='120' fill='%236b3a24'/><rect x='2.5' y='2.5' width='75' height='115' fill='none' stroke='%23C6A249' stroke-width='1.4'/><g transform='translate(40,42)' fill='%23E8CD7C'><ellipse cx='2' cy='4' rx='15' ry='9'/><circle cx='-13' cy='-1' r='5.5'/><path d='M-19 -7 q-3 -6 1 -7 q2 4 3 6z'/><path d='M-8 -7 q3 -6 -1 -7 q-2 4 -3 6z'/></g><text x='40' y='86' fill='%23F4ece2' font-family='Georgia,serif' font-size='10' font-weight='700' text-anchor='middle'>ONE</text><text x='40' y='98' fill='%23E8CD7C' font-family='Georgia,serif' font-size='9.5' font-weight='700' text-anchor='middle'>COW</text><text x='40' y='109' fill='%23d8b08c' font-family='Georgia,serif' font-size='7' font-style='italic' text-anchor='middle'>Go-seva</text></svg>",
+ soul:"data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 120'><rect width='80' height='120' fill='%237a2540'/><rect x='2.5' y='2.5' width='75' height='115' fill='none' stroke='%23C6A249' stroke-width='1.4'/><g transform='translate(40,40)'><path d='M0 -17 C7 -6 7 7 0 15 C-7 7 -7 -6 0 -17Z' fill='%23E8CD7C'/><circle cx='0' cy='-1' r='4' fill='%237a2540'/></g><text x='40' y='86' fill='%23F4D9E2' font-family='Georgia,serif' font-size='10' font-weight='700' text-anchor='middle'>ONE</text><text x='40' y='98' fill='%23E8CD7C' font-family='Georgia,serif' font-size='9.5' font-weight='700' text-anchor='middle'>SOUL</text><text x='40' y='109' fill='%23d99ab0' font-family='Georgia,serif' font-size='6.5' font-style='italic' text-anchor='middle'>the devotee</text></svg>",
+ yatra:"data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 120'><rect width='80' height='120' fill='%238f3e15'/><rect x='2.5' y='2.5' width='75' height='115' fill='none' stroke='%23C6A249' stroke-width='1.4'/><g transform='translate(40,44)'><path d='M0 -20 L7 -17 L0 -14 Z' fill='%23E8CD7C'/><circle cx='0' cy='-13' r='1.5' fill='%23E8CD7C'/><path d='M0 -11 C7 -1 8 9 9 19 L-9 19 C-8 9 -7 -1 0 -11 Z' fill='%23E8CD7C'/><rect x='-2.5' y='12' width='5' height='7' fill='%238f3e15'/></g><path d='M22 80 Q34 72 40 70 Q47 68 56 60' fill='none' stroke='%23e0b48c' stroke-width='1.4' stroke-dasharray='2.6 2.6' stroke-linecap='round'/><text x='40' y='98' fill='%23F4E4D2' font-family='Georgia,serif' font-size='9.5' font-weight='700' text-anchor='middle'>ONE YATRA</text><text x='40' y='109' fill='%23e0b48c' font-family='Georgia,serif' font-size='7' font-style='italic' text-anchor='middle'>pilgrimage</text></svg>",
+ rkk:"data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 120'><rect width='80' height='120' fill='%237a0d33'/><rect x='2.5' y='2.5' width='75' height='115' fill='none' stroke='%23C6A249' stroke-width='1.4'/><g transform='translate(40,42)'><circle cx='0' cy='0' r='13' fill='none' stroke='%23E8CD7C' stroke-width='1.4'/><path d='M0 -13 C5 -5 5 5 0 13 C-5 5 -5 -5 0 -13Z' fill='%23E8A0B8'/><path d='M-13 0 C-5 -5 5 -5 13 0 C5 5 -5 5 -13 0Z' fill='%23E8A0B8' opacity='.65'/><circle cx='0' cy='0' r='3' fill='%23C6A249'/></g><text x='40' y='80' fill='%23F4D9E2' font-family='Georgia,serif' font-size='8' font-weight='700' text-anchor='middle'>RADHA KRIPA</text><text x='40' y='91' fill='%23E8CD7C' font-family='Georgia,serif' font-size='8.5' font-weight='700' text-anchor='middle'>KATAKSHA</text><text x='40' y='104' fill='%23d99ab0' font-family='Georgia,serif' font-size='7' font-style='italic' text-anchor='middle'>listen + recite</text></svg>",
+ heights:"data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 120'><rect width='80' height='120' fill='%231a1714'/><rect x='2.5' y='2.5' width='75' height='115' fill='none' stroke='%23C6A249' stroke-width='1.4'/><text x='40' y='30' fill='%23EDE7DA' font-family='Georgia,serif' font-size='10' font-weight='700' text-anchor='middle'>HEIGHTS</text><text x='40' y='43' fill='%23EDE7DA' font-family='Georgia,serif' font-size='10' font-weight='700' text-anchor='middle'>OF</text><text x='40' y='56' fill='%23EDE7DA' font-family='Georgia,serif' font-size='10' font-weight='700' text-anchor='middle'>IGNORANCE</text><rect x='14' y='99' width='9' height='11' fill='%23B4B2A9'/><rect x='27' y='89' width='9' height='21' fill='%2397C459'/><rect x='40' y='80' width='9' height='30' fill='%23EF9F27'/><rect x='53' y='69' width='9' height='41' fill='%23C0392B'/></svg>",
+ profit:"data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 120'><rect width='80' height='120' fill='%230f1a14'/><rect x='2.5' y='2.5' width='75' height='115' fill='none' stroke='%23C6A249' stroke-width='1.4'/><path d='M20 60 L34 46 L44 54 L60 34' fill='none' stroke='%2397C459' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/><path d='M53 34 L61 34 L61 42' fill='none' stroke='%2397C459' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/><text x='40' y='90' fill='%23EDE7DA' font-family='Georgia,serif' font-size='9.5' font-weight='700' text-anchor='middle'>PROFIT</text><text x='40' y='101' fill='%2397C459' font-family='Georgia,serif' font-size='6.5' font-style='italic' text-anchor='middle'>Fitness Codex</text></svg>",
+ gmbm:'cover-gmbm.png',
+ huknomi:'cover-huknomi.png',
+ transkeyer:'cover-transkeyer.png',
+ kcfast:"data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 120'><rect width='80' height='120' fill='%2315356E'/><rect x='2.5' y='2.5' width='75' height='115' fill='none' stroke='%23C6A249' stroke-width='1.4'/><text x='40' y='42' fill='%23E8CD7C' font-family='Georgia,serif' font-size='21' font-weight='700' text-anchor='middle'>KC</text><text x='40' y='64' fill='%23F4F6FC' font-family='Georgia,serif' font-size='16' font-weight='700' text-anchor='middle'>FAST</text><text x='40' y='88' fill='%23aab4dd' font-family='Georgia,serif' font-size='6.5' font-style='italic' text-anchor='middle'>Knowledge</text><text x='40' y='98' fill='%23aab4dd' font-family='Georgia,serif' font-size='6.5' font-style='italic' text-anchor='middle'>free for all, fast</text></svg>",
+ ungh:"data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 120'><rect width='80' height='120' fill='%230b0b0d'/><rect x='2.5' y='2.5' width='75' height='115' fill='none' stroke='%23C6A249' stroke-width='1.4'/><text x='40' y='41' fill='%23E8CD7C' font-family='Georgia,serif' font-size='20' font-weight='700' text-anchor='middle'>UN</text><text x='40' y='60' fill='%23E8CD7C' font-family='Georgia,serif' font-size='20' font-weight='700' text-anchor='middle'>GH</text><text x='40' y='82' fill='%23ECE8DF' font-family='Georgia,serif' font-size='6.6' font-weight='700' text-anchor='middle'>ULTRA NEUTRAL</text><text x='40' y='92' fill='%23ECE8DF' font-family='Georgia,serif' font-size='6.6' font-weight='700' text-anchor='middle'>GROWTH HACKER</text><text x='40' y='106' fill='%23C6A249' font-family='Georgia,serif' font-size='6' font-style='italic' text-anchor='middle'>loyal to results</text></svg>"
+};
+/* ============ urls ============ */
+const U={
+ oneleaf:'oneleaf.html',
+ onemantra:'onemantra.html',
+ onefast:'onefast.html',
+ onesoul:'onesoul.html',
+ ekadashiapp:'ekadashiapp.html',
+ rkk:'rkk.html',
+ huknomi:'huknomi.html',
+ transkeyer:'transkeyer.html',
+ kcfast:'kcfast.html',
+ gmbm:'gmbm.html',
+ ungh:'ungh.html',
+ heights:'heights.html',
+ hok:'hok.html',
+ quiz:'quiz.html',
+ profitscore:'profitscore.html',
+ mx:'mx.html',
+ booktracker:'booktracker.html',
+ hourly:'hourly.html',
+ yt:'https://studio.youtube.com'
+};
+/* ============ CONFIG — edit these as life moves ============ */
+const CFG={
+ journeyStart:[2026,5,12],
+ japaDailyMin:18, japaEkadashiMin:32, japaSeed:{date:'2026-06-16',done:12},
+ winsToday:'Heights of Ignorance full draft · Heights of Knowledge L1–L6 · Transkeyer full draft + compiled (234 pp, ready) · Plank to Platform & The Good Company kicked off · Master Book Library + Tracker built (49 books)',
+ ekadashi:['2026-06-25','2026-07-10','2026-07-25','2026-08-09','2026-08-23'],
+ youtube:[
+  {n:'Future Proofing Lifestyle',s:'Main channel · ProFit',m:'Goal → 1,000,000 subs',st:'grow',url:'https://studio.youtube.com'},
+  {n:'Ekadashi Fasting',s:'Devotional music',m:'474 / 500 subs → monetize!',st:'close',url:'https://studio.youtube.com'},
+  {n:'Spiritual Science Simplified',s:'Shiva & all demigods',m:'⚠ Needs phone verification',st:'warn',url:'https://studio.youtube.com'},
+  {n:"Meeda's channel",s:'Daughter (10) · Ayurveda',m:'Just launched 🌱',st:'new',url:'https://studio.youtube.com'},
+ ],
+ money:{recent:[
+  {t:'Prashana Shambhama (Sri Lanka)',a:34000,d:'in',w:'Jun 12'},
+  {t:'Prashana Shambhama (Sri Lanka)',a:16000,d:'in',w:'Jun 13'},
+  {t:'Outside food — disliked, wasted',a:997,d:'out',w:'Jun 13'},
+ ],note:'Giridhari Prabhu — funds expected in ~1–2 weeks. 16 GoDaddy domains held (auto-renew OFF).'},
+ books:[
+  {t:"ProFit — The Professional Fitness Codex",c:"M",s:"drafted"},
+  {t:"Hu-Kno-Mi — The Human Knowledge Mission",c:"M",s:"drafting"},
+  {t:"The Eternal Enterprise (PVM)",c:"M",s:"drafted"},
+  {t:"The First Two Questions",c:"M",s:"drafted"},
+  {t:"Two Questions That Can Change Your Life",c:"M",s:"drafted"},
+  {t:"Heights of Ignorance",c:"M",s:"fulldraft"},
+  {t:"Heights of Knowledge",c:"M",s:"drafting"},
+  {t:"Transkeyer — Book 1 (The 4 Keys) · 234 pp, ready to publish",c:"M",s:"ready"},
+  {t:"Good Money, Bad Money",c:"M",s:"fulldraft"},
+  {t:"Hu-Kno-Mian Parenting (Financial Freedom 16–20)",c:"M",s:"planned"},
+  {t:"Plank to Platform",c:"M",s:"planned"},
+  {t:"The Good Company",c:"M",s:"planned"},
+  {t:"AI 2.0 — Hu-Kno-Mian AI",c:"M",s:"planned"},
+  {t:"Awesome You in an Awesome World",c:"M",s:"idea"},
+  {t:"Unstoppable",c:"M",s:"idea"},
+  {t:"Little Sparrow",c:"M",s:"idea"},
+  {t:"Power of 108",c:"M",s:"idea"},
+  {t:"Financial Freedom in 4 Years",c:"M",s:"idea"},
+  {t:"Financial Freedom in 90 Days",c:"M",s:"idea"},
+  {t:"Golden Opportunity",c:"M",s:"idea"},
+  {t:"Clueless",c:"M",s:"idea"},
+  {t:"Musk Mars Madness",c:"M",s:"idea"},
+  {t:"Metaverse vs Material Universe",c:"M",s:"idea"},
+  {t:"Nuker",c:"M",s:"idea"},
+  {t:"Levels of Success",c:"M",s:"idea"},
+  {t:"Life = The Golden Pencil",c:"M",s:"idea"},
+  {t:"Layers of Reality",c:"M",s:"idea"},
+  {t:"Future of Politics",c:"M",s:"idea"},
+  {t:"Women — the Backbone of Society",c:"M",s:"idea"},
+  {t:"Dangers of the 3 C's",c:"M",s:"idea"},
+  {t:"Miracle Tube / Miracle Box",c:"M",s:"idea"},
+  {t:"Million-Dollar Author",c:"M",s:"idea"},
+  {t:"365 Books (writing project)",c:"M",s:"idea"},
+  {t:"Process & Progress",c:"M",s:"idea"},
+  {t:"One Leaf Can Change Your Life (Tulasi) · 21 ch, ready to publish",c:"S",s:"ready"},
+  {t:"One Mantra Can Change Your Life (Harinam) · FULL DRAFT, 12 parts + site live",c:"S",s:"fulldraft"},
+  {t:"One Fast Can Change Your Life (Ekadashi) · 15 parts, full draft + listening dashboard",c:"S",s:"drafting"},
+  {t:"One Soul Can Change Your Life (Vaishnava-seva) · FULL DRAFT, 19 parts + listening dashboard",c:"S",s:"fulldraft"},
+  {t:"One Cow Can Change Your Life (Go-seva) · planned",c:"S",s:"planned"},
+  {t:"Who's Eating Your Bhakti?",c:"S",s:"idea"},
+  {t:"The Temple's Core Function",c:"S",s:"idea"},
+  {t:"The Art of Chanting",c:"S",s:"idea"},
+  {t:"108",c:"S",s:"idea"},
+  {t:"Knowledge",c:"S",s:"idea"},
+  {t:"Humility",c:"S",s:"idea"},
+  {t:"Value of Life",c:"S",s:"idea"},
+  {t:"Sinless Food",c:"S",s:"idea"},
+  {t:"Transkeyer — Book 2 (The 5th Key)",c:"S",s:"planned"},
+  {t:"MillBill Codex",c:"M",s:"confirm"},
+  {t:"Millions Made Easy",c:"M",s:"confirm"},
+  {t:"Money Man",c:"M",s:"confirm"},
+  {t:"Smart Boss",c:"M",s:"planned"},
+  {t:'"RAN" (codename)',c:"M",s:"confirm"}
+ ],
+ apps:[
+  {n:"What's Your Level? Quiz",s:"Free self-test · feeds your email list",st:"live",url:U.quiz},
+  {n:'2Q Clarity Compass',s:'Answer engine + KRIs',st:'wip'},
+  {n:'Voice Tasks',s:'Voice to-do app',st:'wip'},
+  {n:'Read-aloud player',s:'Listen to replies (TTS)',st:'live'},
+  {n:'Faceless Video Engine',s:'Auto faceless reels',st:'parked'},
+ ],
+ routine:[
+  {id:'japa',t:'18 japa rounds',m:'one per waking hour'},
+  {id:'hp1',t:'HP1 — honour prasadam',m:'~8 AM'},
+  {id:'hp2',t:'HP2 — honour prasadam',m:'~4:30 PM'},
+  {id:'yt',t:'YouTube Network Check',m:'subs · comments · upload'},
+  {id:'ilh',t:'ILH / FPL deep block',m:'your #1'},
+  {id:'body',t:'Body / movement',m:'toward lean'},
+  {id:'family',t:'Family connect',m:'wife · daughters · mother'},
+  {id:'eod',t:'EOD — log the day in MX',m:'audit the 24h'},
+  {id:'sleep',t:'Sleep on time',m:'protect tomorrow'},
+ ],
+ priSeed:[
+  'Finish & RELEASE the Tulasi book (One Leaf) — full focus today',
+  'Complete the supplement books (Good Money Bad Money · Heights x2 · Transkeyer)',
+  'Build the FPL Network platform — books + channels become funnels → Base Camp',
+ ],
+ tools:[
+  ['🎥 YouTube Studio','https://studio.youtube.com'],
+  ['📺 YT Dashboard','file:///C:/Users/OmJai%20V%20Tirupani/OneDrive/Documents/YouTube%20Dashboard/index.html'],
+  ['🎬 Video Board','file:///C:/Users/OmJai%20V%20Tirupani/OneDrive/Documents/Ekadashi%20Fasting/Video%20Upload%20Tracker.html'],
+  ['🎵 Suno','https://suno.com/create'],
+  ['🎬 VideoExpress','https://app.videoexpress.ai'],
+  ['🖼️ Ideogram','https://ideogram.ai'],
+  ['🔑 GoDaddy','https://dcc.godaddy.com/control/portfolio'],
+ ],
+ projects:{
+  spiritual:[
+   {n:'One Leaf',tag:'Tulasi · the leaf',cover:CV.leaf,open:U.oneleaf,book:{st:'done',url:U.oneleaf},web:{st:'done',url:'https://justoneleaf.com'},app:{st:'none'},yt:{st:'none'}},
+   {n:'One Mantra',tag:'Harinam · chanting',cover:CV.mantra,open:U.onemantra,book:{st:'done',url:U.onemantra},web:{st:'done',dom:'justonemantra.com',url:'https://justonemantra.com'},app:{st:'none'},yt:{st:'none'}},
+   {n:'One Fast',tag:'Ekadashi · fasting',cover:CV.fast,open:U.onefast,book:{st:'wip',url:U.onefast},web:{st:'done',url:'https://justonefast.com'},app:{st:'done',url:U.ekadashiapp},yt:{st:'done',url:U.yt}},
+   {n:'One Cow',tag:'Go-seva · the cow',cover:CV.cow,book:{st:'none'},web:{st:'none',dom:'justoneanimal.com'},app:{st:'none'},yt:{st:'none'}},
+   {n:'One Soul',tag:'Vaishnava-seva · the devotee',cover:CV.soul,open:U.onesoul,book:{st:'done',url:U.onesoul},web:{st:'none',dom:'justonesoul.com'},app:{st:'none'},yt:{st:'none'}},
+   {n:'One Yatra',tag:'pilgrimage · the sacred journey',cover:CV.yatra,book:{st:'none'},web:{st:'none',dom:'justoneyatra.com'},app:{st:'none'},yt:{st:'none'}},
+   {n:'Radha Kripa Kataksha',tag:'bhajan · listen + sing',cover:CV.rkk,open:U.rkk,book:{st:'none'},web:{st:'none'},app:{st:'done',url:U.rkk},yt:{st:'none'}},
+  ],
+  material:[
+   {n:'Hu-Kno-Mi',tag:'Human Knowledge Mission',cover:CV.huknomi,open:U.huknomi,book:{st:'wip',url:U.huknomi},web:{st:'done',url:'https://huknomi.com'},app:{st:'none'},yt:{st:'none'}},
+   {n:'Transkeyer',tag:'The 4 Keys · ready',cover:CV.transkeyer,open:U.transkeyer,book:{st:'done',url:U.transkeyer},web:{st:'none'},app:{st:'none'},yt:{st:'none'}},
+   {n:'Good Money, Bad Money',tag:'good vs bad money',cover:CV.gmbm,open:U.gmbm,book:{st:'wip',url:U.gmbm},web:{st:'none'},app:{st:'none'},yt:{st:'none'}},
+   {n:'Ultra Neutral Growth Hacker',tag:'loyal only to results',cover:CV.ungh,open:U.ungh,book:{st:'wip',url:U.ungh},web:{st:'none'},app:{st:'none'},yt:{st:'none'}},
+   {n:'Heights of Ignorance',tag:'the levels · 14 ch',cover:CV.heights,open:U.heights,book:{st:'wip',url:U.heights},web:{st:'none'},app:{st:'done',url:U.quiz},yt:{st:'none'}},
+   {n:'Heights of Knowledge',tag:'the climb · 9 levels',cover:CV.hok,open:U.hok,book:{st:'wip',url:U.hok},web:{st:'none'},app:{st:'none'},yt:{st:'none'}},
+   {n:'ProFit',tag:'Professional Fitness Codex',cover:CV.profit,open:U.profitscore,book:{st:'wip'},web:{st:'none'},app:{st:'done',url:U.profitscore},yt:{st:'wip',url:U.yt}},
+   {n:'KC FAST',tag:'Knowledge · free for all, fast',cover:CV.kcfast,open:U.kcfast,book:{st:'wip',url:U.kcfast},web:{st:'done',url:'https://kcfast.com'},app:{st:'none'},yt:{st:'none'}},
+  ]
+ },
+};
+const ST={live:['#1D9E75','Live'],done:['#1D9E75','Done'],content:['#1D9E75','Content done'],
+ wip:['#3F7FD0','In progress'],drafting:['#3F7FD0','Drafting'],designing:['#3F7FD0','Designing'],
+ draft:['#C6A249','Draft'],close:['#C6A249','Almost!'],grow:['#15356E','Growing'],
+ outlined:['#6b7280','Outlined'],planned:['#6b7280','Planned'],parallel:['#8B79C9','Parallel'],
+ parked:['#E08A1E','Parked'],warn:['#D8342F','Action'],new:['#1FB6A6','New']};
+const BSL={ready:['#0B8457','Ready ✓'],drafted:['#1D9E75','Drafted'],fulldraft:['#1D9E75','Full draft'],drafting:['#3F7FD0','Drafting'],planned:['#6b7280','Planned'],idea:['#9AA0AA','Idea'],confirm:['#8B79C9','Confirm?']};
+const THEMES={
+ 0:['Sunday','Renew · Restore · Reset','Avoid burnout','☀️'],
+ 1:['Monday','Alignment · PR','Responsibility · Persona','🧭'],
+ 2:['Tuesday','Stability · AI','Integrity · Attitude','🛡️'],
+ 3:['Wednesday','Direction · Decide','Clarity · CD','🎯'],
+ 4:['Thursday','Conversion · Execute','Knowledge · Accounts/P&L','📒'],
+ 5:['Friday','Compounding · Discipline','Skills · SD','📈'],
+ 6:['Saturday','Upgrade · Learn','Capacity','🔧'],
+};
+/* ============ helpers ============ */
+const ICO={
+ compass:`<svg width="17" height="17" viewBox="0 0 32 32" style="vertical-align:-3px"><circle cx="16" cy="16" r="15" fill="#15356E"/><circle cx="16" cy="16" r="12" fill="none" stroke="#C6A249" stroke-width="1.7"/><polygon points="16,5 19.5,16 12.5,16" fill="#E8CD7C"/><polygon points="16,27 19.5,16 12.5,16" fill="#F4F6FC"/><circle cx="16" cy="16" r="2.4" fill="#C6A249"/></svg>`,
+ mx:`<svg width="17" height="17" viewBox="0 0 32 32" style="vertical-align:-3px"><rect x="1" y="1" width="30" height="30" rx="7" fill="#2f6b12"/><text x="16" y="22" font-family="Arial" font-size="15" font-weight="700" fill="#E8CD7C" text-anchor="middle">MX</text></svg>`,
+ book:`<svg width="17" height="17" viewBox="0 0 32 32" style="vertical-align:-3px"><rect x="1" y="1" width="30" height="30" rx="7" fill="#534AB7"/><path d="M16,9C13,7.3,8.5,7.3,6,8.2V23C8.5,22.1,13,22.1,16,23.8C19,22.1,23.5,22.1,26,23V8.2C23.5,7.3,19,7.3,16,9Z" fill="#F4F1E4"/></svg>`,
+ bell:`<svg width="17" height="17" viewBox="0 0 32 32" style="vertical-align:-3px"><circle cx="16" cy="16" r="15" fill="#15356E"/><path d="M16 7c-3.6 0-6 2.6-6 6.5 0 4-1.2 5.4-2 6.2-.5.5-.1 1.3.6 1.3h14.8c.7 0 1.1-.8.6-1.3-.8-.8-2-2.2-2-6.2C22 9.6 19.6 7 16 7z" fill="#C6A249"/><path d="M13.5 23a2.5 2.5 0 0 0 5 0z" fill="#C6A249"/></svg>`
+};
+const $=id=>document.getElementById(id);
+const pad=n=>String(n).padStart(2,'0');
+function ymd(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
+function badge(st){const s=ST[st]||['#6b7280',st];return `<span class="badge" style="background:${s[0]}">${s[1]}</span>`;}
+function bbadge(s){const b=BSL[s]||['#6b7280',s];return `<span class="badge" style="background:${b[0]}">${b[1]}</span>`;}
+function dosha(h){if((h>=2&&h<6)||(h>=14&&h<18))return['Vata','#7C84C0'];if((h>=6&&h<10)||(h>=18&&h<22))return['Kapha','#5FA85A'];return['Pitta','#E0922E'];}
+function dayNum(now){const s=new Date(CFG.journeyStart[0],CFG.journeyStart[1],CFG.journeyStart[2]);const t=new Date(now.getFullYear(),now.getMonth(),now.getDate());return Math.max(1,Math.floor((t-s)/864e5)+1);}
+const INR=n=>'₹'+n.toLocaleString('en-IN');
+/* ============ project tracker ============ */
+const ASSET=[['book','📖','Book','#7E74E8'],['web','🌐','Website','#36C7B3'],['app','📱','App','#5B9BE6'],['yt','▶️','YouTube','#E8635F']];
+function projBox(p){
+ let done=0;
+ const btns=ASSET.map(a=>{const k=a[0],ic=a[1],lab=a[2],col=a[3];const v=p[k]||{st:'none'};
+  if(v.st==='done'&&v.url){done++;return `<a class="pa done" style="background:${col};border-color:${col}" href="${v.url}" target="_blank" title="${lab} — done">${ic} ${lab}</a>`;}
+  if(v.st==='wip'&&v.url){return `<a class="pa wip" style="color:${col};border-color:${col}" href="${v.url}" target="_blank" title="${lab} — building">${ic} ${lab}</a>`;}
+  if(v.st==='wip'){return `<span class="pa wip" style="color:${col};border-color:${col}" title="${lab} — building">${ic} ${lab}</span>`;}
+  const t=v.dom?(lab+' — '+v.dom+' (owned, not built)'):(lab+' — not started');
+  return `<span class="pa none" title="${t}">${ic} ${lab}</span>`;
+ }).join('');
+ const cc=done===4?'#1D9E75':done>0?'#C6A249':'#7d7d7d';
+ const op=p.open||'';
+ const head=`<div class="ptop">`+
+  (op?`<a href="${op}" target="_blank" style="display:flex;align-items:center;gap:11px;flex:1;min-width:0">`:`<div style="display:flex;align-items:center;gap:11px;flex:1;min-width:0">`)+
+  (p.cover?`<img src="${p.cover}" alt="" onerror="this.style.visibility='hidden'">`:`<div style="width:40px;height:60px;border-radius:5px;background:#1a1a1a;flex:0 0 auto"></div>`)+
+  `<div class="pmeta"><div class="pn">${p.n}</div><div class="ps">${p.tag||''}</div></div>`+
+  (op?`</a>`:`</div>`)+
+  `<span class="pcount" style="background:${cc}">${done}/4</span></div>`;
+ return {html:`<div class="pbox" draggable="true" data-proj="${p.n}" style="cursor:grab">${head}<div class="passets">${btns}</div></div>`,done};
+}
+function orderProjects(chan,list){
+ var saved=[]; try{saved=JSON.parse(localStorage.getItem('cc-projorder-'+chan)||'[]');}catch(e){saved=[];}
+ if(!saved||!saved.length) return list;
+ var by={}; list.forEach(function(p){by[p.n]=p;});
+ var out=[]; saved.forEach(function(n){ if(by[n]){ out.push(by[n]); delete by[n]; } });
+ list.forEach(function(p){ if(by[p.n]) out.push(p); }); // any new project not in saved order → falls to the bottom
+ return out;
+}
+function channelCol(title,icon,brand,projects,books,chanKey){
+ projects=orderProjects(chanKey,projects);
+ let tot=0; const secTot=projects.length*4;
+ const boxes=projects.map(p=>{const b=projBox(p);tot+=b.done;return b.html;}).join('');
+ const sc=tot===secTot?'#1D9E75':tot>0?'#C6A249':'#7d7d7d';
+ const bl=books.length?(`<div class="bklist"><div class="bkh">More books in this channel — ${books.length}</div>`+
+   books.map(b=>`<div class="bkr"><span>${b.t}</span>${bbadge(b.s)}</div>`).join('')+
+   `<a class="bkmore" href="${U.booktracker}" target="_blank">${ICO.book} Open the full Book Tracker ↗</a></div>`):'';
+ return `<div class="trkcol" data-chan="${chanKey}"><div class="trkhead"><div class="tt">${icon} ${title}</div><span class="cnt" style="background:${sc}" title="assets completed in this channel">${tot}/${secTot} done</span></div><div class="trkbrand">${brand}</div><div style="font-size:11px;color:#8a8f99;margin:2px 2px 9px">↕ drag a box to reorder · new ones add at the bottom</div>${boxes}${bl}</div>`;
+}
+/* ============ drag-to-reorder project boxes (persists per channel) ============ */
+(function(){
+ var dragName=null, dragChan=null;
+ function clearInd(){ [].forEach.call(document.querySelectorAll('.pbox'),function(b){ b.style.boxShadow=''; }); }
+ document.addEventListener('dragstart',function(e){
+  var box=e.target.closest&&e.target.closest('.pbox'); if(!box) return;
+  var col=box.closest('.trkcol'); if(!col) return;
+  dragName=box.getAttribute('data-proj'); dragChan=col.getAttribute('data-chan');
+  box.style.opacity='.4';
+  try{ e.dataTransfer.effectAllowed='move'; e.dataTransfer.setData('text/plain',dragName); }catch(_){}
+ });
+ document.addEventListener('dragend',function(e){
+  var box=e.target.closest&&e.target.closest('.pbox'); if(box) box.style.opacity='';
+  clearInd(); dragName=null; dragChan=null;
+ });
+ document.addEventListener('dragover',function(e){
+  if(!dragName) return;
+  var box=e.target.closest&&e.target.closest('.pbox'); if(!box) return;
+  var col=box.closest('.trkcol'); if(!col||col.getAttribute('data-chan')!==dragChan) return;
+  e.preventDefault(); clearInd();
+  var r=box.getBoundingClientRect(); var after=e.clientY>r.top+r.height/2;
+  box.style.boxShadow=after?'inset 0 -3px 0 #C6A249':'inset 0 3px 0 #C6A249';
+ });
+ document.addEventListener('drop',function(e){
+  if(!dragName) return;
+  var box=e.target.closest&&e.target.closest('.pbox');
+  var col=box?box.closest('.trkcol'):null;
+  if(!box||!col||col.getAttribute('data-chan')!==dragChan){ clearInd(); dragName=null; return; }
+  e.preventDefault();
+  var targetName=box.getAttribute('data-proj');
+  if(targetName!==dragName){
+   var r=box.getBoundingClientRect(); var after=e.clientY>r.top+r.height/2;
+   var order=[].map.call(col.querySelectorAll('.pbox'),function(b){return b.getAttribute('data-proj');});
+   order=order.filter(function(n){return n!==dragName;});
+   var ti=order.indexOf(targetName); order.splice(after?ti+1:ti,0,dragName);
+   localStorage.setItem('cc-projorder-'+dragChan,JSON.stringify(order));
+  }
+  clearInd(); dragName=null; dragChan=null;
+  if(typeof render==='function'){ render(); }
+  if(typeof relayout==='function'){ relayout(); }
+ });
+})();
+/* ============ live header ============ */
+function tick(){
+ const now=new Date();
+ $('clk').textContent=pad(now.getHours())+':'+pad(now.getMinutes());
+ const wd=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][now.getDay()];
+ const mo=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][now.getMonth()];
+ $('cdate').textContent=wd+', '+now.getDate()+' '+mo+' '+now.getFullYear();
+ const hr=now.getHours();
+ const g=hr<4?'Still going — late night 🌙':hr<12?'Good morning':hr<17?'Good afternoon':hr<21?'Good evening':'Good night 🌙';
+ $('greet').textContent=g+', Omjai · the comeback arc';
+}
+/* ============ masonry — greedy shortest-column packing ============ */
+let PANELS=[], _relayout=null;
+function relayout(){
+ const board=$('board'); if(!board) return;
+ const w=board.clientWidth||board.getBoundingClientRect().width||1000;
+ const ncol = w>=1180?3 : w>=720?2 : 1;
+ board.innerHTML='';
+ const cols=[],h=[];
+ for(let i=0;i<ncol;i++){const c=document.createElement('div');c.className='mcol';board.appendChild(c);cols.push(c);h.push(0);}
+ PANELS.forEach(function(html){
+  const t=document.createElement('div'); t.innerHTML=html; const el=t.firstElementChild; if(!el) return;
+  let mi=0; for(let i=1;i<ncol;i++){ if(h[i]<h[mi]) mi=i; }
+  cols[mi].appendChild(el); h[mi]+=el.offsetHeight+14;
+ });
+}
+/* ============ render ============ */
+function render(){
+ const now=new Date(),dn=dayNum(now),th=THEMES[now.getDay()],dh=dosha(now.getHours());
+ const today=ymd(now);
+ $('theme').innerHTML=`<span class="chip">${th[3]} <b>${th[0]}</b> · ${th[1]}</span>`+
+  `<span class="chip">${th[2]}</span>`+
+  `<span class="chip">Day <b>${dn}</b> / 90</span>`+
+  `<span class="chip">Dosha now: <b>${dh[0]}</b></span>`+
+  `<span class="chip">Hare Krishna 🙏</span>`;
+
+ // PROJECT TRACKER — two channels
+ const PROJNAMES=['One Leaf','One Mantra','One Fast','One Soul','One Yatra','One Cow','Hu-Kno-Mi','Transkeyer — Book 1','Good Money','Ultra Neutral Growth Hacker','Heights of Ignorance','ProFit'];
+ const inProj=t=>PROJNAMES.some(k=>t.indexOf(k)>=0);
+ const sBooks=CFG.books.filter(b=>b.c==='S'&&!inProj(b.t));
+ const mBooks=CFG.books.filter(b=>b.c==='M'&&!inProj(b.t));
+ const spiritualHTML=channelCol('Spiritual','🕉️',`<b>KC · Krishna Consciousness for all</b> — Pancha Maha Seva, the five gates · <a href="https://panchamahaseva.com" target="_blank">panchamahaseva.com ↗</a>`,CFG.projects.spiritual,sBooks,'spiritual');
+ const materialHTML=channelCol('Material','📈',`<b>FPL · Future Proofing Lifestyle</b> — the movement · <a href="https://www.futureproofinglifestyle.com" target="_blank">website ↗</a> · <a href="https://studio.youtube.com" target="_blank">channel ↗</a>`,CFG.projects.material,mBooks,'material');
+
+ // japa (per-day persisted)
+ const isEkadashi=CFG.ekadashi.indexOf(today)>=0;
+ const japaTarget=isEkadashi?CFG.japaEkadashiMin:CFG.japaDailyMin;
+ const nextEk=CFG.ekadashi.find(function(d){return d>=today;});
+ const jkey='cc-japa-'+today; let jDone=localStorage.getItem(jkey); jDone=jDone===null?((CFG.japaSeed&&CFG.japaSeed.date===today)?CFG.japaSeed.done:0):+jDone;
+ const jPct=Math.min(100,Math.round(jDone/japaTarget*100));
+ // money
+ let mIn=0,mOut=0; CFG.money.recent.forEach(r=>r.d==='in'?mIn+=r.a:mOut+=r.a);
+ // kpis
+ const kp=[
+  ['🗓️',dn,'/ 90','Comeback Day','var(--gold)'],
+  ['📿',jDone,'/ '+japaTarget,isEkadashi?'Japa · Ekadashi!':'Japa today','var(--navy)'],
+  ['▶️','474','/ 500','Ekadashi subs','var(--red)'],
+  ['💰','₹'+(mIn/1000)+'k','this week','Money in','var(--green)'],
+  ['⚖️','76','kg','→ lean (2 yr)','var(--orange)'],
+  ['📚',CFG.books.length,'books','In the library','var(--purple)'],
+ ];
+ $('kpis').innerHTML=kp.map(k=>`<div class="kpi"><div class="accent" style="background:${k[4]}"></div><div class="ic">${k[0]}</div><div class="v">${k[1]} <small>${k[2]}</small></div><div class="lab">${k[3]}</div></div>`).join('');
+
+ const cards=[];
+ // PERSONAL & PROFESSIONAL (sadhana + trackers, one big box)
+ cards.push(`<div class="card span2"><h3><span class="dot" style="background:#15356E"></span>Personal &amp; Professional<span class="x">trackers · sadhana · offered to Krishna</span></h3>`+
+  `<div class="ringwrap"><div class="ring" id="jring" title="click to update rounds" style="background:conic-gradient(var(--gold) ${jPct*3.6}deg, #eef1f6 0)"><div class="inner"><b>${jDone}</b><span>/ ${japaTarget} rounds</span></div></div>`+
+  `<div style="flex:1"><div style="font-size:13px;font-weight:600">${jPct}% of today's rounds · floor 18/day, 32 on Ekadashi</div>`+
+  `<div class="note" style="margin-top:8px">${nextEk?('Next Ekadashi: <b>'+nextEk+'</b> — fast + 32 rounds + 15-day review.'):'Ekadashi → Ekadashi = your 15-day review block.'}</div></div></div>`+
+  `<div class="launch">`+
+   `<a class="ltile" href="${U.mx}" target="_blank"><span class="lic">${ICO.mx}</span> MX Tracker</a>`+
+   `<a class="ltile" href="${U.booktracker}" target="_blank"><span class="lic">${ICO.book}</span> Book Tracker</a>`+
+   `<a class="ltile" href="${U.profitscore}" target="_blank"><span class="lic">📊</span> ProFit Score</a>`+
+   `<a class="ltile" href="${U.hourly}" target="_blank"><span class="lic">${ICO.bell}</span> Hourly Reminder</a>`+
+  `</div></div>`);
+ // TODAY
+ const tkey='cc-todo-'+today; const ticks=JSON.parse(localStorage.getItem(tkey)||'{}');
+ cards.push(`<div class="card span2"><h3><span class="dot" style="background:var(--green)"></span>Today · ${th[0]}<span class="x">${th[1]} · ${th[2]}</span></h3>`+
+  CFG.routine.map(r=>`<div class="todo ${ticks[r.id]?'done':''}" data-t="${r.id}"><div class="box">${ticks[r.id]?'✓':''}</div><div class="lbl">${r.t}</div><div class="mt">${r.m}</div></div>`).join('')+(CFG.winsToday?`<div class="note">★ Worked on today: ${CFG.winsToday}</div>`:'')+`</div>`);
+ // PRIORITIES
+ let pri=JSON.parse(localStorage.getItem('cc-pri2')||'null')||CFG.priSeed;
+ cards.push(`<div class="card"><h3><span class="dot" style="background:var(--navy)"></span>Top 3 — Big Rocks<span class="x">click to edit</span></h3>`+
+  pri.map((p,i)=>`<div class="pr" data-p="${i}"><div class="num">${i+1}</div><div>${p}</div></div>`).join('')+`</div>`);
+ // MONEY
+ cards.push(`<div class="card span2"><h3><span class="dot" style="background:var(--green)"></span>Money — this week<span class="x">Good money vs bad money</span></h3>`+
+  `<div class="money-top"><div class="mbox" style="background:#e8f3df;color:#2f6b12"><b>${INR(mIn)}</b><span>In</span></div>`+
+  `<div class="mbox" style="background:#fde9e8;color:#b32521"><b>${INR(mOut)}</b><span>Out</span></div>`+
+  `<div class="mbox" style="background:#e9eef8;color:#15356E"><b>${INR(mIn-mOut)}</b><span>Net</span></div></div>`+
+  CFG.money.recent.map(r=>`<div class="lr"><div class="n"><span>${r.d==='in'?'↘ ':''}${r.t}</span><small>${r.w}</small></div><span style="font-weight:600;color:${r.d==='in'?'#2f6b12':'#b32521'}">${r.d==='in'?'+':'−'}${INR(r.a)}</span></div>`).join('')+
+  `<div class="note">${CFG.money.note}</div></div>`);
+ // YOUTUBE
+ cards.push(`<div class="card"><h3><span class="dot" style="background:var(--red)"></span>YouTube Empire</h3>`+
+  CFG.youtube.map(c=>`<div class="lr"><div class="n"><span>${c.url?`<a href="${c.url}" target="_blank" style="color:var(--blue);font-weight:600">${c.n} ↗</a>`:c.n}</span><small>${c.s} · ${c.m}</small></div>${badge(c.st)}</div>`).join('')+`</div>`);
+ // BODY
+ cards.push(`<div class="card"><h3><span class="dot" style="background:var(--orange)"></span>Body — ProFit</h3>`+
+  `<div class="lr"><div class="n"><span>Weight → lean</span><small>176 cm · belly-fat focus</small></div><span style="font-weight:600">76 kg</span></div>`+
+  `<div class="bar"><i style="width:35%;background:var(--orange)"></i></div>`+
+  `<div class="lr" style="margin-top:6px"><div class="n"><span>Goal</span><small>Anatoly-lean</small></div><span style="font-size:12px;color:var(--mut)">~2 yr</span></div>`+
+  `<div class="lr"><div class="n"><span>2 meals/day</span><small>HP1 ~8 AM · HP2 ~4:30 PM</small></div></div>`+
+  `<div class="note">Nirjala fasting on Ekadashi · lacto-veg, no eggs · Salem heat</div></div>`);
+ // 90-DAY ARC
+ const aPct=Math.round(dn/90*100);
+ cards.push(`<div class="card"><h3><span class="dot" style="background:var(--gold)"></span>90-Day Comeback Arc</h3>`+
+  `<div style="font-size:26px;font-weight:700;color:var(--navy)">Day ${dn} <small style="font-size:14px;color:var(--mut);font-weight:500">/ 90</small></div>`+
+  `<div class="bar"><i style="width:${aPct}%;background:linear-gradient(90deg,var(--gold),var(--gold2))"></i></div>`+
+  `<div class="note">Bootstrapped → built. Sustainability baked in. Daily → Weekly → Ekadashi review. This becomes the story that inspires the FPL network.</div></div>`);
+ // APPS & TOOLS
+ cards.push(`<div class="card"><h3><span class="dot" style="background:var(--blue)"></span>Other Apps &amp; Tools</h3>`+
+  CFG.apps.map(a=>`<div class="lr"><div class="n"><span>${a.url?`<a href="${a.url}" target="_blank" style="color:var(--blue);font-weight:600">${a.n} ↗</a>`:a.n}</span><small>${a.s}</small></div>${badge(a.st)}</div>`).join('')+`</div>`);
+ // EXTERNAL TOOLS / QUICK LINKS
+ cards.push(`<div class="card span2"><h3><span class="dot" style="background:var(--teal)"></span>External Tools<span class="x">studios · domains · books now live in the two panels above</span></h3><div class="ql">`+
+  CFG.tools.map(l=>`<a href="${l[1]}" target="_blank">${l[0]}</a>`).join('')+`</div></div>`);
+
+ // assemble every panel (2 channels + all cards) and pack into the masonry
+ PANELS=[spiritualHTML,materialHTML].concat(cards);
+ function wireAll(){
+  document.querySelectorAll('.todo').forEach(el=>el.onclick=()=>{const id=el.dataset.t;ticks[id]=!ticks[id];localStorage.setItem(tkey,JSON.stringify(ticks));render();});
+  document.querySelectorAll('.pr').forEach(el=>el.onclick=()=>{const i=+el.dataset.p;const v=prompt('Edit priority '+(i+1)+':',pri[i]);if(v!==null){pri[i]=v.trim()||pri[i];localStorage.setItem('cc-pri2',JSON.stringify(pri));render();}});
+  const jr=$('jring'); if(jr)jr.onclick=()=>{const v=prompt('Rounds completed today:',jDone);if(v!==null&&!isNaN(+v)){localStorage.setItem(jkey,Math.max(0,+v));render();}};
+ }
+ _relayout=function(){ relayout(); wireAll(); };
+ _relayout();
+}
+let _rt; window.addEventListener('resize',function(){clearTimeout(_rt);_rt=setTimeout(function(){if(_relayout)_relayout();},150);});
+tick(); render();
+setInterval(tick,15000);
+</script>
+</body>
+</html>

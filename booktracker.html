@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Omjai's Book Tracker</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect x='1' y='1' width='30' height='30' rx='7' fill='%23534AB7'/><path d='M16,9C13,7.3,8.5,7.3,6,8.2V23C8.5,22.1,13,22.1,16,23.8C19,22.1,23.5,22.1,26,23V8.2C23.5,7.3,19,7.3,16,9Z' fill='%23F4F1E4'/><path d='M16,9V23.8' stroke='%23534AB7' stroke-width='1.3'/></svg>">
+<style>
+ :root{--bg:#14161a;--card:#1d2026;--card2:#23272f;--line:#2e333d;--tx:#e8e9ec;--mut:#969ba6;--ac:#6ea8fe;}
+ *{box-sizing:border-box;margin:0;padding:0}
+ body{font-family:'Segoe UI',system-ui,Arial,sans-serif;background:var(--bg);color:var(--tx);line-height:1.5;padding:24px;max-width:1000px;margin:0 auto}
+ h1{font-size:26px;font-weight:600}
+ .sub{color:var(--mut);font-size:15px;margin-top:4px}
+ .stats{display:flex;flex-wrap:wrap;gap:12px;margin:20px 0}
+ .stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 16px;min-width:120px}
+ .stat .n{font-size:26px;font-weight:600}
+ .stat .k{font-size:12px;color:var(--mut);text-transform:uppercase;letter-spacing:.04em;margin-top:2px}
+ .bar{height:10px;background:var(--card2);border-radius:6px;overflow:hidden;margin-top:8px;width:100%}
+ .bar > i{display:block;height:100%;background:#3fb950;width:0;transition:width .3s}
+ .controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:14px 0}
+ input,select,button{font:inherit;color:var(--tx);background:var(--card2);border:1px solid var(--line);border-radius:8px;padding:8px 12px}
+ input[type=text]{min-width:170px}
+ button{cursor:pointer}
+ button:hover{border-color:var(--ac)}
+ .chip{padding:7px 13px;border-radius:20px;font-size:14px}
+ .chip.on{background:var(--ac);color:#0b1220;border-color:var(--ac);font-weight:600}
+ .add{display:flex;flex-wrap:wrap;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;margin:8px 0 18px;align-items:center}
+ .add b{font-size:14px;color:var(--mut);margin-right:4px}
+ h2.sec{font-size:19px;margin:24px 0 10px;border-bottom:1px solid var(--line);padding-bottom:6px;display:flex;justify-content:space-between;align-items:baseline}
+ h2.sec span{font-size:14px;color:var(--mut);font-weight:400}
+ .row{display:flex;align-items:flex-start;gap:11px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:11px 13px;margin-bottom:7px}
+ .row.done{opacity:.5}
+ .cb{width:21px;height:21px;margin-top:2px;flex:0 0 auto;accent-color:#3fb950;cursor:pointer}
+ .rmain{flex:1 1 auto;min-width:0}
+ .title{font-size:16px}
+ .row.done .title{text-decoration:line-through}
+ .meta{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:6px}
+ .badge{font-size:12px;padding:2px 9px;border-radius:6px;font-weight:600}
+ .b-drafted,.b-fulldraft{background:#15351f;color:#5fd97e}
+ .b-drafting{background:#3a2f12;color:#f0c14b}
+ .b-planned{background:#13294a;color:#74aaf0}
+ .b-idea{background:#2a2e36;color:#aab1bd}
+ .b-confirm{background:#2e2147;color:#c4a7f5}
+ .stars{cursor:pointer;letter-spacing:3px;font-size:16px;color:#5b616b;user-select:none}
+ .iconbtn{background:none;border:none;color:var(--mut);padding:2px 6px;cursor:pointer;font-size:15px}
+ .iconbtn:hover{color:var(--ac)}
+ .note{margin-top:7px;width:100%;font-size:14px;background:var(--bg);border:1px dashed var(--line);border-radius:6px;padding:7px 10px;resize:vertical}
+ .foot{color:var(--mut);font-size:13px;margin-top:28px;border-top:1px solid var(--line);padding-top:14px;line-height:1.7}
+ .del{color:#e06c6c}
+</style>
+</head>
+<body>
+<h1>Omjai's Book Tracker</h1>
+<div class="sub">Every book you have planned &mdash; material &amp; spiritual. Tick what's done, set priority, add notes. Your changes save automatically on this PC.</div>
+
+<div class="stats" id="stats"></div>
+
+<div class="controls" id="filters">
+ <span class="chip on" data-cat="all">All</span>
+ <span class="chip" data-cat="M">Material</span>
+ <span class="chip" data-cat="S">Spiritual</span>
+ <span class="chip" data-cat="?">Maybe / later</span>
+ <select id="fstatus">
+  <option value="all">Any status</option>
+  <option value="drafted">Drafted</option>
+  <option value="fulldraft">Full draft</option>
+  <option value="drafting">Drafting</option>
+  <option value="planned">Planned</option>
+  <option value="idea">Idea</option>
+  <option value="confirm">Confirm?</option>
+ </select>
+ <input type="text" id="q" placeholder="Search title...">
+ <span class="chip" id="sortPrio">Sort by priority</span>
+ <span class="chip" id="hideDone">Hide completed</span>
+</div>
+
+<div class="add">
+ <b>Add a book:</b>
+ <input type="text" id="newTitle" placeholder="New book title">
+ <select id="newCat"><option value="M">Material</option><option value="S">Spiritual</option></select>
+ <select id="newStatus"><option value="idea">Idea</option><option value="planned">Planned</option><option value="drafting">Drafting</option><option value="drafted">Drafted</option><option value="confirm">Confirm?</option></select>
+ <button id="addBtn">Add</button>
+</div>
+
+<div id="list"></div>
+
+<div class="foot">
+ Saved on this PC &mdash; your ticks, priorities and notes stay even after you close the page (F5 to refresh).<br>
+ Each book has its own folder in: OneDrive &rsaquo; Documents &rsaquo; Book Library &rsaquo; My Books &rsaquo; Material Books / Spiritual Books.<br>
+ Stars = priority (click to set 1&ndash;3). The pencil opens a notes box. Custom books you add show a delete (&times;).
+</div>
+
+<script>
+(function(){
+ var DATA=[
+  {t:"ProFit — The Professional Fitness Codex",c:"M",s:"drafted"},
+  {t:"Hu-Kno-Mi — The Human Knowledge Mission",c:"M",s:"drafting"},
+  {t:"The Eternal Enterprise (PVM)",c:"M",s:"drafted"},
+  {t:"The First Two Questions",c:"M",s:"drafted"},
+  {t:"Two Questions That Can Change Your Life",c:"M",s:"drafted"},
+  {t:"Heights of Ignorance",c:"M",s:"fulldraft"},
+  {t:"Heights of Knowledge",c:"M",s:"drafting"},
+  {t:"Transkeyer — Book 1 (The 4 Keys)",c:"M",s:"drafting"},
+  {t:"Good Money, Bad Money",c:"M",s:"planned"},
+  {t:"Hu-Kno-Mian Parenting (Financial Freedom 16–20)",c:"M",s:"planned"},
+  {t:"Plank to Platform",c:"M",s:"planned"},
+  {t:"The Good Company",c:"M",s:"planned"},
+  {t:"AI 2.0 — Hu-Kno-Mian AI",c:"M",s:"planned"},
+  {t:"Awesome You in an Awesome World",c:"M",s:"idea"},
+  {t:"Unstoppable",c:"M",s:"idea"},
+  {t:"Little Sparrow",c:"M",s:"idea"},
+  {t:"Power of 108",c:"M",s:"idea"},
+  {t:"Financial Freedom in 4 Years",c:"M",s:"idea"},
+  {t:"Financial Freedom in 90 Days",c:"M",s:"idea"},
+  {t:"Golden Opportunity",c:"M",s:"idea"},
+  {t:"Clueless",c:"M",s:"idea"},
+  {t:"Musk Mars Madness",c:"M",s:"idea"},
+  {t:"Metaverse vs Material Universe",c:"M",s:"idea"},
+  {t:"Nuker",c:"M",s:"idea"},
+  {t:"Levels of Success",c:"M",s:"idea"},
+  {t:"Life = The Golden Pencil",c:"M",s:"idea"},
+  {t:"Layers of Reality",c:"M",s:"idea"},
+  {t:"Future of Politics",c:"M",s:"idea"},
+  {t:"Women — the Backbone of Society",c:"M",s:"idea"},
+  {t:"Dangers of the 3 C's",c:"M",s:"idea"},
+  {t:"Miracle Tube / Miracle Box",c:"M",s:"idea"},
+  {t:"Million-Dollar Author",c:"M",s:"idea"},
+  {t:"365 Books (writing project)",c:"M",s:"idea"},
+  {t:"Process & Progress",c:"M",s:"idea"},
+  {t:"One Leaf Can Change Your Life (Tulasi Maharani)",c:"S",s:"drafting"},
+  {t:"Who's Eating Your Bhakti?",c:"S",s:"idea"},
+  {t:"The Temple's Core Function",c:"S",s:"idea"},
+  {t:"The Art of Chanting",c:"S",s:"idea"},
+  {t:"108",c:"S",s:"idea"},
+  {t:"Knowledge",c:"S",s:"idea"},
+  {t:"Humility",c:"S",s:"idea"},
+  {t:"Value of Life",c:"S",s:"idea"},
+  {t:"Sinless Food",c:"S",s:"idea"},
+  {t:"Transkeyer — Book 2 (The 5th Key)",c:"S",s:"planned"},
+  {t:"MillBill Codex",c:"?",s:"confirm"},
+  {t:"Millions Made Easy",c:"?",s:"confirm"},
+  {t:"Money Man",c:"?",s:"confirm"},
+  {t:"Smart Boss",c:"M",s:"planned"},
+  {t:"\"RAN\" (codename)",c:"?",s:"confirm"}
+ ];
+ var KEY="omjai_book_tracker_v1";
+ var saved={}; try{saved=JSON.parse(localStorage.getItem(KEY)||"{}")}catch(e){}
+ var st={done:saved.done||{},prio:saved.prio||{},note:saved.note||{},custom:saved.custom||[]};
+ var f={cat:"all",status:"all",q:"",sortPrio:false,hideDone:false};
+ var openNotes={};
+ var SLABEL={drafted:"Drafted",fulldraft:"Full draft",drafting:"Drafting",planned:"Planned",idea:"Idea",confirm:"Confirm?"};
+ var SORDER={drafted:0,fulldraft:1,drafting:2,planned:3,idea:4,confirm:5};
+ var CATNAME={M:"Material books",S:"Spiritual / devotional books","?":"Maybe / later (revisit)"};
+
+ function save(){localStorage.setItem(KEY,JSON.stringify(st));}
+ function esc(x){return String(x).replace(/[&<>"]/g,function(m){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m];});}
+ function all(){return DATA.concat(st.custom);}
+
+ function renderStats(){
+  var b=all(),total=b.length,done=0,motion=0;
+  b.forEach(function(x){if(st.done[x.t])done++; if(x.s==="drafted"||x.s==="fulldraft"||x.s==="drafting"||x.s==="planned")motion++;});
+  var pct=total?Math.round(done/total*100):0;
+  document.getElementById("stats").innerHTML=
+   stat(total,"Total books")+stat(done,"Completed")+stat(motion,"In motion")+
+   '<div class="stat" style="flex:1 1 220px"><div class="n">'+pct+'%</div><div class="k">Progress</div><div class="bar"><i style="width:'+pct+'%"></i></div></div>';
+ }
+ function stat(n,k){return '<div class="stat"><div class="n">'+n+'</div><div class="k">'+k+'</div></div>';}
+
+ function renderList(){
+  var b=all().filter(function(x){
+   if(f.cat!=="all"&&x.c!==f.cat)return false;
+   if(f.status!=="all"&&x.s!==f.status)return false;
+   if(f.hideDone&&st.done[x.t])return false;
+   if(f.q&&x.t.toLowerCase().indexOf(f.q.toLowerCase())<0)return false;
+   return true;
+  });
+  var groups=["M","S","?"],html="";
+  groups.forEach(function(g){
+   var items=b.filter(function(x){return x.c===g;});
+   if(!items.length)return;
+   items.sort(function(a,d){
+    if(f.sortPrio){var pa=st.prio[a.t]||0,pd=st.prio[d.t]||0;if(pa!==pd)return pd-pa;}
+    return SORDER[a.s]-SORDER[d.s];
+   });
+   html+='<h2 class="sec">'+CATNAME[g]+'<span>'+items.length+'</span></h2>';
+   items.forEach(function(x){html+=rowHtml(x);});
+  });
+  document.getElementById("list").innerHTML=html||'<p style="color:var(--mut);padding:20px 0">No books match this filter.</p>';
+ }
+
+ function rowHtml(x){
+  var id=x.t,done=!!st.done[id],prio=st.prio[id]||0;
+  var custom=st.custom.indexOf(st.custom.filter(function(c){return c.t===id;})[0])>-1;
+  var isCustom=st.custom.some(function(c){return c.t===id;});
+  var stars="";for(var i=1;i<=3;i++)stars+=(i<=prio?"★":"☆");
+  var noteOpen=openNotes[id]||(st.note[id]&&st.note[id].length>0);
+  return '<div class="row'+(done?" done":"")+'" data-id="'+esc(id)+'">'+
+   '<input type="checkbox" class="cb"'+(done?" checked":"")+'>'+
+   '<div class="rmain">'+
+     '<div class="title">'+esc(x.t)+'</div>'+
+     '<div class="meta">'+
+       '<span class="badge b-'+x.s+'">'+SLABEL[x.s]+'</span>'+
+       '<span class="stars" title="Set priority">'+stars+'</span>'+
+       '<button class="iconbtn note-toggle" title="Notes">✎</button>'+
+       (isCustom?'<button class="iconbtn del del-btn" title="Delete">×</button>':'')+
+     '</div>'+
+     (noteOpen?'<textarea class="note" rows="2" placeholder="Notes, subtitle ideas, next step...">'+esc(st.note[id]||"")+'</textarea>':'')+
+   '</div>'+
+  '</div>';
+ }
+
+ function render(){renderStats();renderList();}
+
+ document.getElementById("list").addEventListener("change",function(e){
+  if(e.target.classList.contains("cb")){
+   var id=e.target.closest(".row").getAttribute("data-id");
+   if(e.target.checked)st.done[id]=true;else delete st.done[id];
+   save();render();
+  }
+ });
+ document.getElementById("list").addEventListener("click",function(e){
+  var row=e.target.closest(".row");if(!row)return;var id=row.getAttribute("data-id");
+  if(e.target.classList.contains("stars")){
+   st.prio[id]=((st.prio[id]||0)+1)%4;save();render();
+  }else if(e.target.classList.contains("note-toggle")){
+   openNotes[id]=!openNotes[id];render();
+  }else if(e.target.classList.contains("del-btn")){
+   st.custom=st.custom.filter(function(c){return c.t!==id;});
+   delete st.done[id];delete st.prio[id];delete st.note[id];save();render();
+  }
+ });
+ document.getElementById("list").addEventListener("input",function(e){
+  if(e.target.classList.contains("note")){
+   var id=e.target.closest(".row").getAttribute("data-id");
+   st.note[id]=e.target.value;save();
+  }
+ });
+
+ document.getElementById("filters").addEventListener("click",function(e){
+  if(e.target.dataset.cat){
+   f.cat=e.target.dataset.cat;
+   document.querySelectorAll("[data-cat]").forEach(function(c){c.classList.toggle("on",c===e.target);});
+   renderList();
+  }else if(e.target.id==="sortPrio"){f.sortPrio=!f.sortPrio;e.target.classList.toggle("on",f.sortPrio);renderList();}
+  else if(e.target.id==="hideDone"){f.hideDone=!f.hideDone;e.target.classList.toggle("on",f.hideDone);renderList();}
+ });
+ document.getElementById("fstatus").addEventListener("change",function(e){f.status=e.target.value;renderList();});
+ document.getElementById("q").addEventListener("input",function(e){f.q=e.target.value;renderList();});
+
+ document.getElementById("addBtn").addEventListener("click",function(){
+  var t=document.getElementById("newTitle").value.trim();if(!t)return;
+  if(all().some(function(x){return x.t.toLowerCase()===t.toLowerCase();})){alert("That title is already in the list.");return;}
+  st.custom.push({t:t,c:document.getElementById("newCat").value,s:document.getElementById("newStatus").value});
+  document.getElementById("newTitle").value="";save();render();
+ });
+ document.getElementById("newTitle").addEventListener("keydown",function(e){if(e.key==="Enter")document.getElementById("addBtn").click();});
+
+ render();
+})();
+</script>
+</body>
+</html>

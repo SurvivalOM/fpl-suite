@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="color-scheme" content="dark" />
+<meta name="theme-color" content="#0f1d3a" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="Chant Reminder" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<title>Chant Reminder · Future Proofing Lifestyle</title>
+<!-- Inline SVG favicon so the file stays single-file & offline -->
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='16' cy='16' r='15' fill='%231b2c54'/><path d='M16 6c-4 0-7 3-7 8v4l-2 3h18l-2-3v-4c0-5-3-8-7-8z' fill='%23c6a249'/><path d='M13 22a3 3 0 0 0 6 0' fill='none' stroke='%23c6a249' stroke-width='2' stroke-linecap='round'/></svg>" />
+<style>
+  :root {
+    /* Future Proofing Lifestyle brand — navy #1b2c54 + gold #c6a249 (matched to the suite) */
+    --bg: #0f1d3a;
+    --panel: #18294e;
+    --panel-2: #213461;
+    --line: #2a3f6b;
+    --text: #f3f5fb;
+    --muted: #99a5c2;
+    --accent: #c6a249;
+    --accent-2: #ddbf73;
+    --danger: #e2756b;
+    --good: #74c69d;
+    --shadow: 0 10px 40px rgba(0,0,0,.5);
+    --radius: 14px;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: radial-gradient(1200px 700px at 70% -10%, #24386a 0%, var(--bg) 55%);
+    color: var(--text);
+    display: flex;
+    justify-content: center;
+    padding: 24px 16px 60px;
+    padding-top: max(24px, env(safe-area-inset-top));
+  }
+  .app { width: 100%; max-width: 560px; }
+
+  /* ---- header / brand ---- */
+  .brandbar { display: flex; align-items: center; justify-content: center; gap: 11px; padding: 2px 0 14px; margin-bottom: 14px; border-bottom: 1px solid var(--line); }
+  .brandbar svg { width: 34px; height: 34px; filter: drop-shadow(0 2px 6px rgba(0,0,0,.45)); }
+  .brandword { font-size: 12.5px; letter-spacing: 3px; text-transform: uppercase; color: var(--accent); font-weight: 700; }
+  .titlewrap { text-align: center; margin-bottom: 18px; }
+  h1 { font-family: "Fraunces", "Georgia", serif; font-size: 24px; font-weight: 600; margin: 0; letter-spacing: -.01em; }
+  .sub { color: var(--muted); font-size: 12.5px; margin-top: 4px; }
+
+  /* ---- cards ---- */
+  .card {
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: var(--radius); box-shadow: var(--shadow);
+    padding: 18px; margin-bottom: 16px;
+  }
+  .card h2 { font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); margin: 0 0 14px; font-weight: 700; }
+
+  /* ---- status / bell ---- */
+  .status { text-align: center; }
+  .bell {
+    width: 96px; height: 96px; border-radius: 50%; margin: 2px auto 14px;
+    background: var(--panel-2); display: grid; place-items: center;
+    border: 1px solid var(--line); position: relative; color: var(--muted);
+    transition: .3s ease;
+  }
+  .bell.on { background: linear-gradient(135deg, var(--accent), var(--accent-2)); border-color: transparent; color: #11203f; }
+  .bell.paused { background: linear-gradient(135deg, #caa35a, #6f6243); border-color: transparent; color: #2a230f; }
+  .bell.on::after {
+    content: ""; position: absolute; inset: -7px; border-radius: 50%;
+    border: 2px solid var(--accent-2); animation: pulse 2.2s ease-out infinite;
+  }
+  @keyframes pulse { 0%{opacity:.6;transform:scale(.92)} 100%{opacity:0;transform:scale(1.28)} }
+  .bell svg { width: 46px; height: 46px; }
+  .bell .glyph { transform-origin: 50% 14%; }
+  .bell.ring .glyph { animation: swing 1.1s ease; }
+  @keyframes swing { 0%{transform:rotate(0)} 12%{transform:rotate(16deg)} 28%{transform:rotate(-13deg)} 44%{transform:rotate(10deg)} 60%{transform:rotate(-7deg)} 76%{transform:rotate(4deg)} 100%{transform:rotate(0)} }
+
+  .state { font-size: 14px; font-weight: 600; color: var(--muted); }
+  .state.run { color: var(--good); }
+  .state.paused { color: var(--accent-2); }
+  .countdown { font-family: "Fraunces", "Georgia", serif; font-variant-numeric: tabular-nums; font-size: 52px; line-height: 1.1; margin: 6px 0 2px; letter-spacing: -.01em; }
+  .nextline { color: var(--muted); font-size: 13px; min-height: 18px; }
+
+  .btn-row { display: flex; gap: 10px; margin-top: 18px; }
+  button { font: inherit; cursor: pointer; border: none; border-radius: 11px; color: var(--text); background: var(--panel-2); padding: 12px 14px; transition: .15s ease; }
+  button:hover { filter: brightness(1.12); }
+  button:active { transform: translateY(1px); }
+  button[hidden] { display: none; }
+  .btn-primary { flex: 1; background: var(--accent); color: #11203f; font-weight: 700; font-size: 16px; }
+  .btn-danger { flex: 1; background: var(--danger); color: #2a0f0c; font-weight: 700; font-size: 16px; }
+  .btn-pause { flex: 0 0 auto; background: transparent; border: 1px solid var(--line); color: var(--accent-2); font-weight: 600; }
+  .btn-ghost { background: transparent; border: 1px solid var(--line); color: var(--muted); }
+  .btn-test { width: 100%; margin-top: 10px; background: transparent; border: 1px solid var(--line); color: var(--muted); }
+
+  .pause-menu { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 12px; padding: 12px; background: var(--panel-2); border: 1px solid var(--line); border-radius: 11px; }
+  .pause-menu[hidden] { display: none; }
+  .pause-menu .pm-lbl { font-size: 13px; color: var(--muted); width: 100%; margin-bottom: 2px; }
+  .pause-menu button { font-size: 13px; padding: 7px 12px; border: 1px solid var(--line); background: transparent; color: var(--text); border-radius: 999px; }
+  .pause-menu button:hover { border-color: var(--accent); color: var(--accent-2); }
+
+  #soundHint {
+    margin-top: 14px; padding: 9px 12px; border-radius: 10px; font-size: 13px;
+    background: rgba(226,117,107,.12); border: 1px solid rgba(226,117,107,.4); color: var(--accent-2);
+    display: none; text-align: center;
+  }
+  #soundHint.show { display: block; }
+
+  /* ---- form controls ---- */
+  label.field { display: block; font-size: 13px; color: var(--muted); margin-bottom: 8px; }
+  textarea, input[type=number], select {
+    width: 100%; font: inherit; padding: 11px 13px; border-radius: 10px;
+    background: var(--panel-2); border: 1px solid var(--line); color: var(--text); resize: vertical;
+  }
+  textarea:focus, input:focus, select:focus { outline: none; border-color: var(--accent); }
+  textarea { min-height: 58px; line-height: 1.45; }
+  .row { margin-bottom: 16px; }
+  .row:last-child { margin-bottom: 0; }
+  .row[hidden] { display: none; }
+
+  /* mode segmented control */
+  .segmented { display: flex; gap: 8px; }
+  .seg { flex: 1; padding: 12px 10px; font-size: 13.5px; border: 1px solid var(--line); background: transparent; color: var(--muted); border-radius: 10px; text-align: center; line-height: 1.3; }
+  .seg.active { background: var(--panel-2); color: var(--text); border-color: var(--accent); font-weight: 600; }
+  .seg .seg-sub { display: block; font-size: 11px; color: var(--muted); margin-top: 3px; font-weight: 400; }
+  .seg.active .seg-sub { color: var(--accent-2); }
+
+  /* waking-hours window */
+  .window-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 14px; color: var(--muted); }
+  .window-row select { width: auto; min-width: 116px; flex: 0 0 auto; }
+  .hint { font-size: 12.5px; color: var(--muted); margin-top: 9px; line-height: 1.5; }
+  .hint b { color: var(--text); font-weight: 600; }
+
+  .interval-row { display: flex; align-items: center; gap: 10px; }
+  .interval-row input[type=number] { width: 92px; text-align: center; }
+  .interval-row .unit { color: var(--muted); font-size: 14px; }
+  .presets { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
+  .chip { padding: 6px 13px; font-size: 13px; border-radius: 999px; background: transparent; color: var(--muted); border: 1px solid var(--line); }
+  .chip.active { background: var(--panel-2); color: var(--text); border-color: var(--accent); }
+
+  .toggles { display: flex; flex-direction: column; gap: 13px; }
+  .switch { display: flex; align-items: center; gap: 11px; cursor: pointer; user-select: none; }
+  .switch input { position: absolute; opacity: 0; width: 0; height: 0; }
+  .track { width: 44px; height: 25px; border-radius: 999px; background: var(--panel-2); border: 1px solid var(--line); position: relative; transition: .2s; flex: none; }
+  .knob { position: absolute; top: 2px; left: 2px; width: 19px; height: 19px; border-radius: 50%; background: var(--muted); transition: .2s; }
+  .switch input:checked + .track { background: linear-gradient(135deg, var(--accent), var(--accent-2)); border-color: transparent; }
+  .switch input:checked + .track .knob { left: 21px; background: #11203f; }
+  .switch input:focus-visible + .track { outline: 2px solid var(--accent-2); outline-offset: 2px; }
+  .switch .lbl { font-size: 14.5px; }
+  .switch .lbl small { display: block; color: var(--muted); font-size: 12px; margin-top: 1px; }
+
+  .style-row { display: flex; gap: 8px; align-items: center; }
+  .style-row select { flex: 1; }
+  .icon-btn { width: 44px; flex: none; background: var(--panel-2); border: 1px solid var(--line); display: grid; place-items: center; font-size: 15px; }
+
+  details.adv { margin-top: 14px; border-top: 1px solid var(--line); padding-top: 12px; }
+  details.adv summary { cursor: pointer; color: var(--muted); font-size: 13px; list-style: none; }
+  details.adv summary::-webkit-details-marker { display: none; }
+  details.adv summary::before { content: "▸ "; color: var(--accent); }
+  details.adv[open] summary::before { content: "▾ "; }
+  .slider { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 10px; margin-top: 12px; font-size: 13px; color: var(--muted); }
+  .slider label { grid-column: 1 / -1; }
+  input[type=range] { width: 100%; accent-color: var(--accent); }
+  .slider .val { font-variant-numeric: tabular-nums; color: var(--text); min-width: 42px; text-align: right; }
+
+  /* ---- log ---- */
+  .log-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 4px; }
+  .log-head h2 { margin: 0; }
+  .clear-btn { background: transparent; color: var(--muted); border: 1px solid var(--line); font-size: 12.5px; padding: 6px 11px; }
+  .clear-btn:hover { color: var(--danger); border-color: var(--danger); }
+  .tally { display: flex; gap: 18px; margin: 10px 0 14px; }
+  .tally .num { font-family: "Fraunces","Georgia",serif; font-size: 26px; color: var(--accent-2); line-height: 1; }
+  .tally .cap { font-size: 11.5px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
+  ul.log { list-style: none; margin: 0; padding: 0; max-height: 240px; overflow-y: auto; }
+  ul.log li { display: flex; justify-content: space-between; align-items: center; padding: 9px 2px; border-bottom: 1px solid var(--line); font-size: 13.5px; }
+  ul.log li:last-child { border-bottom: none; }
+  ul.log li .when { color: var(--text); }
+  ul.log li .ago { color: var(--muted); font-size: 12px; }
+  .empty { text-align: center; color: var(--muted); padding: 22px 0; font-size: 13.5px; }
+
+  .foot { text-align: center; color: var(--muted); font-size: 12px; line-height: 1.7; margin-top: 4px; }
+  .foot .dot { color: var(--accent); margin: 0 5px; }
+  details.help { margin-top: 12px; }
+  details.help summary { cursor: pointer; color: var(--muted); font-size: 12.5px; }
+  details.help p { font-size: 12.5px; color: var(--muted); line-height: 1.6; margin: 9px 0; }
+  details.help b { color: var(--text); font-weight: 600; }
+
+  #toast {
+    position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%) translateY(20px);
+    background: var(--panel-2); border: 1px solid var(--line); color: var(--text);
+    padding: 11px 18px; border-radius: 999px; box-shadow: var(--shadow);
+    opacity: 0; pointer-events: none; transition: .25s ease; font-size: 14px; z-index: 50; max-width: 90vw; text-align: center;
+  }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  @media (max-width: 430px) { .segmented { flex-direction: column; } }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="brandbar">
+    <!-- lotus mark -->
+    <svg viewBox="0 0 40 40" aria-hidden="true">
+      <defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ddbf73"/><stop offset="1" stop-color="#c6a249"/></linearGradient></defs>
+      <g fill="url(#lg)">
+        <path d="M20 5 C16.5 13 16.5 19.5 20 26 C23.5 19.5 23.5 13 20 5Z"/>
+        <path d="M20 26 C12.5 22.5 9 16.5 9 9 C16 11 20 17.5 20 26Z" opacity=".95"/>
+        <path d="M20 26 C27.5 22.5 31 16.5 31 9 C24 11 20 17.5 20 26Z" opacity=".95"/>
+        <path d="M20 27 C13 28 7 26.5 3 21.5 C9.5 19.5 16.5 22 20 27Z" opacity=".8"/>
+        <path d="M20 27 C27 28 33 26.5 37 21.5 C30.5 19.5 23.5 22 20 27Z" opacity=".8"/>
+      </g>
+    </svg>
+    <span class="brandword">Future Proofing Lifestyle</span>
+  </div>
+
+  <div class="titlewrap">
+    <h1>Chant Reminder</h1>
+    <div class="sub">Ad-free hourly chime &amp; voice reminder · runs entirely on your device</div>
+  </div>
+
+  <!-- ============ STATUS ============ -->
+  <div class="card status">
+    <div class="bell" id="bell" aria-hidden="true">
+      <svg viewBox="0 0 64 64" fill="none">
+        <g class="glyph" fill="currentColor">
+          <path d="M32 8c-1.7 0-3 1.4-3 3 0 .5.1 1 .3 1.5C23 14 19 19.8 19 27v6.5c0 2.2-1.1 4.3-3 5.6l-1.6 1.1c-.8.6-.4 1.8.6 1.8h34c1 0 1.4-1.2.6-1.8L48 39.1c-1.9-1.3-3-3.4-3-5.6V27c0-7.2-4-13-10.3-14.5.2-.5.3-1 .3-1.5 0-1.6-1.3-3-3-3z"/>
+          <path d="M26 45a6 6 0 0 0 12 0z"/>
+        </g>
+      </svg>
+    </div>
+    <div class="state" id="state">Stopped</div>
+    <div class="countdown" id="countdown">—</div>
+    <div class="nextline" id="nextline">Press Start to begin</div>
+
+    <div class="btn-row">
+      <button class="btn-primary" id="startBtn">▶ Start</button>
+      <button class="btn-primary" id="resumeBtn" hidden>▶ Resume</button>
+      <button class="btn-pause" id="pauseBtn" hidden>⏸ Pause</button>
+      <button class="btn-danger" id="stopBtn" hidden>■ Stop</button>
+    </div>
+
+    <div class="pause-menu" id="pauseMenu" hidden>
+      <span class="pm-lbl">Pause for…</span>
+      <button data-min="15">15 min</button>
+      <button data-min="30">30 min</button>
+      <button data-min="60">1 hour</button>
+      <button data-min="120">2 hours</button>
+      <button data-min="0">Until I resume</button>
+    </div>
+
+    <button class="btn-test" id="testBtn">🔔 Test chime &amp; voice</button>
+    <div id="soundHint">🔇 Sound is locked by the browser — tap anywhere once to enable it.</div>
+  </div>
+
+  <!-- ============ SETTINGS ============ -->
+  <div class="card">
+    <h2>Reminder</h2>
+
+    <div class="row">
+      <label class="field">When to remind me</label>
+      <div class="segmented" id="modeSeg">
+        <button class="seg" data-mode="fromStart">Every hour from when I start<span class="seg-sub">first chime in 60 min</span></button>
+        <button class="seg" data-mode="clock">On the hour<span class="seg-sub">at :00, within your hours</span></button>
+      </div>
+    </div>
+
+    <div class="row" id="wakeRow" hidden>
+      <label class="field">Chime automatically during my waking hours</label>
+      <div class="window-row">
+        <span>From</span>
+        <select id="wakeStart"></select>
+        <span>to</span>
+        <select id="wakeEnd"></select>
+      </div>
+      <div class="hint">Rings at the <b>top of each hour</b> inside this window (e.g. 3:00, 4:00, 5:00…) and stays <b>silent overnight</b>. Press Start once to arm it — keep this tab open.</div>
+    </div>
+
+    <div class="row">
+      <label class="field" for="message">Spoken message</label>
+      <textarea id="message" spellcheck="false">Time to chant your round. Hare Krishna.</textarea>
+    </div>
+
+    <div class="row">
+      <label class="field" id="intervalLabel" for="interval">Remind me every</label>
+      <div class="interval-row">
+        <input type="number" id="interval" min="1" max="1440" step="1" value="60" />
+        <span class="unit">minutes</span>
+      </div>
+      <div class="presets" id="presets">
+        <button class="chip" data-min="15">15 min</button>
+        <button class="chip" data-min="30">30 min</button>
+        <button class="chip" data-min="60">1 hour</button>
+        <button class="chip" data-min="90">1.5 hr</button>
+        <button class="chip" data-min="120">2 hours</button>
+      </div>
+    </div>
+
+    <div class="row toggles">
+      <label class="switch">
+        <input type="checkbox" id="chimeOn" checked />
+        <span class="track"><span class="knob"></span></span>
+        <span class="lbl">Play chime</span>
+      </label>
+      <label class="switch">
+        <input type="checkbox" id="speechOn" checked />
+        <span class="track"><span class="knob"></span></span>
+        <span class="lbl">Speak the message aloud</span>
+      </label>
+    </div>
+
+    <div class="row">
+      <label class="field" for="chimeStyle">Chime sound</label>
+      <div class="style-row">
+        <select id="chimeStyle">
+          <option value="temple">Temple bell — single warm strike</option>
+          <option value="chime">Soft chime — gentle 3-note rise</option>
+          <option value="gong">Gong — deep, long resonance</option>
+        </select>
+        <button class="icon-btn" id="previewChime" title="Preview chime">▶</button>
+      </div>
+    </div>
+
+    <div class="row toggles">
+      <label class="switch">
+        <input type="checkbox" id="autoStart" />
+        <span class="track"><span class="knob"></span></span>
+        <span class="lbl">Start automatically when I open this app<small>arms the reminder the moment the page loads</small></span>
+      </label>
+      <label class="switch">
+        <input type="checkbox" id="wakeLock" />
+        <span class="track"><span class="knob"></span></span>
+        <span class="lbl">Keep screen awake<small>more reliable on phones, uses more battery</small></span>
+      </label>
+      <label class="switch">
+        <input type="checkbox" id="notify" />
+        <span class="track"><span class="knob"></span></span>
+        <span class="lbl">Show a pop-up notification<small>so you see it even if the sound is muted</small></span>
+      </label>
+    </div>
+
+    <details class="adv">
+      <summary>Voice &amp; volume options</summary>
+      <div class="row" style="margin-top:14px;">
+        <label class="field" for="voice">Voice</label>
+        <select id="voice"></select>
+      </div>
+      <div class="slider">
+        <label for="volume">Volume</label>
+        <input type="range" id="volume" min="0" max="1" step="0.05" value="0.9" />
+        <span class="val" id="volumeVal">90%</span>
+      </div>
+      <div class="slider">
+        <label for="rate">Speaking speed</label>
+        <input type="range" id="rate" min="0.5" max="1.5" step="0.05" value="0.95" />
+        <span class="val" id="rateVal">0.95×</span>
+      </div>
+      <div class="slider">
+        <label for="pitch">Voice pitch</label>
+        <input type="range" id="pitch" min="0.5" max="1.5" step="0.05" value="1.0" />
+        <span class="val" id="pitchVal">1.0</span>
+      </div>
+    </details>
+  </div>
+
+  <!-- ============ LOG ============ -->
+  <div class="card">
+    <div class="log-head">
+      <h2>Chant log</h2>
+      <button class="clear-btn" id="clearBtn">Clear</button>
+    </div>
+    <div class="tally">
+      <div><div class="num" id="todayCount">0</div><div class="cap">Today</div></div>
+      <div><div class="num" id="totalCount">0</div><div class="cap">All time</div></div>
+    </div>
+    <ul class="log" id="logList"></ul>
+  </div>
+
+  <div class="foot">
+    Runs offline <span class="dot">·</span> No ads <span class="dot">·</span> No tracking <span class="dot">·</span> Your data never leaves this device
+    <details class="help">
+      <summary>How the two modes work &amp; phone tips</summary>
+      <p><b>Every hour from when I start:</b> press Start and it chimes after each interval (e.g. every 60 min) until you Stop. Good for focused work sessions.</p>
+      <p><b>On the clock · waking hours:</b> chimes automatically at the top of each hour (3:00, 4:00, 5:00…) only inside your waking window, and is silent overnight. Press Start once to arm it; it keeps going day after day as long as the tab stays open.</p>
+      <p><b>Pause</b> (either mode): for a meeting or quiet time, pause for 15 min / 1 hour / etc. or until you resume — the chimes in that window are skipped. <b>Stop</b> turns it off completely.</p>
+      <p><b>On your phone:</b> open this file in your browser → menu → <b>Add to Home Screen</b>. Tap once to unlock sound. If the screen turns off the browser may pause timers — turn on <b>Keep screen awake</b> for the most reliable ringing.</p>
+      <p><b>Starts with Windows &amp; auto-runs:</b> the "Open Chant Reminder" launcher and the Startup shortcut open this in its own window and arm it automatically. To stop it opening at login, press Win+R, type <b>shell:startup</b>, and delete the Chant Reminder shortcut there.</p>
+      <p><b>Your settings &amp; log</b> are saved on this device automatically.</p>
+    </details>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+"use strict";
+(function () {
+  // ---------------------------------------------------------------- state
+  var KEY = "fpl_chant_reminder_v1";
+  var defaults = {
+    message: "Time to chant your round. Hare Krishna.",
+    intervalMin: 60,
+    mode: "clock",       // default: ring on the clock hour (:00 each hour) — a true hourly alarm
+    cfgV: 4,             // config version, for one-time setting migrations
+    wakeStart: 5,        // working-hours window start hour (0-23) — default 5 AM
+    wakeEnd: 22,         // working-hours window end hour (0-23) — default 10 PM
+    autoStart: true,     // arm automatically the moment the page opens
+    chimeOn: true,
+    speechOn: true,
+    chimeStyle: "temple",
+    volume: 0.9,
+    rate: 0.95,
+    pitch: 1.0,
+    voiceURI: null,
+    wakeLock: false,
+    notify: false
+  };
+  var settings = Object.assign({}, defaults);
+  var log = [];              // newest first: [{t: ms}, ...]
+  var running = false;       // armed?
+  var paused = false;        // temporarily suppressed?
+  var pauseResumeAt = null;  // ms timestamp to auto-resume, or null = until manually resumed
+  var nextFire = null;       // ms timestamp of the next chime
+  var baseTitle = "Chant Reminder · FPL";
+
+  function save() {
+    try {
+      localStorage.setItem(KEY, JSON.stringify({
+        settings: settings, log: log, running: running,
+        paused: paused, pauseResumeAt: pauseResumeAt, nextFire: nextFire
+      }));
+    } catch (e) {}
+  }
+  function load() {
+    try {
+      var raw = localStorage.getItem(KEY);
+      if (!raw) return;
+      var o = JSON.parse(raw);
+      if (o.settings) {
+        settings = Object.assign({}, defaults, o.settings);
+        // migrate old "alignToClock" flag → new mode
+        if (o.settings.alignToClock && !o.settings.mode) settings.mode = "clock";
+        delete settings.alignToClock;
+        // v4: ring on the clock hour (:00) within working hours 5 AM–10 PM — predictable hourly alarm
+        if (!o.settings.cfgV || o.settings.cfgV < 4) { settings.mode = "clock"; settings.wakeStart = 5; settings.wakeEnd = 22; settings.cfgV = 4; }
+      }
+      if (Array.isArray(o.log)) log = o.log;
+      running = !!o.running;
+      paused = !!o.paused;
+      pauseResumeAt = (typeof o.pauseResumeAt === "number") ? o.pauseResumeAt : null;
+      nextFire = (typeof o.nextFire === "number") ? o.nextFire : null;
+    } catch (e) {}
+  }
+
+  // ---------------------------------------------------------------- helpers
+  var $ = function (id) { return document.getElementById(id); };
+  function clamp(n, a, b) { return Math.max(a, Math.min(b, n)); }
+  function intervalMs() { return Math.max(1, settings.intervalMin) * 60000; }
+  function showEl(el, on) { el.hidden = !on; }
+
+  function fmtDur(ms) {
+    if (ms < 0) ms = 0;
+    var s = Math.ceil(ms / 1000);
+    var h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), ss = s % 60;
+    var p = function (n) { return String(n).padStart(2, "0"); };
+    return h > 0 ? h + ":" + p(m) + ":" + p(ss) : m + ":" + p(ss);
+  }
+  function fmtClock(ts) {
+    var d = new Date(ts), h = d.getHours(), m = d.getMinutes();
+    var ap = h >= 12 ? "PM" : "AM"; h = h % 12; if (h === 0) h = 12;
+    return h + ":" + String(m).padStart(2, "0") + " " + ap;
+  }
+  function hourLabel(h) {
+    var ap = h >= 12 ? "PM" : "AM"; var hh = h % 12; if (hh === 0) hh = 12;
+    return hh + ":00 " + ap;
+  }
+  function labelMin(min) {
+    if (min < 60) return min + " min";
+    var h = min / 60; return (h === 1 ? "1 hour" : h + " hours");
+  }
+  function sameDay(a, b) {
+    var da = new Date(a), db = new Date(b);
+    return da.getFullYear() === db.getFullYear() && da.getMonth() === db.getMonth() && da.getDate() === db.getDate();
+  }
+  function ago(ts) {
+    var s = Math.round((Date.now() - ts) / 1000);
+    if (s < 60) return "just now";
+    var m = Math.round(s / 60); if (m < 60) return m + "m ago";
+    var h = Math.round(m / 60); if (h < 24) return h + "h ago";
+    return Math.round(h / 24) + "d ago";
+  }
+
+  var toastTimer = null;
+  function toast(msg) {
+    var t = $("toast"); t.textContent = msg; t.classList.add("show");
+    clearTimeout(toastTimer); toastTimer = setTimeout(function () { t.classList.remove("show"); }, 2400);
+  }
+
+  // ---------------------------------------------------------------- audio (chime)
+  var actx = null;
+  function getCtx() {
+    if (!actx) {
+      try { var AC = window.AudioContext || window.webkitAudioContext; actx = new AC(); } catch (e) { actx = null; }
+    }
+    return actx;
+  }
+  var soundUnlocked = false;
+  function audioLocked() { return !actx || actx.state === "suspended"; }
+  function unlockAudio() {
+    var a = getCtx();
+    if (a && a.state === "suspended") { a.resume(); }
+    primeSpeech();
+    soundUnlocked = true;
+    $("soundHint").classList.remove("show");
+  }
+
+  var BELL = [{f:1,a:1,d:1},{f:2.01,a:.5,d:.85},{f:2.69,a:.34,d:.7},{f:3.42,a:.22,d:.6},{f:4.53,a:.13,d:.5},{f:5.4,a:.09,d:.42}];
+  var GLASS = [{f:1,a:1,d:1},{f:2,a:.28,d:.7},{f:3,a:.1,d:.5},{f:4.2,a:.05,d:.4}];
+  var GONG = [{f:1,a:1,d:1},{f:1.48,a:.6,d:.92},{f:1.97,a:.5,d:.86},{f:2.43,a:.35,d:.76},{f:3.1,a:.25,d:.66},{f:4.16,a:.18,d:.55},{f:5.43,a:.12,d:.45}];
+
+  function strike(a, dest, t0, freq, dur, level, partials) {
+    for (var i = 0; i < partials.length; i++) {
+      var p = partials[i];
+      var o = a.createOscillator(), g = a.createGain();
+      o.type = "sine";
+      o.frequency.value = freq * p.f;
+      var peak = Math.max(0.0001, level * p.a);
+      var end = t0 + dur * p.d;
+      g.gain.setValueAtTime(0.0001, t0);
+      g.gain.exponentialRampToValueAtTime(peak, t0 + 0.008);
+      g.gain.exponentialRampToValueAtTime(0.0001, end);
+      o.connect(g); g.connect(dest);
+      o.start(t0); o.stop(end + 0.05);
+    }
+  }
+  function playChime(style) {
+    var a = getCtx(); if (!a) return;
+    if (a.state === "suspended") a.resume();
+    var t = a.currentTime + 0.03;
+    var out = a.createGain(); out.gain.value = clamp(settings.volume, 0, 1);
+    var comp = a.createDynamicsCompressor();
+    var lp = a.createBiquadFilter(); lp.type = "lowpass";
+    lp.frequency.value = style === "gong" ? 3000 : (style === "temple" ? 5200 : 7000);
+    lp.connect(comp); comp.connect(out); out.connect(a.destination);
+    var base = 0.34;
+    if (style === "gong") {
+      strike(a, lp, t, 130.81, 5.6, base, GONG);
+      strike(a, lp, t + 0.02, 261.63, 4.4, base * 0.45, GLASS);
+    } else if (style === "chime") {
+      var seq = [523.25, 659.25, 783.99]; // C5 E5 G5
+      for (var i = 0; i < seq.length; i++) strike(a, lp, t + i * 0.17, seq[i], 2.0, base * 0.8, GLASS);
+    } else {
+      strike(a, lp, t, 523.25, 4.4, base, BELL); // temple
+    }
+  }
+
+  // ---------------------------------------------------------------- speech
+  var voices = [], selectedVoice = null;
+  var hasSpeech = ("speechSynthesis" in window) && ("SpeechSynthesisUtterance" in window);
+
+  function loadVoices() {
+    if (!hasSpeech) return;
+    voices = window.speechSynthesis.getVoices() || [];
+    pickDefaultVoice();
+    buildVoiceSelect();
+  }
+  function pickDefaultVoice() {
+    if (!voices.length) { selectedVoice = null; return; }
+    var byURI = settings.voiceURI ? voices.find(function (v) { return v.voiceURI === settings.voiceURI; }) : null;
+    selectedVoice = byURI
+      || voices.find(function (v) { return /en[-_]?IN/i.test(v.lang); })
+      || voices.find(function (v) { return /^en/i.test(v.lang) && v.default; })
+      || voices.find(function (v) { return /^en/i.test(v.lang); })
+      || voices.find(function (v) { return v.default; })
+      || voices[0];
+  }
+  function buildVoiceSelect() {
+    var sel = $("voice");
+    if (!hasSpeech) { sel.innerHTML = "<option>Voice not supported in this browser</option>"; sel.disabled = true; return; }
+    if (!voices.length) { sel.innerHTML = "<option>Loading voices…</option>"; return; }
+    sel.innerHTML = "";
+    voices.forEach(function (v) {
+      var o = document.createElement("option");
+      o.value = v.voiceURI;
+      o.textContent = v.name + " (" + v.lang + ")" + (v.default ? " — default" : "");
+      sel.appendChild(o);
+    });
+    if (selectedVoice) sel.value = selectedVoice.voiceURI;
+  }
+  function primeSpeech() {
+    if (!hasSpeech) return;
+    try { var u = new SpeechSynthesisUtterance(" "); u.volume = 0; window.speechSynthesis.speak(u); } catch (e) {}
+  }
+  function speak(text) {
+    if (!hasSpeech || !text) return;
+    try {
+      window.speechSynthesis.cancel();
+      var u = new SpeechSynthesisUtterance(text);
+      if (selectedVoice) u.voice = selectedVoice;
+      u.rate = clamp(settings.rate, 0.5, 1.5);
+      u.pitch = clamp(settings.pitch, 0.5, 1.5);
+      u.volume = clamp(settings.volume, 0, 1);
+      window.speechSynthesis.speak(u);
+    } catch (e) {}
+  }
+
+  // ---------------------------------------------------------------- wake lock
+  var wakeLock = null;
+  function requestWake() {
+    try {
+      if ("wakeLock" in navigator && navigator.wakeLock.request) {
+        navigator.wakeLock.request("screen").then(function (wl) {
+          wakeLock = wl;
+          wakeLock.addEventListener("release", function () { wakeLock = null; });
+        }).catch(function () {});
+      }
+    } catch (e) {}
+  }
+  function releaseWake() { try { if (wakeLock) { wakeLock.release(); wakeLock = null; } } catch (e) {} }
+
+  // ---------------------------------------------------------------- notifications
+  function maybeNotify(text) {
+    if (!settings.notify || !("Notification" in window)) return;
+    if (Notification.permission === "granted") {
+      try { new Notification("🔔 Chant Reminder", { body: text, silent: true }); } catch (e) {}
+    }
+  }
+
+  // ---------------------------------------------------------------- scheduling engine
+  // Is the given timestamp inside the waking window? (handles windows that wrap midnight)
+  function inWakeWindow(ts) {
+    var d = new Date(ts);
+    var m = d.getHours() * 60 + d.getMinutes();
+    var s = settings.wakeStart * 60, e = settings.wakeEnd * 60;
+    if (s <= e) return m >= s && m <= e;
+    return m >= s || m <= e;
+  }
+  // Next clock-aligned slot strictly after `from` (e.g. the next :00 for a 60-min interval).
+  function computeNextClock(from) {
+    var step = intervalMs();
+    var d = new Date(from); d.setHours(0, 0, 0, 0);
+    var midnight = d.getTime();
+    var k = Math.floor((from - midnight) / step) + 1;
+    var t = midnight + k * step;
+    // On-the-hour mode chimes only inside the working-hours window — skip slots outside it (silent overnight)
+    var guard = 0;
+    while (!inWakeWindow(t) && guard++ < 1500) { t += step; }
+    return t;
+  }
+  // The next fire time strictly after `from`, honoring the active mode.
+  function scheduleFrom(from) {
+    return settings.mode === "clock" ? computeNextClock(from) : (from + intervalMs());
+  }
+
+  function ringBell() {
+    var b = $("bell");
+    b.classList.remove("ring");
+    void b.offsetWidth;
+    b.classList.add("ring");
+    setTimeout(function () { b.classList.remove("ring"); }, 1200);
+  }
+
+  function fire() {
+    var now = Date.now();
+    log.unshift({ t: now });
+    if (log.length > 300) log = log.slice(0, 300);
+    save();
+    renderLog();
+    ringBell();
+    if (settings.chimeOn) playChime(settings.chimeStyle);
+    if (settings.speechOn) setTimeout(function () { speak(settings.message); }, settings.chimeOn ? 1100 : 150);
+    maybeNotify(settings.message);
+  }
+
+  function tick() {
+    if (!running) return;
+    var now = Date.now();
+
+    if (paused) {
+      if (pauseResumeAt != null && now >= pauseResumeAt) {
+        endPause();
+      } else {
+        updatePausedDisplay();
+      }
+      return;
+    }
+
+    if (nextFire == null) { nextFire = scheduleFrom(now); save(); }
+    if (now >= nextFire) {
+      fire();
+      nextFire = scheduleFrom(now);   // skips any slots missed while asleep — one chime, then realign
+      save();
+    }
+    updateCountdown();
+  }
+
+  // ---------------------------------------------------------------- start / stop / pause
+  function start() {
+    unlockAudio();
+    running = true; paused = false; pauseResumeAt = null;
+    nextFire = scheduleFrom(Date.now());
+    if (settings.wakeLock) requestWake();
+    save(); updateUI();
+    toast(settings.mode === "clock" ? "On — chiming hourly during waking hours" : "Reminder started");
+  }
+  function stop() {
+    running = false; paused = false; pauseResumeAt = null; nextFire = null;
+    releaseWake(); save(); updateUI();
+    document.title = baseTitle;
+    toast("Stopped");
+  }
+  function startPause(min) {
+    paused = true;
+    pauseResumeAt = min > 0 ? Date.now() + min * 60000 : null;
+    $("pauseMenu").hidden = true;
+    save(); updateUI();
+    toast(min > 0 ? ("Paused for " + labelMin(min)) : "Paused — resume when ready");
+  }
+  function resume() {
+    paused = false; pauseResumeAt = null;
+    nextFire = scheduleFrom(Date.now());
+    save(); updateUI();
+    toast("Resumed");
+  }
+  function endPause() {   // auto-resume when a timed pause elapses
+    paused = false; pauseResumeAt = null;
+    nextFire = scheduleFrom(Date.now());
+    save(); updateUI();
+    toast("Resumed — back on schedule");
+  }
+  function reschedule(msg) {
+    if (running && !paused) { nextFire = scheduleFrom(Date.now()); save(); updateCountdown(); }
+    if (msg) toast(msg);
+  }
+
+  // ---------------------------------------------------------------- UI updates
+  function modeStoppedHint() {
+    return settings.mode === "clock"
+      ? "Press Start — chimes on the hour, every hour"
+      : "Press Start to begin";
+  }
+  function updatePausedDisplay() {
+    if (pauseResumeAt != null) {
+      $("countdown").textContent = fmtDur(pauseResumeAt - Date.now());
+      $("nextline").textContent = "Paused · resumes at " + fmtClock(pauseResumeAt);
+    } else {
+      $("countdown").textContent = "⏸";
+      $("nextline").textContent = "Paused · press Resume when ready";
+    }
+    document.title = "⏸ Paused · Chant Reminder";
+  }
+  function updateCountdown() {
+    if (!(running && !paused && nextFire != null)) return;
+    var rem = nextFire - Date.now();
+    $("countdown").textContent = fmtDur(rem);
+    $("nextline").textContent = "Next chime at " + fmtClock(nextFire);
+    document.title = "⏱ " + fmtDur(rem) + " · Chant Reminder";
+  }
+  function updateUI() {
+    var bell = $("bell"), st = $("state");
+    showEl($("startBtn"), !running);
+    showEl($("pauseBtn"), running && !paused);
+    showEl($("resumeBtn"), running && paused);
+    showEl($("stopBtn"), running);
+    if (!running) $("pauseMenu").hidden = true;
+
+    bell.classList.toggle("on", running && !paused);
+    bell.classList.toggle("paused", running && paused);
+
+    if (!running) {
+      st.textContent = "Stopped"; st.className = "state";
+      $("countdown").textContent = "—";
+      $("nextline").textContent = modeStoppedHint();
+    } else if (paused) {
+      st.textContent = "Paused"; st.className = "state paused";
+      updatePausedDisplay();
+    } else {
+      st.textContent = settings.mode === "clock" ? "On the clock" : "Running";
+      st.className = "state run";
+      updateCountdown();
+    }
+  }
+
+  // ---------------------------------------------------------------- log render
+  function renderLog() {
+    var list = $("logList");
+    var total = log.length, today = 0;
+    for (var i = 0; i < log.length; i++) if (sameDay(log[i].t, Date.now())) today++;
+    $("todayCount").textContent = today;
+    $("totalCount").textContent = total;
+    if (!total) { list.innerHTML = '<div class="empty">No chimes yet. Press Start above.</div>'; return; }
+    var html = "", shown = log.slice(0, 60);
+    for (var j = 0; j < shown.length; j++) {
+      var e = shown[j], d = new Date(e.t);
+      var datePart = sameDay(e.t, Date.now()) ? "Today" : (d.getMonth() + 1) + "/" + d.getDate();
+      html += '<li><span class="when">' + datePart + ", " + fmtClock(e.t) + '</span><span class="ago">' + ago(e.t) + "</span></li>";
+    }
+    list.innerHTML = html;
+  }
+
+  // ---------------------------------------------------------------- wire up controls
+  function applyModeUI() {
+    document.querySelectorAll("#modeSeg .seg").forEach(function (b) {
+      b.classList.toggle("active", b.dataset.mode === settings.mode);
+    });
+    $("wakeRow").hidden = (settings.mode !== "clock");   // show the working-hours window only in on-the-hour mode
+    $("intervalLabel").textContent = settings.mode === "clock" ? "Chime every (on the clock)" : "Remind me every";
+  }
+  function buildHourSelect(sel, val) {
+    sel.innerHTML = "";
+    for (var h = 0; h < 24; h++) {
+      var o = document.createElement("option");
+      o.value = String(h); o.textContent = hourLabel(h);
+      sel.appendChild(o);
+    }
+    sel.value = String(val);
+  }
+  function applySettingsToUI() {
+    $("message").value = settings.message;
+    $("interval").value = settings.intervalMin;
+    $("autoStart").checked = settings.autoStart;
+    $("chimeOn").checked = settings.chimeOn;
+    $("speechOn").checked = settings.speechOn;
+    $("chimeStyle").value = settings.chimeStyle;
+    $("wakeLock").checked = settings.wakeLock;
+    $("notify").checked = settings.notify;
+    $("volume").value = settings.volume; $("volumeVal").textContent = Math.round(settings.volume * 100) + "%";
+    $("rate").value = settings.rate; $("rateVal").textContent = settings.rate.toFixed(2) + "×";
+    $("pitch").value = settings.pitch; $("pitchVal").textContent = settings.pitch.toFixed(1);
+    buildHourSelect($("wakeStart"), settings.wakeStart);
+    buildHourSelect($("wakeEnd"), settings.wakeEnd);
+    applyModeUI();
+    updatePresets();
+  }
+  function updatePresets() {
+    document.querySelectorAll("#presets .chip").forEach(function (c) {
+      c.classList.toggle("active", parseInt(c.dataset.min, 10) === settings.intervalMin);
+    });
+  }
+
+  function bind() {
+    $("startBtn").addEventListener("click", start);
+    $("stopBtn").addEventListener("click", stop);
+    $("resumeBtn").addEventListener("click", resume);
+    $("pauseBtn").addEventListener("click", function () {
+      var m = $("pauseMenu"); m.hidden = !m.hidden;
+    });
+    document.querySelectorAll("#pauseMenu button").forEach(function (b) {
+      b.addEventListener("click", function () { startPause(parseInt(b.dataset.min, 10)); });
+    });
+
+    $("testBtn").addEventListener("click", function () {
+      unlockAudio();
+      ringBell();
+      if (settings.chimeOn) playChime(settings.chimeStyle);
+      if (settings.speechOn) setTimeout(function () { speak(settings.message); }, settings.chimeOn ? 1100 : 150);
+      toast("Testing chime & voice…");
+    });
+    $("previewChime").addEventListener("click", function () { unlockAudio(); playChime(settings.chimeStyle); });
+
+    // mode segmented
+    document.querySelectorAll("#modeSeg .seg").forEach(function (b) {
+      b.addEventListener("click", function () {
+        settings.mode = b.dataset.mode; save();
+        applyModeUI();
+        if (!running) updateUI();
+        reschedule(settings.mode === "clock" ? "On the clock · waking hours" : "Every hour from start");
+      });
+    });
+
+    // waking window
+    $("wakeStart").addEventListener("change", function () {
+      settings.wakeStart = parseInt(this.value, 10); save();
+      reschedule("Waking hours: " + hourLabel(settings.wakeStart) + "–" + hourLabel(settings.wakeEnd));
+    });
+    $("wakeEnd").addEventListener("change", function () {
+      settings.wakeEnd = parseInt(this.value, 10); save();
+      reschedule("Waking hours: " + hourLabel(settings.wakeStart) + "–" + hourLabel(settings.wakeEnd));
+    });
+
+    $("message").addEventListener("input", function () { settings.message = this.value; save(); });
+
+    $("interval").addEventListener("input", function () {
+      var v = parseInt(this.value, 10);
+      if (isNaN(v)) return;
+      settings.intervalMin = clamp(v, 1, 1440);
+      updatePresets(); save();
+    });
+    $("interval").addEventListener("change", function () {
+      var v = clamp(parseInt(this.value, 10) || 60, 1, 1440);
+      settings.intervalMin = v; this.value = v; updatePresets(); save();
+      reschedule("Now every " + v + " min");
+    });
+    document.querySelectorAll("#presets .chip").forEach(function (c) {
+      c.addEventListener("click", function () {
+        settings.intervalMin = parseInt(c.dataset.min, 10);
+        $("interval").value = settings.intervalMin;
+        updatePresets(); save();
+        reschedule("Now every " + settings.intervalMin + " min");
+      });
+    });
+
+    $("chimeOn").addEventListener("change", function () { settings.chimeOn = this.checked; save(); });
+    $("speechOn").addEventListener("change", function () { settings.speechOn = this.checked; save(); });
+    $("chimeStyle").addEventListener("change", function () { settings.chimeStyle = this.value; save(); unlockAudio(); playChime(this.value); });
+
+    $("autoStart").addEventListener("change", function () {
+      settings.autoStart = this.checked; save();
+      if (this.checked && !running) start();   // immediate feedback; also applies on every future open
+    });
+    $("wakeLock").addEventListener("change", function () {
+      settings.wakeLock = this.checked; save();
+      if (this.checked && running) requestWake(); else if (!this.checked) releaseWake();
+    });
+    $("notify").addEventListener("change", function () {
+      var box = this;
+      if (box.checked && ("Notification" in window)) {
+        if (Notification.permission === "granted") { settings.notify = true; save(); }
+        else if (Notification.permission !== "denied") {
+          Notification.requestPermission().then(function (p) {
+            settings.notify = (p === "granted"); box.checked = settings.notify; save();
+            if (!settings.notify) toast("Notifications were blocked");
+          });
+        } else { box.checked = false; settings.notify = false; toast("Notifications are blocked in browser settings"); }
+      } else { settings.notify = false; save(); }
+    });
+
+    $("voice").addEventListener("change", function () {
+      settings.voiceURI = this.value;
+      selectedVoice = voices.find(function (v) { return v.voiceURI === settings.voiceURI; }) || selectedVoice;
+      save();
+    });
+    $("volume").addEventListener("input", function () { settings.volume = parseFloat(this.value); $("volumeVal").textContent = Math.round(settings.volume * 100) + "%"; save(); });
+    $("rate").addEventListener("input", function () { settings.rate = parseFloat(this.value); $("rateVal").textContent = settings.rate.toFixed(2) + "×"; save(); });
+    $("pitch").addEventListener("input", function () { settings.pitch = parseFloat(this.value); $("pitchVal").textContent = settings.pitch.toFixed(1); save(); });
+
+    $("clearBtn").addEventListener("click", function () {
+      if (!log.length) return;
+      log = []; save(); renderLog(); toast("Log cleared");
+    });
+
+    document.addEventListener("visibilitychange", function () {
+      if (document.visibilityState === "visible") {
+        if (settings.wakeLock && running && !wakeLock) requestWake();
+        tick();
+      }
+    });
+
+    // one-time gesture to unlock audio after a reload-while-running
+    function armGesture() {
+      var h = function () {
+        unlockAudio();
+        if (settings.wakeLock && running) requestWake();
+        window.removeEventListener("pointerdown", h);
+        window.removeEventListener("keydown", h);
+      };
+      window.addEventListener("pointerdown", h);
+      window.addEventListener("keydown", h);
+    }
+    armGesture();
+
+    // Space: stopped→start · running→pause · paused→resume  (unless typing)
+    window.addEventListener("keydown", function (ev) {
+      if (ev.code !== "Space") return;
+      var t = ev.target.tagName;
+      if (t === "TEXTAREA" || t === "INPUT" || t === "SELECT") return;
+      ev.preventDefault();
+      if (!running) start();
+      else if (paused) resume();
+      else startPause(0);
+    });
+  }
+
+  // ---------------------------------------------------------------- init
+  function init() {
+    load();
+    // URL params let the Windows launcher force config on every login: ?autostart=1&mode=clock
+    try {
+      var qp = new URLSearchParams(location.search);
+      if (qp.has("autostart")) settings.autoStart = qp.get("autostart") !== "0";
+      if (qp.has("mode")) { var mq = qp.get("mode"); if (mq === "clock" || mq === "fromStart") settings.mode = mq; }
+      save();
+    } catch (e) {}
+    applySettingsToUI();
+    if (hasSpeech) { loadVoices(); window.speechSynthesis.onvoiceschanged = loadVoices; }
+    else { buildVoiceSelect(); }
+    renderLog();
+
+    // Re-arm cleanly after a reload: skip any chimes missed while the page was closed
+    // (reschedule silently — no phantom entries), but keep an active pause intact.
+    if (running) {
+      if (paused) {
+        if (pauseResumeAt != null && Date.now() >= pauseResumeAt) { paused = false; pauseResumeAt = null; nextFire = scheduleFrom(Date.now()); }
+      } else if (nextFire == null || Date.now() >= nextFire) {
+        nextFire = scheduleFrom(Date.now());
+      }
+      save();
+    }
+
+    bind();
+    setInterval(tick, 250);
+
+    // auto-arm the moment the app opens (sound unlocks on the first tap via armGesture)
+    if (settings.autoStart && !running) start();
+
+    updateUI();
+    if (running && audioLocked()) $("soundHint").classList.add("show");
+  }
+
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
+  else init();
+})();
+</script>
+</body>
+</html>
