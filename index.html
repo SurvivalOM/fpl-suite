@@ -560,5 +560,5 @@ let _rt; window.addEventListener('resize',function(){clearTimeout(_rt);_rt=setTi
 tick(); render();
 setInterval(tick,15000);
 </script>
-</body>
+<button id="ccRefresh" title="Refresh: pull the latest from the cloud" style="position:fixed;right:16px;bottom:18px;z-index:9999;width:58px;height:58px;border-radius:50%;border:2px solid #C6A249;background:#15356E;color:#E8CD7C;font-size:25px;box-shadow:0 6px 20px rgba(0,0,0,.4);cursor:pointer">↻</button><div id="ccRT" style="position:fixed;right:16px;bottom:80px;z-index:9999;background:#15356E;color:#fff;padding:8px 12px;border-radius:9px;font:13px sans-serif;box-shadow:0 4px 14px rgba(0,0,0,.4);display:none">Updating to the latest…</div><script>document.getElementById("ccRefresh").addEventListener("click",function(){var b=this;b.textContent="⏳";b.disabled=true;var t=document.getElementById("ccRT");if(t)t.style.display="block";function done(){location.replace(location.pathname+"?u="+Date.now());}var p=Promise.resolve();try{if(window.caches)p=caches.keys().then(function(k){return Promise.all(k.map(function(x){return caches.delete(x);}));});}catch(e){}p.then(function(){try{if(navigator.serviceWorker)return navigator.serviceWorker.getRegistrations().then(function(r){r.forEach(function(x){x.unregister();});});}catch(e){}}).then(done,done);});</script></body>
 </html>
