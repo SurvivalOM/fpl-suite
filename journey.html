@@ -7,7 +7,7 @@
 <style>
   :root{
     --navy:#1B2C54; --gold:#C6A249; --ink:#22303f; --muted:#6b7280;
-    --page:#f5f7f4; --card:#ffffff; --line:#e3e8e0;
+    --page:#f5f7f4; --card:#ffffff; --line:#e3e8e0; --ready:#1d9e75;
     --orange-bg:#FCEBD9; --orange-tx:#B05518; --orange-bd:#F1BE8E;
   }
   *{box-sizing:border-box;margin:0;padding:0}
@@ -27,15 +27,25 @@
   .legend .sw{width:12px;height:12px;border-radius:3px;display:inline-block;vertical-align:-1px;margin-right:6px;border:1px solid rgba(0,0,0,.08)}
   .legend .rule{flex-basis:100%;color:#2f6b12;font-weight:600;margin-top:2px}
 
+  .ready{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:11px 24px;background:#fff;border-bottom:1px solid var(--line);font-size:13px}
+  .ready .rlabel{font-weight:600;color:var(--ink);display:flex;align-items:center;gap:7px}
+  .ready .rbar{flex:1;min-width:140px;max-width:380px;height:9px;background:#e9ece8;border-radius:6px;overflow:hidden}
+  .ready .rbar i{display:block;height:100%;background:var(--ready);border-radius:6px;transition:width .3s}
+  .ready .rpct{font-weight:700;color:var(--ready);font-variant-numeric:tabular-nums}
+  .ready .rcount{color:var(--muted)}
+
   .board{display:flex;align-items:flex-start;gap:10px;padding:26px 24px 60px;overflow-x:auto;min-height:60vh}
   .col-label{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:8px;font-weight:600}
 
   .tripcol{flex:0 0 210px;display:flex;flex-direction:column}
   .strip{background:var(--orange-bg);border:1px solid var(--orange-bd);color:var(--orange-tx);border-radius:8px;padding:8px 10px;margin-bottom:8px;display:flex;align-items:center;gap:8px;cursor:grab}
-  .strip input{flex:1;border:none;background:transparent;color:var(--orange-tx);font:inherit;font-size:13px;outline:none}
+  .strip.done{background:#EAF6EC;border-color:#9FD3B0}
+  .strip input.t{flex:1;border:none;background:transparent;color:var(--orange-tx);font:inherit;font-size:13px;outline:none}
+  .strip.done input.t{color:#2E6B3E}
   .strip .handle{color:var(--orange-tx);opacity:.5;font-size:13px;cursor:grab}
   .strip .del{cursor:pointer;opacity:.5;font-size:15px;line-height:1}
   .strip .del:hover{opacity:1}
+  .ck{width:17px;height:17px;flex:0 0 auto;accent-color:var(--ready);cursor:pointer;margin:0}
   .addbtn{font:inherit;font-size:12.5px;border:1px dashed var(--line);background:#fff;color:var(--muted);padding:7px 10px;border-radius:8px;cursor:pointer;width:100%;text-align:left}
   .addbtn:hover{border-color:var(--gold);color:var(--navy)}
 
@@ -53,6 +63,8 @@
   .etag{font-size:10.5px;font-weight:700;letter-spacing:.4px;padding:2px 7px;border-radius:4px}
   .e-Educate{background:#1d9e75;color:#fff}
   .e-Empower{background:#BA7517;color:#fff}
+  .rpill{font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:20px;background:rgba(255,255,255,.65);border:1px solid rgba(0,0,0,.1)}
+  .rpill.full{background:var(--ready);color:#fff;border-color:var(--ready)}
   .node .body{border-top:1px solid rgba(0,0,0,.07);padding:9px;display:none;background:rgba(255,255,255,.5)}
   .node.open .body{display:block}
   .seclabel{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:#566;font-weight:700;margin:0 2px 5px}
@@ -60,8 +72,11 @@
   .item{background:#fff;border:1px solid var(--line);border-radius:7px;padding:6px 8px;margin-bottom:6px;display:flex;align-items:center;gap:7px;cursor:grab}
   .item.dragover{border-color:var(--gold);box-shadow:0 0 0 2px rgba(198,162,73,.4)}
   .item.enl{border-color:#F2C9A0;background:#FFF8F1}
+  .item.done{border-color:#9FD3B0;background:#EFF8F1}
+  .item.done.enl{border-color:#9FD3B0;background:#EAF7EE}
+  .item.done input.t{color:#2E6B3E}
   .item .handle{opacity:.4;font-size:13px;cursor:grab}
-  .item input{flex:1;border:none;background:transparent;font:inherit;font-size:13px;outline:none;color:var(--ink);min-width:0}
+  .item input.t{flex:1;border:none;background:transparent;font:inherit;font-size:13px;outline:none;color:var(--ink);min-width:0}
   .item .del{cursor:pointer;opacity:.4;font-size:15px;line-height:1}
   .item .del:hover{opacity:1;color:#c0392b}
   .items.dropempty{outline:2px dashed var(--gold);outline-offset:2px;border-radius:7px}
@@ -78,7 +93,7 @@
 <header class="top">
   <div class="brand">
     <h1>Future Proofing Lifestyle <span>· Member Journey</span></h1>
-    <p>Entry funnels → Volunteer → membership ladder. Click a card to open its dropdown. Drag items to move them between levels.</p>
+    <p>Tick a box when a feature is built and ready to award. Click a card to open it. Drag items to move them between levels.</p>
   </div>
   <div class="spacer"></div>
   <span id="saved">auto-saved ✓</span>
@@ -97,9 +112,11 @@
   <span class="rule">Try-now-pay-later all the way up: access free, pay a level only when you see its value — that unlocks the next. The orange Enlightenment (Happiness) track is always free.</span>
 </div>
 
+<div class="ready" id="readybar"></div>
+
 <div class="board" id="board"></div>
 
-<p class="hint"><b>How to use:</b> click a card to open its dropdown · click text to edit · <b>＋ add item</b> in any list · drag an item by its handle to reorder or move it onto another level · each level also carries a free orange <b>Enlightenment (Happiness)</b> section · <b>everything auto-saves to this browser instantly</b> and survives reloads — use <b>⬇ Backup</b> to download a copy any time.</p>
+<p class="hint"><b>How to use:</b> <b>tick the checkbox</b> on any item when it's built and ready to award · click a card to open it · click text to edit · <b>＋ add item</b> in any list · drag an item by its handle to move it · each level also has a free orange <b>Enlightenment (Happiness)</b> section · the bar at the top shows overall <b>journey readiness</b> · everything auto-saves and survives reloads — use <b>⬇ Backup</b> any time.</p>
 
 <script>
 const KEY='fpl_journey_v5';
@@ -197,7 +214,7 @@ function defaults(){
         {id:nid(),t:'Bring exactly where you are stuck — personal guidance'},
         {id:nid(),t:'Per-year membership (the one recurring tier)'},
         {id:nid(),t:'Strictly capped at ~108 seats · join when one opens (mentor availability)'},
-        {id:nid(),t:'Open to anybody above Kings'}
+        {id:nid(),t:'Open to anybody above Kings & Queens'}
        ],
        enl:[
         {id:nid(),t:'Deepest happiness teachings, one-to-one'}
@@ -215,8 +232,17 @@ function listOf(type,id){
   const lv=state.levels.find(l=>l.id===id); if(!lv) return null;
   return type==='enl'?lv.enl:lv.items;
 }
+function counts(){
+  let total=0,done=0;
+  state.trips.forEach(t=>{total++;if(t.done)done++;});
+  state.levels.forEach(l=>{l.items.forEach(it=>{total++;if(it.done)done++;});l.enl.forEach(it=>{total++;if(it.done)done++;});});
+  return {total,done};
+}
 
 function render(){
+  const c=counts(); const pct=c.total?Math.round(c.done/c.total*100):0;
+  document.getElementById('readybar').innerHTML='<span class="rlabel">Journey readiness</span><div class="rbar"><i style="width:'+pct+'%"></i></div><span class="rpct">'+pct+'%</span><span class="rcount">'+c.done+' / '+c.total+' items ready to award</span>';
+
   const board=document.getElementById('board');
   board.innerHTML='';
   const tc=document.createElement('div'); tc.className='tripcol';
@@ -242,13 +268,22 @@ function render(){
 }
 function label(t){const d=document.createElement('div');d.className='col-label';d.innerHTML=t;return d;}
 
+function checkbox(obj){
+  const ck=document.createElement('input'); ck.type='checkbox'; ck.className='ck'; ck.checked=!!obj.done; ck.title='Tick when ready to award to members';
+  ck.draggable=false;
+  ck.addEventListener('mousedown',e=>e.stopPropagation());
+  ck.onclick=e=>e.stopPropagation();
+  ck.onchange=()=>{obj.done=ck.checked;save();render();};
+  return ck;
+}
+
 function stripEl(tr){
-  const d=document.createElement('div'); d.className='strip'; d.draggable=true; d.dataset.id=tr.id;
-  d.innerHTML='<span class="handle">⠿</span>';
-  const inp=document.createElement('input'); inp.value=tr.t; inp.oninput=()=>{tr.t=inp.value;save();};
+  const d=document.createElement('div'); d.className='strip'+(tr.done?' done':''); d.draggable=true; d.dataset.id=tr.id;
+  d.appendChild(checkbox(tr));
+  const h=document.createElement('span'); h.className='handle'; h.textContent='⠿'; d.appendChild(h);
+  const inp=document.createElement('input'); inp.className='t'; inp.value=tr.t; inp.oninput=()=>{tr.t=inp.value;save();}; d.appendChild(inp);
   const del=document.createElement('span'); del.className='del'; del.textContent='×';
-  del.onclick=()=>{state.trips=state.trips.filter(x=>x.id!==tr.id);save();render();};
-  d.appendChild(inp); d.appendChild(del);
+  del.onclick=()=>{state.trips=state.trips.filter(x=>x.id!==tr.id);save();render();}; d.appendChild(del);
   dragItem(d,'trip','trip',tr.id);
   return d;
 }
@@ -274,6 +309,8 @@ function nodeEl(lv,i){
   const price=document.createElement('span'); price.className='pill'; price.style.color=sh.tx; price.textContent=lv.price+(lv.usd?(' · '+lv.usd):'');
   r2.appendChild(price);
   if(lv.tag){const e=document.createElement('span'); e.className='etag e-'+lv.tag; e.textContent=lv.tag; r2.appendChild(e);}
+  const ld=lv.items.filter(x=>x.done).length+lv.enl.filter(x=>x.done).length, lt=lv.items.length+lv.enl.length;
+  const rp=document.createElement('span'); rp.className='rpill'+(lt&&ld===lt?' full':''); rp.textContent=ld+'/'+lt+' ready'; if(!(lt&&ld===lt))rp.style.color=sh.tx; r2.appendChild(rp);
   head.appendChild(r1); head.appendChild(r2);
   head.onclick=()=>{lv.open=!lv.open;n.classList.toggle('open');save();};
   n.appendChild(head);
@@ -296,12 +333,12 @@ function nodeEl(lv,i){
 }
 
 function itemEl(it,lv,ltype){
-  const li=document.createElement('li'); li.className='item'+(ltype==='enl'?' enl':''); li.draggable=true; li.dataset.id=it.id;
-  li.innerHTML='<span class="handle">⠿</span>';
-  const inp=document.createElement('input'); inp.value=it.t; inp.oninput=()=>{it.t=inp.value;save();};
+  const li=document.createElement('li'); li.className='item'+(ltype==='enl'?' enl':'')+(it.done?' done':''); li.draggable=true; li.dataset.id=it.id;
+  li.appendChild(checkbox(it));
+  const h=document.createElement('span'); h.className='handle'; h.textContent='⠿'; li.appendChild(h);
+  const inp=document.createElement('input'); inp.className='t'; inp.value=it.t; inp.oninput=()=>{it.t=inp.value;save();}; li.appendChild(inp);
   const del=document.createElement('span'); del.className='del'; del.textContent='×';
-  del.onclick=()=>{ if(ltype==='enl'){lv.enl=lv.enl.filter(x=>x.id!==it.id);} else {lv.items=lv.items.filter(x=>x.id!==it.id);} save();render(); };
-  li.appendChild(inp); li.appendChild(del);
+  del.onclick=()=>{ if(ltype==='enl'){lv.enl=lv.enl.filter(x=>x.id!==it.id);} else {lv.items=lv.items.filter(x=>x.id!==it.id);} save();render(); }; li.appendChild(del);
   dragItem(li,ltype,lv.id,it.id);
   return li;
 }
