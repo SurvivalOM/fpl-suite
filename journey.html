@@ -67,13 +67,25 @@
   .rpill.full{background:var(--ready);color:#fff;border-color:var(--ready)}
   .node .body{border-top:1px solid rgba(0,0,0,.07);padding:9px;display:none;background:rgba(255,255,255,.5)}
   .node.open .body{display:block}
-  .seclabel{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:#566;font-weight:700;margin:0 2px 5px}
+
+  .pillar{border-radius:9px;border:1px solid;margin-bottom:8px;overflow:hidden}
+  .pillar:last-child{margin-bottom:0}
+  .pillar-head{display:flex;align-items:center;gap:7px;padding:7px 9px;cursor:pointer;user-select:none;font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase}
+  .parrow{font-size:9px;transition:transform .2s;opacity:.8}
+  .pillar.open .parrow{transform:rotate(90deg)}
+  .pname{flex:1}
+  .pcount{font-size:10px;font-weight:700;padding:1px 7px;border-radius:20px;background:rgba(255,255,255,.75);border:1px solid rgba(0,0,0,.12)}
+  .pcount.full{background:var(--ready);color:#fff;border-color:var(--ready)}
+  .pillar-body{display:none;padding:8px;background:rgba(255,255,255,.5)}
+  .pillar.open .pillar-body{display:block}
+  .p-hap{border-color:#F0C99B} .p-hap .pillar-head{background:#FCEFE0;color:#B05518}
+  .p-hea{border-color:#B4E0D6} .p-hea .pillar-head{background:#E3F4F0;color:#15705F}
+  .p-wea{border-color:#E8D49E} .p-wea .pillar-head{background:#FBF1DA;color:#876714}
+
   .items{list-style:none;min-height:8px}
   .item{background:#fff;border:1px solid var(--line);border-radius:7px;padding:6px 8px;margin-bottom:6px;display:flex;align-items:center;gap:7px;cursor:grab}
   .item.dragover{border-color:var(--gold);box-shadow:0 0 0 2px rgba(198,162,73,.4)}
-  .item.enl{border-color:#F2C9A0;background:#FFF8F1}
   .item.done{border-color:#9FD3B0;background:#EFF8F1}
-  .item.done.enl{border-color:#9FD3B0;background:#EAF7EE}
   .item.done input.t{color:#2E6B3E}
   .item .handle{opacity:.4;font-size:13px;cursor:grab}
   .item input.t{flex:1;border:none;background:transparent;font:inherit;font-size:13px;outline:none;color:var(--ink);min-width:0}
@@ -82,9 +94,6 @@
   .items.dropempty{outline:2px dashed var(--gold);outline-offset:2px;border-radius:7px}
   .additem{font-size:12px;color:var(--muted);background:transparent;border:none;cursor:pointer;padding:4px 2px}
   .additem:hover{color:var(--navy)}
-  .additem.enl{color:#B05518}
-  .enl-wrap{margin-top:9px;background:#FCEFE0;border:1px solid #F0C99B;border-radius:9px;padding:8px}
-  .enl-head{display:flex;align-items:center;gap:6px;font-size:10.5px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:#B05518;margin-bottom:7px}
   .hint{padding:0 24px 30px;font-size:12.5px;color:var(--muted);max-width:900px}
   .hint b{color:var(--ink);font-weight:600}
 </style>
@@ -93,7 +102,7 @@
 <header class="top">
   <div class="brand">
     <h1>Future Proofing Lifestyle <span>· Member Journey</span></h1>
-    <p>Tick a box when a feature is built and ready to award. Click a card to open it. Drag items to move them between levels.</p>
+    <p>Each membership holds 3 tabs — Happiness · Health · Wealth. Click a tab's arrow to open it. Tick a box when a feature is ready to award.</p>
   </div>
   <div class="spacer"></div>
   <span id="saved">auto-saved ✓</span>
@@ -106,17 +115,17 @@
 
 <div class="legend">
   <span><span class="sw" style="background:var(--orange-bg);border-color:var(--orange-bd)"></span>Entry · tripwire</span>
-  <span><span class="sw" style="background:#1d9e75"></span>Educate</span>
-  <span><span class="sw" style="background:#BA7517"></span>Empower (paid)</span>
-  <span><span class="sw" style="background:#E0922E"></span>Enlighten — free · Happiness (in every level)</span>
-  <span class="rule">Try-now-pay-later all the way up: access free, pay a level only when you see its value — that unlocks the next. The orange Enlightenment (Happiness) track is always free.</span>
+  <span><span class="sw" style="background:#B05518"></span>Happiness</span>
+  <span><span class="sw" style="background:#15705F"></span>Health</span>
+  <span><span class="sw" style="background:#876714"></span>Wealth</span>
+  <span class="rule">Every membership now opens into 3 collapsible pillars — Happiness · Health · Wealth. Tick the box on any item when it's built and ready to award.</span>
 </div>
 
 <div class="ready" id="readybar"></div>
 
 <div class="board" id="board"></div>
 
-<p class="hint"><b>How to use:</b> <b>tick the checkbox</b> on any item when it's built and ready to award · click a card to open it · click text to edit · <b>＋ add item</b> in any list · drag an item by its handle to move it · each level also has a free orange <b>Enlightenment (Happiness)</b> section · the bar at the top shows overall <b>journey readiness</b> · everything auto-saves and survives reloads — use <b>⬇ Backup</b> any time.</p>
+<p class="hint"><b>How to use:</b> open a membership card, then <b>click the arrow on Happiness, Health, or Wealth</b> to expand just that tab · <b>tick a checkbox</b> when a feature is ready to award · click text to edit · <b>＋ add item</b> in any tab · drag an item by its handle to move it between tabs or levels · the top bar shows overall <b>journey readiness</b> · everything auto-saves — use <b>⬇ Backup</b> any time.</p>
 
 <script>
 const KEY='fpl_journey_v5';
@@ -149,6 +158,7 @@ function defaults(){
         {id:nid(),t:'Offered the free Friends & Family membership'},
         {id:nid(),t:'Role: share the mission + recruit volunteers'}
        ],
+       health:[],
        enl:[
         {id:nid(),t:'Why true happiness is the real wealth'},
         {id:nid(),t:'Standing steady in a VUCA world'}
@@ -163,6 +173,7 @@ function defaults(){
         {id:nid(),t:'Weekly live "Rise Again"'},
         {id:nid(),t:'Apps + advanced updates'}
        ],
+       health:[],
        enl:[
         {id:nid(),t:'Happiness basics — gratitude & contentment'},
         {id:nid(),t:'Inner calm amid uncertainty'}
@@ -179,6 +190,7 @@ function defaults(){
         {id:nid(),t:'Financial Freedom Parenting'},
         {id:nid(),t:'Sales app (1-page)'}
        ],
+       health:[],
        enl:[
         {id:nid(),t:'Detachment while you build — money as servant'},
         {id:nid(),t:'The purpose behind the work'}
@@ -190,6 +202,7 @@ function defaults(){
         {id:nid(),t:'Couple access — 2 IDs for one price (pay once · husband + wife)'},
         {id:nid(),t:'(to be designed together)'}
        ],
+       health:[],
        enl:[
         {id:nid(),t:'Leading from inner stillness'},
         {id:nid(),t:'Wealth held lightly'}
@@ -204,6 +217,7 @@ function defaults(){
         {id:nid(),t:'Nuker'},
         {id:nid(),t:'The summit of the membership ladder'}
        ],
+       health:[],
        enl:[
         {id:nid(),t:'Wealth as service — giving back'},
         {id:nid(),t:'The incorruptible life'}
@@ -216,6 +230,7 @@ function defaults(){
         {id:nid(),t:'Strictly capped at ~108 seats · join when one opens (mentor availability)'},
         {id:nid(),t:'Open to anybody above Kings & Queens'}
        ],
+       health:[],
        enl:[
         {id:nid(),t:'Deepest happiness teachings, one-to-one'}
        ]}
@@ -224,18 +239,27 @@ function defaults(){
 }
 
 let state;
-function load(){ try{state=JSON.parse(localStorage.getItem(KEY))||defaults();}catch(e){state=defaults();} if(!state.trips||!state.levels)state=defaults(); state.levels.forEach(l=>{if(!l.enl)l.enl=[]; if(l.name==='FPL Kings')l.name='FPL Kings & Queens';}); }
+function load(){
+  try{state=JSON.parse(localStorage.getItem(KEY))||defaults();}catch(e){state=defaults();}
+  if(!state.trips||!state.levels)state=defaults();
+  state.levels.forEach(l=>{
+    if(!l.items)l.items=[]; if(!l.enl)l.enl=[]; if(!l.health)l.health=[];
+    if(!l.po)l.po={hap:false,hea:false,wea:false};
+    if(l.name==='FPL Kings')l.name='FPL Kings & Queens';
+  });
+}
 function save(){ localStorage.setItem(KEY,JSON.stringify(state)); const s=document.getElementById('saved'); if(s){s.classList.add('show'); clearTimeout(save._t); save._t=setTimeout(()=>s.classList.remove('show'),1100);} }
 
+function arrFor(lv,ltype){return ltype==='health'?lv.health:ltype==='enl'?lv.enl:lv.items;}
 function listOf(type,id){
   if(type==='trip') return state.trips;
   const lv=state.levels.find(l=>l.id===id); if(!lv) return null;
-  return type==='enl'?lv.enl:lv.items;
+  return arrFor(lv,type);
 }
 function counts(){
   let total=0,done=0;
   state.trips.forEach(t=>{total++;if(t.done)done++;});
-  state.levels.forEach(l=>{l.items.forEach(it=>{total++;if(it.done)done++;});l.enl.forEach(it=>{total++;if(it.done)done++;});});
+  state.levels.forEach(l=>{['items','health','enl'].forEach(k=>{(l[k]||[]).forEach(it=>{total++;if(it.done)done++;});});});
   return {total,done};
 }
 
@@ -295,6 +319,25 @@ function makeList(arr,lv,ltype){
   return ul;
 }
 
+function pillar(lv,key,ltype,list,name,cls){
+  const open=lv.po&&lv.po[key];
+  const w=document.createElement('div'); w.className='pillar '+cls+(open?' open':'');
+  const head=document.createElement('div'); head.className='pillar-head';
+  const ar=document.createElement('span'); ar.className='parrow'; ar.textContent='▶';
+  const nm=document.createElement('span'); nm.className='pname'; nm.textContent=name;
+  const dn=list.filter(x=>x.done).length, tt=list.length;
+  const pc=document.createElement('span'); pc.className='pcount'+(tt&&dn===tt?' full':''); pc.textContent=dn+'/'+tt;
+  head.appendChild(ar); head.appendChild(nm); head.appendChild(pc);
+  head.onclick=()=>{ if(!lv.po)lv.po={}; lv.po[key]=!lv.po[key]; save(); render(); };
+  w.appendChild(head);
+  const body=document.createElement('div'); body.className='pillar-body';
+  body.appendChild(makeList(list,lv,ltype));
+  const add=document.createElement('button'); add.className='additem'; add.textContent='＋ add item';
+  add.onclick=()=>{list.push({id:nid(),t:'New item'});save();render();}; body.appendChild(add);
+  w.appendChild(body);
+  return w;
+}
+
 function nodeEl(lv,i){
   const sh=SHADES[Math.min(i,SHADES.length-1)];
   const n=document.createElement('div'); n.className='node'+(lv.open?' open':'');
@@ -309,36 +352,28 @@ function nodeEl(lv,i){
   const price=document.createElement('span'); price.className='pill'; price.style.color=sh.tx; price.textContent=lv.price+(lv.usd?(' · '+lv.usd):'');
   r2.appendChild(price);
   if(lv.tag){const e=document.createElement('span'); e.className='etag e-'+lv.tag; e.textContent=lv.tag; r2.appendChild(e);}
-  const ld=lv.items.filter(x=>x.done).length+lv.enl.filter(x=>x.done).length, lt=lv.items.length+lv.enl.length;
+  const ld=lv.items.filter(x=>x.done).length+lv.health.filter(x=>x.done).length+lv.enl.filter(x=>x.done).length;
+  const lt=lv.items.length+lv.health.length+lv.enl.length;
   const rp=document.createElement('span'); rp.className='rpill'+(lt&&ld===lt?' full':''); rp.textContent=ld+'/'+lt+' ready'; if(!(lt&&ld===lt))rp.style.color=sh.tx; r2.appendChild(rp);
   head.appendChild(r1); head.appendChild(r2);
   head.onclick=()=>{lv.open=!lv.open;n.classList.toggle('open');save();};
   n.appendChild(head);
 
   const body=document.createElement('div'); body.className='body';
-  const sl=document.createElement('div'); sl.className='seclabel'; sl.textContent=lv.tag==='Empower'?'What they get (empowerment)':'What they get'; body.appendChild(sl);
-  body.appendChild(makeList(lv.items,lv,'level'));
-  const add=document.createElement('button'); add.className='additem'; add.textContent='＋ add item';
-  add.onclick=()=>{lv.items.push({id:nid(),t:'New benefit'});save();render();}; body.appendChild(add);
-
-  const ew=document.createElement('div'); ew.className='enl-wrap';
-  const eh=document.createElement('div'); eh.className='enl-head'; eh.textContent='✦ Enlightenment — free · Happiness'; ew.appendChild(eh);
-  ew.appendChild(makeList(lv.enl,lv,'enl'));
-  const addE=document.createElement('button'); addE.className='additem enl'; addE.textContent='＋ add happiness step';
-  addE.onclick=()=>{lv.enl.push({id:nid(),t:'New happiness step'});save();render();}; ew.appendChild(addE);
-  body.appendChild(ew);
-
+  body.appendChild(pillar(lv,'hap','enl',lv.enl,'Happiness','p-hap'));
+  body.appendChild(pillar(lv,'hea','health',lv.health,'Health','p-hea'));
+  body.appendChild(pillar(lv,'wea','level',lv.items,'Wealth','p-wea'));
   n.appendChild(body);
   return n;
 }
 
 function itemEl(it,lv,ltype){
-  const li=document.createElement('li'); li.className='item'+(ltype==='enl'?' enl':'')+(it.done?' done':''); li.draggable=true; li.dataset.id=it.id;
+  const li=document.createElement('li'); li.className='item'+(it.done?' done':''); li.draggable=true; li.dataset.id=it.id;
   li.appendChild(checkbox(it));
   const h=document.createElement('span'); h.className='handle'; h.textContent='⠿'; li.appendChild(h);
   const inp=document.createElement('input'); inp.className='t'; inp.value=it.t; inp.oninput=()=>{it.t=inp.value;save();}; li.appendChild(inp);
   const del=document.createElement('span'); del.className='del'; del.textContent='×';
-  del.onclick=()=>{ if(ltype==='enl'){lv.enl=lv.enl.filter(x=>x.id!==it.id);} else {lv.items=lv.items.filter(x=>x.id!==it.id);} save();render(); }; li.appendChild(del);
+  del.onclick=()=>{ const a=arrFor(lv,ltype); const ix=a.findIndex(x=>x.id===it.id); if(ix>=0)a.splice(ix,1); save();render(); }; li.appendChild(del);
   dragItem(li,ltype,lv.id,it.id);
   return li;
 }
@@ -368,11 +403,11 @@ function dropOn(targetType,targetListId,beforeItemId){
   save();render();
 }
 
-document.getElementById('addLevel').onclick=()=>{state.levels.push({id:nid(),name:'New level',price:'TBD',usd:'TNPL',tag:'Empower',open:true,items:[{id:nid(),t:'New benefit'}],enl:[{id:nid(),t:'New happiness step'}]});save();render();};
+document.getElementById('addLevel').onclick=()=>{state.levels.push({id:nid(),name:'New level',price:'TBD',usd:'TNPL',tag:'Empower',open:true,items:[{id:nid(),t:'New benefit'}],health:[],enl:[{id:nid(),t:'New happiness step'}],po:{hap:false,hea:false,wea:true}});save();render();};
 document.getElementById('reset').onclick=()=>{if(confirm('Reset the dashboard to the starting layout? Your edits will be lost.')){state=defaults();save();render();}};
 document.getElementById('backup').onclick=()=>{const b=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='fpl-journey-backup.json';document.body.appendChild(a);a.click();a.remove();};
 document.getElementById('restore').onclick=()=>document.getElementById('importer').click();
-document.getElementById('importer').onchange=function(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=function(){try{const d=JSON.parse(r.result);if(d&&d.levels&&d.trips){state=d;state.levels.forEach(l=>{if(!l.enl)l.enl=[];});save();render();}else{alert('That file does not look like a journey backup.');}}catch(_){alert('Could not read that backup file.');}};r.readAsText(f);e.target.value='';};
+document.getElementById('importer').onchange=function(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=function(){try{const d=JSON.parse(r.result);if(d&&d.levels&&d.trips){state=d;state.levels.forEach(l=>{if(!l.enl)l.enl=[];if(!l.health)l.health=[];if(!l.po)l.po={hap:false,hea:false,wea:false};});save();render();}else{alert('That file does not look like a journey backup.');}}catch(_){alert('Could not read that backup file.');}};r.readAsText(f);e.target.value='';};
 
 load();render();
 </script>
