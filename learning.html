@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Friends & Family — Learning Path</title>
+<style>
+  :root{--navy:#1B2C54;--gold:#C6A249;--ink:#22303f;--muted:#6b7280;--page:#f4f6f4;--card:#fff;--line:#e4e8e3;--ok:#1d9e75;--lock:#9aa3a0;}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--page);color:var(--ink);line-height:1.5}
+  .wrap{max-width:780px;margin:0 auto;padding:22px 18px 60px}
+  header.hero{background:linear-gradient(120deg,var(--navy),#0e1c3d);color:#fff;border-radius:16px;padding:22px 24px;position:relative;overflow:hidden}
+  header.hero:after{content:'';position:absolute;right:-60px;top:-60px;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,rgba(198,162,73,.28),transparent 70%)}
+  header.hero h1{font-size:21px;font-weight:700;letter-spacing:.2px}
+  header.hero h1 span{color:var(--gold)}
+  header.hero p{font-size:13px;color:#cdd8ee;margin-top:6px;max-width:560px}
+  .msg{min-height:0;font-size:13.5px;color:var(--navy);background:#eaf2ff;border:1px solid #cfe0ff;border-radius:10px;padding:0;margin:0;opacity:0;transform:translateY(-4px);transition:.25s;overflow:hidden}
+  .msg.show{opacity:1;transform:none;padding:9px 13px;margin:12px 0 0}
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0}
+  .stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;text-align:center}
+  .stat b{font-size:22px;font-weight:700;color:var(--navy);display:block;font-variant-numeric:tabular-nums}
+  .stat span{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
+  .attend{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;background:#fff7e7;border:1px solid #ecd9a8;border-radius:12px;padding:12px 15px;margin-bottom:18px}
+  .attend .at{font-size:14px;color:#7a5a12}
+  .attend .at b{color:var(--navy)}
+  button{font:inherit;cursor:pointer;border-radius:9px;border:1px solid var(--line);background:#fff;padding:8px 13px;font-size:13px;font-weight:600;color:var(--navy);transition:.15s}
+  button:hover{border-color:var(--navy)}
+  button.gold{background:var(--gold);border-color:var(--gold);color:#1b2c54}
+  button.gold:hover{background:#d8b35e}
+  button.key{background:var(--navy);border-color:var(--navy);color:#fff}
+  button.key:hover{background:#26407a}
+  button:disabled{opacity:.5;cursor:not-allowed}
+  .ghost{background:transparent;border-color:#cfd6cf;color:var(--muted)}
+  .book{display:flex;gap:14px;align-items:flex-start;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:12px;transition:.2s}
+  .book.locked{opacity:.72;background:#f7f9f7}
+  .book.completed{border-color:#bfe3cd;background:#f2fbf5}
+  .badge{flex:0 0 auto;width:64px;text-align:center}
+  .badge .bn{font-size:9.5px;font-weight:700;margin-top:3px;line-height:1.15;letter-spacing:.2px}
+  .badge .bn.earned{color:var(--ok)}
+  .badge .bn.grey{color:#aab0ad}
+  .bmain{flex:1;min-width:0}
+  .btitle{font-size:15.5px;font-weight:700;color:var(--ink)}
+  .bsub{font-size:12.5px;color:var(--muted);margin-top:1px}
+  .bstate{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;padding:2px 9px;border-radius:20px;margin-top:7px}
+  .bstate.s-done{background:#e1f4e9;color:#15784a}
+  .bstate.s-now{background:#e7eefb;color:#28477e}
+  .bstate.s-lock{background:#eef0ee;color:#8a918c}
+  .bactions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;align-items:center}
+  .cond{font-size:12px;color:var(--muted)}
+  .pill2{font-size:11px;font-weight:700;color:#7a5a12;background:#fbf1d6;border:1px solid #ecd9a8;border-radius:20px;padding:2px 9px}
+  footer{margin-top:20px;font-size:12px;color:var(--muted);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+  .idcard{background:linear-gradient(125deg,#1B2C54,#0e1c3d);color:#fff;border:1px solid #2c4377;border-radius:16px;padding:15px 18px;margin:14px 0 0}
+  .idhead{display:flex;align-items:center;gap:10px}
+  .idwm{line-height:1.15}
+  .idwm .w1{color:var(--gold);font-weight:700;font-size:14.5px;font-family:Georgia,serif}
+  .idwm .w2{color:#e7ecf7;font-weight:700;font-size:14.5px;font-family:Georgia,serif}
+  .idtier{margin-left:auto;background:var(--gold);color:#1b2c54;font-weight:700;font-size:11px;padding:3px 11px;border-radius:20px}
+  .idmid{display:flex;justify-content:space-between;align-items:baseline;margin-top:12px;gap:10px;flex-wrap:wrap}
+  .idname{font-size:18px;font-weight:600;color:#eef2fb}
+  .idmeta{font-size:12px;color:#aeb9d0;font-family:ui-monospace,monospace}
+  .idbw{margin-top:13px;border-top:1px solid rgba(255,255,255,.13);padding-top:11px}
+  .idbl{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:#aeb9d0;margin-bottom:9px;display:flex;justify-content:space-between}
+  .idbl b{color:var(--gold)}
+  .idbadges{display:flex;gap:11px;flex-wrap:wrap}
+  .bslot{width:56px;text-align:center}
+  .bslot .ring{width:42px;height:42px;border-radius:50%;margin:0 auto;display:flex;align-items:center;justify-content:center;transition:.2s}
+  .bslot.empty .ring{border:2px dashed rgba(198,162,73,.45);background:rgba(255,255,255,.03)}
+  .bslot .bnm{font-size:8.5px;font-weight:700;margin-top:4px;line-height:1.12}
+  .bslot.earned .bnm{color:var(--gold)}
+  .bslot.empty .bnm{color:#728199}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="hero">
+    <h1>Friends &amp; Family <span>· Learning Path</span></h1>
+    <p>Read and listen. Finish a book to earn its <b style="color:#fff">badge</b>. Attend the weekly <b style="color:#fff">Rise Again</b> session to earn a <b style="color:#fff">key</b> — each key opens the next book, once you've finished the one before.</p>
+  </header>
+
+  <div class="idcard">
+    <div class="idhead">
+      <svg width="34" height="40" viewBox="0 0 34 40" style="flex:0 0 auto"><path d="M3 4 L31 4 L31 22 Q31 33 17 39 Q3 33 3 22 Z" fill="#22386A" stroke="#C6A249" stroke-width="2"/><text x="17" y="24" text-anchor="middle" font-family="Georgia" font-size="12" font-weight="700" fill="#C6A249">FPL</text></svg>
+      <div class="idwm"><div class="w1">Future Proofing</div><div class="w2">Lifestyle Network</div></div>
+      <span class="idtier">Volunteer</span>
+    </div>
+    <div class="idmid"><div class="idname">Member Name</div><div class="idmeta">ID · FPL-V-000001</div></div>
+    <div class="idbw"><div class="idbl"><span>Badges earned — they click onto your card as you finish each book</span><b id="idbcount">0 / 0</b></div><div class="idbadges" id="idbadges"></div></div>
+  </div>
+
+  <div id="msg" class="msg"></div>
+
+  <div class="stats">
+    <div class="stat"><b id="s-done">0 / 0</b><span>Books done</span></div>
+    <div class="stat"><b id="s-badges">0</b><span>Badges earned</span></div>
+    <div class="stat"><b id="s-keys">0</b><span>Keys available</span></div>
+  </div>
+
+  <div class="attend">
+    <div class="at">Weekly <b>Rise Again</b> session — <b id="s-att">0</b> attended so far</div>
+    <button id="attendBtn" class="gold">+ Attend a session (demo)</button>
+  </div>
+
+  <div id="books"></div>
+
+  <footer>
+    <span>Prototype — attendance is simulated here; in the live app it's verified automatically.</span>
+    <button id="resetBtn" class="ghost">Reset</button>
+  </footer>
+</div>
+
+<script>
+const KEY='fpl_ff_learning_v1';
+const BOOKS=[
+  {id:'huknomi',   title:'Hu-Kno-Mi',           sub:'Human Knowledge Mission · expel ignorance', badge:'Hu-Kno-Mian',      color:'#2f6fed'},
+  {id:'gmbm',      title:'Good Money, Bad Money', sub:'earn without harming people or nature',     badge:'Good Money Maker', color:'#1d9e75'},
+  {id:'heights',   title:'Heights of Ignorance', sub:'know exactly where you stand',               badge:'The Awakened',     color:'#BA7517'},
+  {id:'transkeyer',title:'Transkeyer',           sub:'the 4 keys to transform yourself',          badge:'The Transformer',  color:'#8B5CC9'}
+];
+
+let st;
+function load(){ try{st=JSON.parse(localStorage.getItem(KEY));}catch(e){st=null;} if(!st||!st.completed){st={completed:{},unlocked:{},keys:0,attended:0};} if(BOOKS[0])st.unlocked[BOOKS[0].id]=true; }
+function save(){ localStorage.setItem(KEY,JSON.stringify(st)); }
+function msg(t){ const m=document.getElementById('msg'); m.textContent=t; m.classList.add('show'); clearTimeout(msg._t); msg._t=setTimeout(()=>m.classList.remove('show'),3200); }
+
+function medal(color,earned){
+  if(earned) return '<svg width="46" height="46" viewBox="0 0 24 24"><circle cx="12" cy="9.5" r="6.6" fill="'+color+'"/><path d="M9 9.7l2 2 4-4" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M8.2 15l-1 6 4.8-2.2 4.8 2.2-1-6" fill="'+color+'" opacity=".9"/></svg>';
+  return '<svg width="46" height="46" viewBox="0 0 24 24"><circle cx="12" cy="10" r="6.6" fill="#e0e4df"/><rect x="9.4" y="10" width="5.2" height="4.6" rx="1" fill="#9aa3a0"/><path d="M10 10v-1.1a2 2 0 0 1 4 0V10" stroke="#9aa3a0" stroke-width="1.3" fill="none"/></svg>';
+}
+
+function renderCard(){
+  const wrap=document.getElementById('idbadges'); if(!wrap)return; wrap.innerHTML='';
+  let earnedN=0;
+  BOOKS.forEach(function(b){
+    const earned=!!st.completed[b.id]; if(earned)earnedN++;
+    const slot=document.createElement('div'); slot.className='bslot '+(earned?'earned':'empty');
+    const inner=earned?'<svg width="20" height="20" viewBox="0 0 24 24"><path d="M6 12l4 4 8-8" stroke="#fff" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>':'';
+    slot.innerHTML='<div class="ring" style="'+(earned?('background:'+b.color):'')+'">'+inner+'</div><div class="bnm">'+b.badge+'</div>';
+    wrap.appendChild(slot);
+  });
+  const c=document.getElementById('idbcount'); if(c)c.textContent=earnedN+' / '+BOOKS.length;
+}
+
+function render(){
+  const done=BOOKS.filter(b=>st.completed[b.id]).length;
+  document.getElementById('s-done').textContent=done+' / '+BOOKS.length;
+  document.getElementById('s-badges').textContent=done;
+  document.getElementById('s-keys').textContent=st.keys;
+  document.getElementById('s-att').textContent=st.attended;
+  renderCard();
+
+  const box=document.getElementById('books'); box.innerHTML='';
+  BOOKS.forEach((b,i)=>{
+    const completed=!!st.completed[b.id];
+    const unlocked = i===0 || !!st.unlocked[b.id];
+    const prevDone = i===0 ? true : !!st.completed[BOOKS[i-1].id];
+    const canOpen = !unlocked && prevDone && st.keys>0;
+
+    const card=document.createElement('div');
+    card.className='book '+(completed?'completed':unlocked?'available':'locked');
+
+    var stateHtml = completed
+      ? '<span class="bstate s-done">Completed</span>'
+      : unlocked ? '<span class="bstate s-now">Available now</span>'
+                 : '<span class="bstate s-lock">Locked</span>';
+
+    var actions='';
+    if(completed){
+      actions='<button data-act="read" data-id="'+b.id+'">Read again</button><button data-act="listen" data-id="'+b.id+'">Listen again</button>';
+    } else if(unlocked){
+      actions='<button data-act="read" data-id="'+b.id+'">Read</button>'
+            +'<button data-act="listen" data-id="'+b.id+'">Listen</button>'
+            +'<button class="gold" data-act="complete" data-id="'+b.id+'">Mark complete → earn badge</button>';
+    } else if(canOpen){
+      actions='<button class="key" data-act="open" data-id="'+b.id+'">Open with 1 key</button><span class="pill2">1 key will be used</span>';
+    } else {
+      var need = !prevDone ? ('finish '+BOOKS[i-1].title) : 'attend a Rise Again session for a key';
+      actions='<span class="cond">Locked — '+need+'.</span>';
+    }
+
+    card.innerHTML=
+      '<div class="badge">'+medal(b.color,completed)+'<div class="bn '+(completed?'earned':'grey')+'">'+b.badge+'</div></div>'
+      +'<div class="bmain"><div class="btitle">'+(i+1)+'. '+b.title+'</div><div class="bsub">'+b.sub+'</div>'
+      +stateHtml+'<div class="bactions">'+actions+'</div></div>';
+    box.appendChild(card);
+  });
+}
+
+document.getElementById('books').addEventListener('click',function(e){
+  var btn=e.target.closest('button[data-act]'); if(!btn)return;
+  var act=btn.getAttribute('data-act'), id=btn.getAttribute('data-id');
+  var b=BOOKS.find(x=>x.id===id);
+  if(act==='read'){ msg('In the live app, this opens "'+b.title+'" to read.'); }
+  else if(act==='listen'){ msg('In the live app, this plays the audio of "'+b.title+'".'); }
+  else if(act==='complete'){ st.completed[id]=true; save(); render(); msg('Badge earned: '+b.badge+'! '+(BOOKS[BOOKS.length-1].id===id?'You have finished the path.':'Attend Rise Again to earn a key and open the next book.')); }
+  else if(act==='open'){ if(st.keys>0){ st.keys--; st.unlocked[id]=true; save(); render(); msg('Unlocked "'+b.title+'" — one key was used.'); } }
+});
+document.getElementById('attendBtn').onclick=function(){ st.attended++; st.keys++; save(); render(); msg('You attended Rise Again — you earned a key. Use it to open your next finished book.'); };
+document.getElementById('resetBtn').onclick=function(){ if(confirm('Reset this demo?')){ st={completed:{},unlocked:{},keys:0,attended:0}; if(BOOKS[0])st.unlocked[BOOKS[0].id]=true; save(); render(); } };
+
+load(); render();
+</script>
+</body>
+</html>
