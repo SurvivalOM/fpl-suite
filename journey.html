@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FPL Network — Member Journey Dashboard</title>
+<style>
+  :root{
+    --navy:#1B2C54; --gold:#C6A249; --ink:#22303f; --muted:#6b7280;
+    --page:#f5f7f4; --card:#ffffff; --line:#e3e8e0;
+    --orange-bg:#FCEBD9; --orange-tx:#B05518; --orange-bd:#F1BE8E;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--page);color:var(--ink);line-height:1.45}
+  header.top{background:var(--navy);color:#fff;padding:16px 24px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;position:sticky;top:0;z-index:30}
+  header.top .brand{display:flex;flex-direction:column}
+  header.top h1{font-size:18px;font-weight:600;letter-spacing:.2px}
+  header.top h1 span{color:var(--gold)}
+  header.top p{font-size:12px;color:#aeb9d0}
+  header.top .spacer{flex:1}
+  .btn{font:inherit;font-size:13px;border:1px solid rgba(255,255,255,.35);background:transparent;color:#fff;padding:7px 13px;border-radius:8px;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+  .btn:hover{background:rgba(255,255,255,.12)}
+  #saved{font-size:12px;color:#9fe0b0;opacity:0;transition:opacity .3s}
+  #saved.show{opacity:1}
+
+  .legend{display:flex;gap:16px;flex-wrap:wrap;align-items:center;padding:12px 24px;font-size:12px;color:var(--muted);background:#fff;border-bottom:1px solid var(--line)}
+  .legend .sw{width:12px;height:12px;border-radius:3px;display:inline-block;vertical-align:-1px;margin-right:6px;border:1px solid rgba(0,0,0,.08)}
+  .legend .rule{flex-basis:100%;color:#2f6b12;font-weight:600;margin-top:2px}
+
+  .board{display:flex;align-items:flex-start;gap:10px;padding:26px 24px 60px;overflow-x:auto;min-height:60vh}
+  .col-label{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:8px;font-weight:600}
+
+  .tripcol{flex:0 0 210px;display:flex;flex-direction:column}
+  .strip{background:var(--orange-bg);border:1px solid var(--orange-bd);color:var(--orange-tx);border-radius:8px;padding:8px 10px;margin-bottom:8px;display:flex;align-items:center;gap:8px;cursor:grab}
+  .strip input{flex:1;border:none;background:transparent;color:var(--orange-tx);font:inherit;font-size:13px;outline:none}
+  .strip .handle{color:var(--orange-tx);opacity:.5;font-size:13px;cursor:grab}
+  .strip .del{cursor:pointer;opacity:.5;font-size:15px;line-height:1}
+  .strip .del:hover{opacity:1}
+  .addbtn{font:inherit;font-size:12.5px;border:1px dashed var(--line);background:#fff;color:var(--muted);padding:7px 10px;border-radius:8px;cursor:pointer;width:100%;text-align:left}
+  .addbtn:hover{border-color:var(--gold);color:var(--navy)}
+
+  .arrow{flex:0 0 22px;align-self:center;color:#b9c4b1;font-size:22px;text-align:center;padding-top:60px}
+
+  .lane{flex:0 0 234px;display:flex;flex-direction:column}
+  .node{border-radius:12px;border:1px solid;overflow:hidden;box-shadow:0 1px 2px rgba(20,40,20,.06)}
+  .node .head{padding:11px 12px;cursor:pointer;user-select:none}
+  .node .row1{display:flex;align-items:center;gap:8px}
+  .node .caret{font-size:12px;transition:transform .2s}
+  .node.open .caret{transform:rotate(90deg)}
+  .node .name{flex:1;border:none;background:transparent;font:inherit;font-size:15px;font-weight:600;outline:none;color:inherit;min-width:0}
+  .node .row2{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:6px}
+  .pill{font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;background:rgba(255,255,255,.6);border:1px solid rgba(0,0,0,.08)}
+  .etag{font-size:10.5px;font-weight:700;letter-spacing:.4px;padding:2px 7px;border-radius:4px}
+  .e-Educate{background:#1d9e75;color:#fff}
+  .e-Empower{background:#BA7517;color:#fff}
+  .node .body{border-top:1px solid rgba(0,0,0,.07);padding:9px;display:none;background:rgba(255,255,255,.5)}
+  .node.open .body{display:block}
+  .seclabel{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:#566;font-weight:700;margin:0 2px 5px}
+  .items{list-style:none;min-height:8px}
+  .item{background:#fff;border:1px solid var(--line);border-radius:7px;padding:6px 8px;margin-bottom:6px;display:flex;align-items:center;gap:7px;cursor:grab}
+  .item.dragover{border-color:var(--gold);box-shadow:0 0 0 2px rgba(198,162,73,.4)}
+  .item.enl{border-color:#F2C9A0;background:#FFF8F1}
+  .item .handle{opacity:.4;font-size:13px;cursor:grab}
+  .item input{flex:1;border:none;background:transparent;font:inherit;font-size:13px;outline:none;color:var(--ink);min-width:0}
+  .item .del{cursor:pointer;opacity:.4;font-size:15px;line-height:1}
+  .item .del:hover{opacity:1;color:#c0392b}
+  .items.dropempty{outline:2px dashed var(--gold);outline-offset:2px;border-radius:7px}
+  .additem{font-size:12px;color:var(--muted);background:transparent;border:none;cursor:pointer;padding:4px 2px}
+  .additem:hover{color:var(--navy)}
+  .additem.enl{color:#B05518}
+  .enl-wrap{margin-top:9px;background:#FCEFE0;border:1px solid #F0C99B;border-radius:9px;padding:8px}
+  .enl-head{display:flex;align-items:center;gap:6px;font-size:10.5px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:#B05518;margin-bottom:7px}
+  .hint{padding:0 24px 30px;font-size:12.5px;color:var(--muted);max-width:900px}
+  .hint b{color:var(--ink);font-weight:600}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="brand">
+    <h1>Future Proofing Lifestyle <span>· Member Journey</span></h1>
+    <p>Entry funnels → Volunteer → membership ladder. Click a card to open its dropdown. Drag items to move them between levels.</p>
+  </div>
+  <div class="spacer"></div>
+  <span id="saved">auto-saved ✓</span>
+  <button class="btn" id="addLevel">+ Add level</button>
+  <button class="btn" id="backup">⬇ Backup</button>
+  <button class="btn" id="restore">⬆ Restore</button>
+  <button class="btn" id="reset">Reset</button>
+  <input type="file" id="importer" accept="application/json" style="display:none">
+</header>
+
+<div class="legend">
+  <span><span class="sw" style="background:var(--orange-bg);border-color:var(--orange-bd)"></span>Entry · tripwire</span>
+  <span><span class="sw" style="background:#1d9e75"></span>Educate</span>
+  <span><span class="sw" style="background:#BA7517"></span>Empower (paid)</span>
+  <span><span class="sw" style="background:#E0922E"></span>Enlighten — free · Happiness (in every level)</span>
+  <span class="rule">Try-now-pay-later all the way up: access free, pay a level only when you see its value — that unlocks the next. The orange Enlightenment (Happiness) track is always free.</span>
+</div>
+
+<div class="board" id="board"></div>
+
+<p class="hint"><b>How to use:</b> click a card to open its dropdown · click text to edit · <b>＋ add item</b> in any list · drag an item by its handle to reorder or move it onto another level · each level also carries a free orange <b>Enlightenment (Happiness)</b> section · <b>everything auto-saves to this browser instantly</b> and survives reloads — use <b>⬇ Backup</b> to download a copy any time.</p>
+
+<script>
+const KEY='fpl_journey_v5';
+const SHADES=[
+  {bg:'#E8F4DD',tx:'#2E5A1E',bd:'#C2DEA6'},
+  {bg:'#CDE9B4',tx:'#28531A',bd:'#A9D182'},
+  {bg:'#A8D585',tx:'#1E4512',bd:'#86BE5C'},
+  {bg:'#6FB049',tx:'#11340a',bd:'#5C9A3A'},
+  {bg:'#3E7A28',tx:'#EAF5E1',bd:'#326321'},
+  {bg:'#285A18',tx:'#EAF5E1',bd:'#1f4712'}
+];
+let uid=Math.floor(Math.random()*1e6);
+const nid=()=> 'i'+(uid++);
+
+function defaults(){
+  return {
+    trips:[
+      {id:nid(),t:'Book funnel (every book)'},
+      {id:nid(),t:'YouTube channels'},
+      {id:nid(),t:'Explainer page + revolutionary video'},
+      {id:nid(),t:'Paid ads'},
+      {id:nid(),t:'Social shares & referrals'}
+    ],
+    levels:[
+      {id:nid(),name:'Volunteer',price:'Free',usd:'name + email',tag:'Educate',open:true,
+       items:[
+        {id:nid(),t:'Take the Pledge + receive the Manifesto'},
+        {id:nid(),t:'Numbered Volunteer ID'},
+        {id:nid(),t:'Mission updates (YouTube + networks)'},
+        {id:nid(),t:'Offered the free Friends & Family membership'},
+        {id:nid(),t:'Role: share the mission + recruit volunteers'}
+       ],
+       enl:[
+        {id:nid(),t:'Why true happiness is the real wealth'},
+        {id:nid(),t:'Standing steady in a VUCA world'}
+       ]},
+      {id:nid(),name:'Friends & Family',price:'₹4,999',usd:'$49 · TNPL',tag:'Educate',open:false,
+       items:[
+        {id:nid(),t:'Welcome + what FPL is (Happiness · Health · Wealth)'},
+        {id:nid(),t:'Course: Why financial freedom matters'},
+        {id:nid(),t:'Course: Hu-Kno-Mi → earn "Hu-Kno-Mian"'},
+        {id:nid(),t:'Course: Good Money, Bad Money → "Good Money Maker"'},
+        {id:nid(),t:'Heights of Ignorance / Transkeyer'},
+        {id:nid(),t:'Weekly live "Rise Again"'},
+        {id:nid(),t:'Apps + advanced updates'}
+       ],
+       enl:[
+        {id:nid(),t:'Happiness basics — gratitude & contentment'},
+        {id:nid(),t:'Inner calm amid uncertainty'}
+       ]},
+      {id:nid(),name:'FPL Warrior',price:'₹50,000',usd:'$500 · TNPL',tag:'Empower',open:false,
+       items:[
+        {id:nid(),t:'Choose a passive-income vehicle (matched to your PACKS)'},
+        {id:nid(),t:'How to find your good-money opportunity'},
+        {id:nid(),t:'Build & analyze good-money products'},
+        {id:nid(),t:'Exit bad money'},
+        {id:nid(),t:'Online / offline / varied business paths'},
+        {id:nid(),t:'Apps + advanced updates'},
+        {id:nid(),t:'UNGH (Ultra Neutral Growth Hacker)'},
+        {id:nid(),t:'Financial Freedom Parenting'},
+        {id:nid(),t:'Sales app (1-page)'}
+       ],
+       enl:[
+        {id:nid(),t:'Detachment while you build — money as servant'},
+        {id:nid(),t:'The purpose behind the work'}
+       ]},
+      {id:nid(),name:'FPL Kings & Queens',price:'₹2.5L',usd:'$2,500 · TNPL',tag:'Empower',open:false,
+       items:[
+        {id:nid(),t:'Deeper mastery + leadership in the movement'},
+        {id:nid(),t:'Smart Boss Program'},
+        {id:nid(),t:'Couple access — 2 IDs for one price (pay once · husband + wife)'},
+        {id:nid(),t:'(to be designed together)'}
+       ],
+       enl:[
+        {id:nid(),t:'Leading from inner stillness'},
+        {id:nid(),t:'Wealth held lightly'}
+       ]},
+      {id:nid(),name:'FPL Demi-Gods',price:'₹50L (one-time)',usd:'only after you earn ₹2.5Cr',tag:'Empower',open:false,
+       items:[
+        {id:nid(),t:'One-time ₹50L — paid only after you earn ₹2.5Cr through FPL'},
+        {id:nid(),t:'No upfront fee — pure success-based (money follows value)'},
+        {id:nid(),t:'Coach certifications — Transkeyer / Hu-Kno-Mi / ProFit (finish the book + pass a test → certificate → start coaching)'},
+        {id:nid(),t:'Hu-Kno-Mi Audit — our team audits & certifies your good-money product/service'},
+        {id:nid(),t:'Whole-family ID — husband, wife + 1 free ID per child (verified, one family)'},
+        {id:nid(),t:'Nuker'},
+        {id:nid(),t:'The summit of the membership ladder'}
+       ],
+       enl:[
+        {id:nid(),t:'Wealth as service — giving back'},
+        {id:nid(),t:'The incorruptible life'}
+       ]},
+      {id:nid(),name:"Mentor's Circle · 1-to-1",price:'₹10L / year',usd:'~108 seats · by availability',tag:'Empower',open:false,
+       items:[
+        {id:nid(),t:'Direct one-to-one consulting with Omjai (the mentor)'},
+        {id:nid(),t:'Bring exactly where you are stuck — personal guidance'},
+        {id:nid(),t:'Per-year membership (the one recurring tier)'},
+        {id:nid(),t:'Strictly capped at ~108 seats · join when one opens (mentor availability)'},
+        {id:nid(),t:'Open to anybody above Kings'}
+       ],
+       enl:[
+        {id:nid(),t:'Deepest happiness teachings, one-to-one'}
+       ]}
+    ]
+  };
+}
+
+let state;
+function load(){ try{state=JSON.parse(localStorage.getItem(KEY))||defaults();}catch(e){state=defaults();} if(!state.trips||!state.levels)state=defaults(); state.levels.forEach(l=>{if(!l.enl)l.enl=[]; if(l.name==='FPL Kings')l.name='FPL Kings & Queens';}); }
+function save(){ localStorage.setItem(KEY,JSON.stringify(state)); const s=document.getElementById('saved'); if(s){s.classList.add('show'); clearTimeout(save._t); save._t=setTimeout(()=>s.classList.remove('show'),1100);} }
+
+function listOf(type,id){
+  if(type==='trip') return state.trips;
+  const lv=state.levels.find(l=>l.id===id); if(!lv) return null;
+  return type==='enl'?lv.enl:lv.items;
+}
+
+function render(){
+  const board=document.getElementById('board');
+  board.innerHTML='';
+  const tc=document.createElement('div'); tc.className='tripcol';
+  tc.innerHTML='<div class="col-label">Entry · tripwires</div>';
+  const tlist=document.createElement('div'); tlist.dataset.type='trip'; tlist.dataset.id='trip';
+  state.trips.forEach(tr=>tlist.appendChild(stripEl(tr)));
+  attachListDrop(tlist,'trip','trip');
+  tc.appendChild(tlist);
+  const addT=document.createElement('button'); addT.className='addbtn'; addT.textContent='＋ add tripwire';
+  addT.onclick=()=>{state.trips.push({id:nid(),t:'New entry point'});save();render();};
+  tc.appendChild(addT);
+  board.appendChild(tc);
+
+  const ar=document.createElement('div'); ar.className='arrow'; ar.textContent='➜'; board.appendChild(ar);
+
+  state.levels.forEach((lv,i)=>{
+    const lane=document.createElement('div'); lane.className='lane';
+    lane.appendChild(label(i===0?'The journey':' '));
+    lane.appendChild(nodeEl(lv,i));
+    board.appendChild(lane);
+    if(i<state.levels.length-1){const a=document.createElement('div');a.className='arrow';a.textContent='➜';board.appendChild(a);}
+  });
+}
+function label(t){const d=document.createElement('div');d.className='col-label';d.innerHTML=t;return d;}
+
+function stripEl(tr){
+  const d=document.createElement('div'); d.className='strip'; d.draggable=true; d.dataset.id=tr.id;
+  d.innerHTML='<span class="handle">⠿</span>';
+  const inp=document.createElement('input'); inp.value=tr.t; inp.oninput=()=>{tr.t=inp.value;save();};
+  const del=document.createElement('span'); del.className='del'; del.textContent='×';
+  del.onclick=()=>{state.trips=state.trips.filter(x=>x.id!==tr.id);save();render();};
+  d.appendChild(inp); d.appendChild(del);
+  dragItem(d,'trip','trip',tr.id);
+  return d;
+}
+
+function makeList(arr,lv,ltype){
+  const ul=document.createElement('ul'); ul.className='items'; ul.dataset.type=ltype; ul.dataset.id=lv.id;
+  arr.forEach(it=>ul.appendChild(itemEl(it,lv,ltype)));
+  attachListDrop(ul,ltype,lv.id);
+  return ul;
+}
+
+function nodeEl(lv,i){
+  const sh=SHADES[Math.min(i,SHADES.length-1)];
+  const n=document.createElement('div'); n.className='node'+(lv.open?' open':'');
+  n.style.background=sh.bg; n.style.borderColor=sh.bd; n.style.color=sh.tx;
+  const head=document.createElement('div'); head.className='head';
+  const r1=document.createElement('div'); r1.className='row1';
+  const car=document.createElement('span'); car.className='caret'; car.textContent='▶';
+  const name=document.createElement('input'); name.className='name'; name.value=lv.name; name.style.color=sh.tx;
+  name.oninput=()=>{lv.name=name.value;save();}; name.onclick=e=>e.stopPropagation();
+  r1.appendChild(car); r1.appendChild(name);
+  const r2=document.createElement('div'); r2.className='row2';
+  const price=document.createElement('span'); price.className='pill'; price.style.color=sh.tx; price.textContent=lv.price+(lv.usd?(' · '+lv.usd):'');
+  r2.appendChild(price);
+  if(lv.tag){const e=document.createElement('span'); e.className='etag e-'+lv.tag; e.textContent=lv.tag; r2.appendChild(e);}
+  head.appendChild(r1); head.appendChild(r2);
+  head.onclick=()=>{lv.open=!lv.open;n.classList.toggle('open');save();};
+  n.appendChild(head);
+
+  const body=document.createElement('div'); body.className='body';
+  const sl=document.createElement('div'); sl.className='seclabel'; sl.textContent=lv.tag==='Empower'?'What they get (empowerment)':'What they get'; body.appendChild(sl);
+  body.appendChild(makeList(lv.items,lv,'level'));
+  const add=document.createElement('button'); add.className='additem'; add.textContent='＋ add item';
+  add.onclick=()=>{lv.items.push({id:nid(),t:'New benefit'});save();render();}; body.appendChild(add);
+
+  const ew=document.createElement('div'); ew.className='enl-wrap';
+  const eh=document.createElement('div'); eh.className='enl-head'; eh.textContent='✦ Enlightenment — free · Happiness'; ew.appendChild(eh);
+  ew.appendChild(makeList(lv.enl,lv,'enl'));
+  const addE=document.createElement('button'); addE.className='additem enl'; addE.textContent='＋ add happiness step';
+  addE.onclick=()=>{lv.enl.push({id:nid(),t:'New happiness step'});save();render();}; ew.appendChild(addE);
+  body.appendChild(ew);
+
+  n.appendChild(body);
+  return n;
+}
+
+function itemEl(it,lv,ltype){
+  const li=document.createElement('li'); li.className='item'+(ltype==='enl'?' enl':''); li.draggable=true; li.dataset.id=it.id;
+  li.innerHTML='<span class="handle">⠿</span>';
+  const inp=document.createElement('input'); inp.value=it.t; inp.oninput=()=>{it.t=inp.value;save();};
+  const del=document.createElement('span'); del.className='del'; del.textContent='×';
+  del.onclick=()=>{ if(ltype==='enl'){lv.enl=lv.enl.filter(x=>x.id!==it.id);} else {lv.items=lv.items.filter(x=>x.id!==it.id);} save();render(); };
+  li.appendChild(inp); li.appendChild(del);
+  dragItem(li,ltype,lv.id,it.id);
+  return li;
+}
+
+let DRAG=null;
+function dragItem(el,type,listId,itemId){
+  el.addEventListener('dragstart',e=>{DRAG={type,listId,itemId};e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',itemId);setTimeout(()=>el.style.opacity='.4',0);});
+  el.addEventListener('dragend',()=>{el.style.opacity='';DRAG=null;document.querySelectorAll('.dragover').forEach(x=>x.classList.remove('dragover'));});
+  el.addEventListener('dragover',e=>{e.preventDefault();e.stopPropagation();el.classList.add('dragover');});
+  el.addEventListener('dragleave',()=>el.classList.remove('dragover'));
+  el.addEventListener('drop',e=>{e.preventDefault();e.stopPropagation();el.classList.remove('dragover');dropOn(type,listId,itemId);});
+}
+function attachListDrop(listEl,type,listId){
+  listEl.addEventListener('dragover',e=>{e.preventDefault();listEl.classList.add('dropempty');});
+  listEl.addEventListener('dragleave',()=>listEl.classList.remove('dropempty'));
+  listEl.addEventListener('drop',e=>{e.preventDefault();listEl.classList.remove('dropempty');dropOn(type,listId,null);});
+}
+function dropOn(targetType,targetListId,beforeItemId){
+  if(!DRAG)return;
+  const from=listOf(DRAG.type,DRAG.listId); const to=listOf(targetType,targetListId);
+  if(!from||!to)return;
+  const idx=from.findIndex(x=>x.id===DRAG.itemId); if(idx<0)return;
+  const [moved]=from.splice(idx,1);
+  let pos=to.length;
+  if(beforeItemId){const bi=to.findIndex(x=>x.id===beforeItemId); pos=bi<0?to.length:bi;}
+  to.splice(pos,0,moved);
+  save();render();
+}
+
+document.getElementById('addLevel').onclick=()=>{state.levels.push({id:nid(),name:'New level',price:'TBD',usd:'TNPL',tag:'Empower',open:true,items:[{id:nid(),t:'New benefit'}],enl:[{id:nid(),t:'New happiness step'}]});save();render();};
+document.getElementById('reset').onclick=()=>{if(confirm('Reset the dashboard to the starting layout? Your edits will be lost.')){state=defaults();save();render();}};
+document.getElementById('backup').onclick=()=>{const b=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='fpl-journey-backup.json';document.body.appendChild(a);a.click();a.remove();};
+document.getElementById('restore').onclick=()=>document.getElementById('importer').click();
+document.getElementById('importer').onchange=function(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=function(){try{const d=JSON.parse(r.result);if(d&&d.levels&&d.trips){state=d;state.levels.forEach(l=>{if(!l.enl)l.enl=[];});save();render();}else{alert('That file does not look like a journey backup.');}}catch(_){alert('Could not read that backup file.');}};r.readAsText(f);e.target.value='';};
+
+load();render();
+</script>
+</body>
+</html>
