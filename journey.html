@@ -246,6 +246,7 @@ function load(){
     if(!l.items)l.items=[]; if(!l.enl)l.enl=[]; if(!l.health)l.health=[];
     if(!l.po)l.po={hap:false,hea:false,wea:false};
     if(l.name==='FPL Kings')l.name='FPL Kings & Queens';
+    if(!l.access)l.access=/warrior|king|queen|demi|mentor/i.test(l.name)?'Web + App':'Web only';
   });
 }
 function save(){ localStorage.setItem(KEY,JSON.stringify(state)); const s=document.getElementById('saved'); if(s){s.classList.add('show'); clearTimeout(save._t); save._t=setTimeout(()=>s.classList.remove('show'),1100);} }
@@ -355,6 +356,7 @@ function nodeEl(lv,i){
   const ld=lv.items.filter(x=>x.done).length+lv.health.filter(x=>x.done).length+lv.enl.filter(x=>x.done).length;
   const lt=lv.items.length+lv.health.length+lv.enl.length;
   const rp=document.createElement('span'); rp.className='rpill'+(lt&&ld===lt?' full':''); rp.textContent=ld+'/'+lt+' ready'; if(!(lt&&ld===lt))rp.style.color=sh.tx; r2.appendChild(rp);
+  const acc=document.createElement('span'); acc.className='pill'; acc.style.color=sh.tx; acc.textContent=lv.access||(/warrior|king|queen|demi|mentor/i.test(lv.name)?'Web + App':'Web only'); acc.title='Where members access this level'; r2.appendChild(acc);
   head.appendChild(r1); head.appendChild(r2);
   head.onclick=()=>{lv.open=!lv.open;n.classList.toggle('open');save();};
   n.appendChild(head);
