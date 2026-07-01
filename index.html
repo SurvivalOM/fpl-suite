@@ -151,6 +151,7 @@ a.pa:hover{filter:brightness(1.14);transform:translateY(-1px)}
     </div>
    </div>
   </div>
+  <div class="theme" id="shubh"></div>
   <div class="theme" id="panchang"></div>
   <div class="theme" id="theme"></div>
  </header>
@@ -473,6 +474,28 @@ function render(){
   `<span class="chip">Dosha now: <b>${dh[0]}</b></span>`+
   `<span class="chip">Hare Krishna 🙏</span>`;
  (function(){try{var pc=computePanchang(new Date());var pe=document.getElementById('panchang');if(pe)pe.innerHTML='<span class="chip" title="Panchanga: the five limbs of the day">☀️ Panchāṅga</span><span class="chip"><b>'+pc.paksha+' '+pc.tithi+'</b></span><span class="chip">'+pc.nakshatra+'</span><span class="chip">'+pc.yoga+' yoga</span><span class="chip">'+pc.karana+'</span><span class="chip">🌙 '+pc.moonRashi+'</span>';}catch(e){}})();
+ (function(){try{var q=dayQuality(new Date());var se=document.getElementById('shubh');if(se)se.innerHTML=(q.yogas.length?'<span class="chip" style="background:rgba(198,162,73,.24);border-color:var(--gold2)">🌟 <b>'+q.yogas.join(' + ')+' Yoga</b> · shubh day</span>':'<span class="chip" title="auspicious windows to begin things">🕉️ Shubh times</span>')+(q.abhijit?'<span class="chip">✨ Abhijit '+q.fmt(q.abhijit.s)+'–'+q.fmt(q.abhijit.e)+'</span>':'<span class="chip" style="opacity:.72">✨ Abhijit — none today</span>')+'<span class="chip">🏆 Vijaya '+q.fmt(q.vijaya.s)+'–'+q.fmt(q.vijaya.e)+'</span>'+'<span class="chip">🌅 Brahma '+q.fmt(q.brahma.s)+'–'+q.fmt(q.brahma.e)+'</span>'+'<span class="chip" style="opacity:.72">⛔ Rahu '+q.fmt(q.rahu.s)+'–'+q.fmt(q.rahu.e)+'</span>';}catch(e){}})();
+ function dayQuality(date){
+  var lat=11.6643,lon=78.1460,tz=5.5;function nn(x){x=x%360;return x<0?x+360:x;}
+  function J(y,m,d,h){var Y=y,M=m;if(M<=2){Y-=1;M+=12;}var A=Math.floor(Y/100),B=2-A+Math.floor(A/4);return Math.floor(365.25*(Y+4716))+Math.floor(30.6001*(M+1))+d+B-1524.5+h/24;}
+  var y=date.getFullYear(),m=date.getMonth()+1,d=date.getDate(),wd=date.getDay(),dr=Math.PI/180;
+  var jj=J(y,m,d,12-tz),T=(jj-2451545)/36525,L0=nn(280.46646+36000.76983*T),Msun=357.52911+35999.05029*T,e=0.016708634-0.000042037*T;
+  var C=(1.914602-0.004817*T)*Math.sin(Msun*dr)+(0.019993-0.000101*T)*Math.sin(2*Msun*dr)+0.000289*Math.sin(3*Msun*dr);
+  var om=125.04-1934.136*T,lam=L0+C-0.00569-0.00478*Math.sin(om*dr),eps=23.439291-0.0130042*T+0.00256*Math.cos(om*dr);
+  var dec=Math.asin(Math.sin(eps*dr)*Math.sin(lam*dr))/dr,yv=Math.tan(eps/2*dr)*Math.tan(eps/2*dr);
+  var Eot=(yv*Math.sin(2*L0*dr)-2*e*Math.sin(Msun*dr)+4*e*yv*Math.sin(Msun*dr)*Math.cos(2*L0*dr)-0.5*yv*yv*Math.sin(4*L0*dr)-1.25*e*e*Math.sin(2*Msun*dr))/dr*4;
+  var ha=Math.acos(Math.cos(90.833*dr)/(Math.cos(lat*dr)*Math.cos(dec*dr))-Math.tan(lat*dr)*Math.tan(dec*dr))/dr;
+  var noon=720-4*lon-Eot+tz*60,sr=noon-4*ha,ss=noon+4*ha,dl=ss-sr,mu=dl/15,ni=(1440-dl)/15;
+  var T2=J(y,m,d,0.5)-2451545,r=Math.PI/180;
+  var Lm=nn(218.3165+13.17639648*T2),Mm=nn(134.9634+13.06499295*T2),Dm=nn(297.8502+12.19074912*T2),Fm=nn(93.2721+13.22935024*T2),Ms=nn(357.5291+0.98560028*T2);
+  var moon=nn(Lm+6.2886*Math.sin(Mm*r)+1.274*Math.sin((2*Dm-Mm)*r)+0.6583*Math.sin(2*Dm*r)+0.2136*Math.sin(2*Mm*r)-0.1851*Math.sin(Ms*r)-0.1143*Math.sin(2*Fm*r)+0.0588*Math.sin((2*Dm-2*Mm)*r)+0.0572*Math.sin((2*Dm-Ms-Mm)*r)+0.0533*Math.sin((2*Dm+Mm)*r)+0.0459*Math.sin((2*Dm-Ms)*r)+0.041*Math.sin((Mm-Ms)*r)-0.0348*Math.sin(Dm*r));
+  var nak=Math.floor(nn(moon-(23.85+0.013972*(T2/365.25)))/(360/27));
+  var SSY={0:[12,18,20,11,25,0,7],1:[21,3,4,7,16],2:[0,25,2,8],3:[3,16,12,2,4],4:[0,6,7,16,26],5:[0,6,21,16,26],6:[3,14,21]},AM={0:12,1:4,2:0,3:16,4:7,5:26,6:3},yg=[];
+  if(SSY[wd]&&SSY[wd].indexOf(nak)>-1)yg.push('Sarvartha Siddhi');if(AM[wd]===nak)yg.push('Amrit Siddhi');if(nak===7&&wd===0)yg.push('Ravi Pushya');if(nak===7&&wd===4)yg.push('Guru Pushya');
+  var rs=[7,1,6,4,5,3,2][wd];
+  function fmt(x){x=((x%1440)+1440)%1440;var h=Math.floor(x/60),mm=Math.round(x%60);if(mm===60){mm=0;h++;}var ap=h>=12?'p':'a',hh=h%12;if(hh===0)hh=12;return hh+':'+(mm<10?'0':'')+mm+ap;}
+  return {abhijit:(wd===3?null:{s:noon-mu/2,e:noon+mu/2}),vijaya:{s:sr+10*mu,e:sr+11*mu},brahma:{s:sr-2*ni,e:sr-ni},rahu:{s:sr+rs*dl/8,e:sr+(rs+1)*dl/8},yogas:yg,fmt:fmt};
+ }
  function computePanchang(date){
   var NAK=["Ashwini","Bharani","Krittika","Rohini","Mrigashira","Ardra","Punarvasu","Pushya","Ashlesha","Magha","Purva Phalguni","Uttara Phalguni","Hasta","Chitra","Swati","Vishakha","Anuradha","Jyeshtha","Mula","Purva Ashadha","Uttara Ashadha","Shravana","Dhanishta","Shatabhisha","Purva Bhadrapada","Uttara Bhadrapada","Revati"];
   var YOGA=["Vishkambha","Priti","Ayushman","Saubhagya","Shobhana","Atiganda","Sukarma","Dhriti","Shula","Ganda","Vriddhi","Dhruva","Vyaghata","Harshana","Vajra","Siddhi","Vyatipata","Variyana","Parigha","Shiva","Siddha","Sadhya","Shubha","Shukla","Brahma","Indra","Vaidhriti"];
