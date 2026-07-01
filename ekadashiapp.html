@@ -36,6 +36,11 @@
   .btn{display:block;width:100%;border:0;border-radius:14px;padding:13px;font-size:15px;font-weight:700;cursor:pointer;margin-top:10px;text-decoration:none;text-align:center}
   .btn.primary{background:linear-gradient(160deg,var(--saffron2),var(--saffron));color:#fff;box-shadow:0 6px 16px rgba(232,89,12,.3)}
   .btn.ghost{background:#fff;color:var(--saffron);border:1.5px solid var(--saffron)}
+  .joinf input{width:100%;font-family:inherit;font-size:15px;padding:11px 12px;border:1px solid var(--line);border-radius:11px;background:#fff;color:var(--ink);margin-bottom:8px}
+  .joinf input:focus{outline:none;border-color:var(--saffron)}
+  .optcard{display:block;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;text-decoration:none;margin-top:12px;box-shadow:0 4px 12px rgba(74,29,18,.05)}
+  .optcard .t{font-weight:800;color:var(--maroon);font-size:15px}
+  .optcard .s{font-size:12.5px;color:var(--muted);margin-top:2px}
   .note{font-size:12px;color:var(--muted);text-align:center;margin:12px 8px}
   .pill{display:inline-block;background:#fff3e0;color:var(--gold);font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px}
   /* location bar */
@@ -127,9 +132,27 @@
     </div>
     <div class="hero" id="hero"></div>
     <a class="btn primary" id="remindBtn">🔔 Remind me for every Ekadashi</a>
+    <button class="btn ghost" id="calBtn" style="margin-top:9px">📅 Add all fast days to my phone calendar</button>
 
     <h2 class="sec">Upcoming Ekadashis</h2>
     <div class="card" id="list"></div>
+
+    <a class="optcard" href="https://justonefast.com" target="_blank" rel="noopener">
+      <div class="t">📖 Read or hear the One Fast book — free</div>
+      <div class="s">The whole Ekadashi book, to read or listen, at justonefast.com</div>
+    </a>
+
+    <div class="card" style="padding:15px 16px;margin-top:12px">
+      <div style="font-weight:800;color:var(--maroon);font-size:15px;margin-bottom:3px">🙏 Become an Ekadashi Sevak</div>
+      <p style="font-size:13px;color:var(--muted);margin:0 0 11px;line-height:1.55">Leave your name for gentle reminders of the coming fast days, and simple ways to take part. No cost, no spam — only seva.</p>
+      <form class="joinf" id="joinForm">
+        <input id="jn" type="text" autocomplete="name" placeholder="Your name">
+        <input id="je" type="email" autocomplete="email" placeholder="you@example.com" required>
+        <input id="jm" type="tel" autocomplete="tel" placeholder="Mobile (optional)">
+        <button class="btn primary" type="submit" id="sendBtn" style="margin-top:2px">Keep me posted</button>
+        <div id="joinMsg" style="font-size:13px;text-align:center;color:var(--maroon);min-height:1.1em;margin-top:9px"></div>
+      </form>
+    </div>
 
     <footer>
       Fast on the <b>Ekadashi</b> day; break it the next morning in the <b>Pāraṇā</b> window. 🙏<br>
@@ -440,6 +463,48 @@ function closeWhy(){document.getElementById("whyModal").classList.remove("show")
     (function go(){if(i>=parts.length){b.textContent="🔊 Read this aloud";return;}var u=new SpeechSynthesisUtterance(parts[i]);u.rate=.95;u.onend=function(){i++;go();};speechSynthesis.speak(u);})();
   };
 })();
+
+/* ---- .ics calendar export (offline reminders on any device) ---- */
+var SCRIPT_URL="https://script.google.com/macros/s/AKfycbwou749sCStHL5ASKbdY2w_8iFVqLMlwnRzbETVEN_BQJ8OosAA6sUBy0-la73bCyCU4w/exec";
+function icsPad(n){return (n<10?'0':'')+n;}
+function icsDate(d){return d.getFullYear()+icsPad(d.getMonth()+1)+icsPad(d.getDate());}
+function icsEsc(s){return String(s).replace(/([\\,;])/g,'\\$1').replace(/\n/g,'\\n');}
+document.getElementById('calBtn').addEventListener('click',function(){
+  var lines=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Ekadashi Fasting//EN','CALSCALE:GREGORIAN'];
+  future.forEach(function(o){
+    var e=o.e, d=o.d, end=new Date(d); end.setDate(end.getDate()+1);
+    lines.push('BEGIN:VEVENT');
+    lines.push('UID:'+e.date+'-ekadashi@bhaktacharansevak');
+    lines.push('DTSTART;VALUE=DATE:'+icsDate(d));
+    lines.push('DTEND;VALUE=DATE:'+icsDate(end));
+    lines.push('SUMMARY:'+icsEsc(e.name+' — fast day'));
+    lines.push('DESCRIPTION:'+icsEsc(e.sub+'. Keep one day for God. Break the fast the next morning after sunrise.'));
+    lines.push('TRANSP:TRANSPARENT');
+    lines.push('BEGIN:VALARM','TRIGGER:-PT6H','ACTION:DISPLAY','DESCRIPTION:'+icsEsc(e.name+' fast begins tomorrow — prepare a light meal this evening'),'END:VALARM');
+    lines.push('END:VEVENT');
+  });
+  lines.push('END:VCALENDAR');
+  var blob=new Blob([lines.join('\r\n')],{type:'text/calendar'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');a.href=url;a.download='ekadashi-fast-days.ics';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  setTimeout(function(){URL.revokeObjectURL(url);},1500);
+  var b=this, old=b.textContent; b.textContent='✓ Added — open the downloaded file';
+  setTimeout(function(){b.textContent=old;},4000);
+});
+
+/* ---- Ekadashi Sevak sign-up (posts to the same Google Sheet as the website) ---- */
+document.getElementById('joinForm').addEventListener('submit',function(ev){
+  ev.preventDefault();
+  var name=document.getElementById('jn').value.trim(), email=document.getElementById('je').value.trim(), mobile=document.getElementById('jm').value.trim();
+  var msg=document.getElementById('joinMsg'), btn=document.getElementById('sendBtn');
+  if(!email||email.indexOf('@')<1){msg.textContent='Please enter a valid email.';return;}
+  try{localStorage.setItem('ek_sevak','1');}catch(_){}
+  btn.disabled=true; msg.textContent='Sending…';
+  fetch(SCRIPT_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({name:name,email:email,mobile:mobile,source:'ekadashi-app'})})
+    .then(function(r){return r.json();}).then(thanks).catch(thanks);
+  function thanks(){document.getElementById('joinForm').innerHTML='<div style="font-size:14px;text-align:center;color:var(--maroon);padding:6px 0">🙏 Thank you. We will be in touch gently, with fast-day reminders.</div>';}
+});
 
 /* ---- init ---- */
 renderPlaylists(); loadPlaylist(0); renderLocBar(); renderHero(); renderList(); refreshRemindUI(); maybeNotify();

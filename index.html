@@ -145,11 +145,13 @@ a.pa:hover{filter:brightness(1.14);transform:translateY(-1px)}
     <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px;flex-wrap:wrap">
      <a class="hbtn" style="margin-top:0" href="mx.html" target="_blank"><svg width="17" height="17" viewBox="0 0 32 32" style="vertical-align:-3px;margin-right:5px"><rect x="1" y="1" width="30" height="30" rx="7" fill="#2f6b12"/><text x="16" y="22" font-family="Arial" font-size="15" font-weight="700" fill="#E8CD7C" text-anchor="middle">MX</text></svg>MX Tracker →</a>
      <a class="hbtn" style="margin-top:0;background:#3F7FD0;color:#fff" href="hourly.html" target="_blank"><svg width="17" height="17" viewBox="0 0 32 32" style="vertical-align:-3px;margin-right:5px"><circle cx="16" cy="16" r="15" fill="#0e244d"/><path d="M16 7c-3.6 0-6 2.6-6 6.5 0 4-1.2 5.4-2 6.2-.5.5-.1 1.3.6 1.3h14.8c.7 0 1.1-.8.6-1.3-.8-.8-2-2.2-2-6.2C22 9.6 19.6 7 16 7z" fill="#E3C77A"/><path d="M13.5 23a2.5 2.5 0 0 0 5 0z" fill="#E3C77A"/></svg>Hourly Alarm</a>
-     <a class="hbtn" style="margin-top:0;background:#2f7d1f;color:#fff" href="journey.html" target="_blank"><svg width="17" height="17" viewBox="0 0 32 32" style="vertical-align:-3px;margin-right:5px"><rect x="1" y="1" width="30" height="30" rx="7" fill="#0e3d12"/><path d="M7 10h18M10 15h12M13 20h6M15 24h2" stroke="#9ED77C" stroke-width="2.4" stroke-linecap="round" fill="none"/></svg>FPL Journey →</a>
-     <a class="hbtn" style="margin-top:0;background:#1f8a7a;color:#fff" href="learning.html" target="_blank"><svg width="17" height="17" viewBox="0 0 32 32" style="vertical-align:-3px;margin-right:5px"><rect x="1" y="1" width="30" height="30" rx="7" fill="#0c3d36"/><circle cx="16" cy="13" r="6" fill="none" stroke="#9BE3D6" stroke-width="2.4"/><path d="M12 19 L11 27 L16 24 L21 27 L20 19" fill="none" stroke="#9BE3D6" stroke-width="2.2" stroke-linejoin="round"/></svg>Learning Path →</a>
+     <a class="hbtn" style="margin-top:0;background:#2f7d1f;color:#fff" href="file:///C:/Users/OmJai%20V%20Tirupani/OneDrive/Documents/FPL%20Network/FPL-Journey-Dashboard.html" target="_blank"><svg width="17" height="17" viewBox="0 0 32 32" style="vertical-align:-3px;margin-right:5px"><rect x="1" y="1" width="30" height="30" rx="7" fill="#0e3d12"/><path d="M7 10h18M10 15h12M13 20h6M15 24h2" stroke="#9ED77C" stroke-width="2.4" stroke-linecap="round" fill="none"/></svg>FPL Journey →</a>
+     <a class="hbtn" style="margin-top:0;background:#1f8a7a;color:#fff" href="file:///C:/Users/OmJai%20V%20Tirupani/OneDrive/Documents/FPL%20Network/FPL-FF-Learning-Path.html" target="_blank"><svg width="17" height="17" viewBox="0 0 32 32" style="vertical-align:-3px;margin-right:5px"><rect x="1" y="1" width="30" height="30" rx="7" fill="#0c3d36"/><circle cx="16" cy="13" r="6" fill="none" stroke="#9BE3D6" stroke-width="2.4"/><path d="M12 19 L11 27 L16 24 L21 27 L20 19" fill="none" stroke="#9BE3D6" stroke-width="2.2" stroke-linejoin="round"/></svg>Learning Path →</a>
+     <a class="hbtn" style="margin-top:0;background:rgba(255,255,255,.16);color:#fff;font-weight:600;padding:8px 11px;font-size:12.5px;box-shadow:none" href="https://survivalom.github.io/fpl-suite/" target="_blank" title="Open the live mobile app to view and refresh it"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#E3C77A" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:4px"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>Mobile</a>
     </div>
    </div>
   </div>
+  <div class="theme" id="panchang"></div>
   <div class="theme" id="theme"></div>
  </header>
  <div class="kpis" id="kpis"></div>
@@ -470,6 +472,22 @@ function render(){
   `<span class="chip">Day <b>${dn}</b> / 90</span>`+
   `<span class="chip">Dosha now: <b>${dh[0]}</b></span>`+
   `<span class="chip">Hare Krishna 🙏</span>`;
+ (function(){try{var pc=computePanchang(new Date());var pe=document.getElementById('panchang');if(pe)pe.innerHTML='<span class="chip" title="Panchanga: the five limbs of the day">☀️ Panchāṅga</span><span class="chip"><b>'+pc.paksha+' '+pc.tithi+'</b></span><span class="chip">'+pc.nakshatra+'</span><span class="chip">'+pc.yoga+' yoga</span><span class="chip">'+pc.karana+'</span><span class="chip">🌙 '+pc.moonRashi+'</span>';}catch(e){}})();
+ function computePanchang(date){
+  var NAK=["Ashwini","Bharani","Krittika","Rohini","Mrigashira","Ardra","Punarvasu","Pushya","Ashlesha","Magha","Purva Phalguni","Uttara Phalguni","Hasta","Chitra","Swati","Vishakha","Anuradha","Jyeshtha","Mula","Purva Ashadha","Uttara Ashadha","Shravana","Dhanishta","Shatabhisha","Purva Bhadrapada","Uttara Bhadrapada","Revati"];
+  var YOGA=["Vishkambha","Priti","Ayushman","Saubhagya","Shobhana","Atiganda","Sukarma","Dhriti","Shula","Ganda","Vriddhi","Dhruva","Vyaghata","Harshana","Vajra","Siddhi","Vyatipata","Variyana","Parigha","Shiva","Siddha","Sadhya","Shubha","Shukla","Brahma","Indra","Vaidhriti"];
+  var TITHI=["Pratipada","Dwitiya","Tritiya","Chaturthi","Panchami","Shashthi","Saptami","Ashtami","Navami","Dashami","Ekadashi","Dwadashi","Trayodashi","Chaturdashi","Purnima","Pratipada","Dwitiya","Tritiya","Chaturthi","Panchami","Shashthi","Saptami","Ashtami","Navami","Dashami","Ekadashi","Dwadashi","Trayodashi","Chaturdashi","Amavasya"];
+  var MOV=["Bava","Balava","Kaulava","Taitila","Gara","Vanija","Vishti"],RASHI=["Mesha","Vrishabha","Mithuna","Karka","Simha","Kanya","Tula","Vrischika","Dhanu","Makara","Kumbha","Meena"];
+  function nm(x){x=x%360;return x<0?x+360:x;}
+  var y=date.getFullYear(),m=date.getMonth()+1,d=date.getDate(),Y=y,M=m;if(M<=2){Y-=1;M+=12;}
+  var A=Math.floor(Y/100),B=2-A+Math.floor(A/4),jd=Math.floor(365.25*(Y+4716))+Math.floor(30.6001*(M+1))+d+B-1524.5+0.5/24,T=jd-2451545,r=Math.PI/180;
+  var Ls=nm(280.4665+0.98564736*T),Ms=nm(357.5291+0.98560028*T),sun=nm(Ls+1.9148*Math.sin(Ms*r)+0.02*Math.sin(2*Ms*r)+0.0003*Math.sin(3*Ms*r));
+  var Lm=nm(218.3165+13.17639648*T),Mm=nm(134.9634+13.06499295*T),D=nm(297.8502+12.19074912*T),F=nm(93.2721+13.22935024*T);
+  var moon=nm(Lm+6.2886*Math.sin(Mm*r)+1.274*Math.sin((2*D-Mm)*r)+0.6583*Math.sin(2*D*r)+0.2136*Math.sin(2*Mm*r)-0.1851*Math.sin(Ms*r)-0.1143*Math.sin(2*F*r)+0.0588*Math.sin((2*D-2*Mm)*r)+0.0572*Math.sin((2*D-Ms-Mm)*r)+0.0533*Math.sin((2*D+Mm)*r)+0.0459*Math.sin((2*D-Ms)*r)+0.041*Math.sin((Mm-Ms)*r)-0.0348*Math.sin(D*r));
+  var ayan=23.85+0.013972*(T/365.25),diff=nm(moon-sun),ti=Math.floor(diff/12),sid=nm(moon-ayan),half=Math.floor(diff/6),kar;
+  if(half===0)kar="Kimstughna";else if(half>=57)kar=["Shakuni","Chatushpada","Naga"][half-57];else kar=MOV[(half-1)%7];
+  return {tithi:TITHI[ti],paksha:(ti<15?"Shukla":"Krishna"),nakshatra:NAK[Math.floor(sid/(360/27))],yoga:YOGA[Math.floor(nm(moon+sun-2*ayan)/(360/27))],karana:kar,moonRashi:RASHI[Math.floor(sid/30)]};
+ }
 
  // PROJECT TRACKER — two channels
  const PROJNAMES=['One Leaf','One Mantra','One Fast','One Soul','One Yatra','One Cow','Hu-Kno-Mi','Transkeyer — Book 1','Good Money','Ultra Neutral Growth Hacker','Heights of Ignorance','ProFit'];
@@ -562,5 +580,5 @@ let _rt; window.addEventListener('resize',function(){clearTimeout(_rt);_rt=setTi
 tick(); render();
 setInterval(tick,15000);
 </script>
-<button id="ccRefresh" title="Refresh: pull the latest from the cloud" style="position:fixed;right:16px;bottom:18px;z-index:9999;width:58px;height:58px;border-radius:50%;border:2px solid #C6A249;background:#15356E;color:#E8CD7C;font-size:25px;box-shadow:0 6px 20px rgba(0,0,0,.4);cursor:pointer">↻</button><div id="ccRT" style="position:fixed;right:16px;bottom:80px;z-index:9999;background:#15356E;color:#fff;padding:8px 12px;border-radius:9px;font:13px sans-serif;box-shadow:0 4px 14px rgba(0,0,0,.4);display:none">Updating to the latest…</div><script>document.getElementById("ccRefresh").addEventListener("click",function(){var b=this;b.textContent="⏳";b.disabled=true;var t=document.getElementById("ccRT");if(t)t.style.display="block";function done(){location.replace(location.pathname+"?u="+Date.now());}var p=Promise.resolve();try{if(window.caches)p=caches.keys().then(function(k){return Promise.all(k.map(function(x){return caches.delete(x);}));});}catch(e){}p.then(function(){try{if(navigator.serviceWorker)return navigator.serviceWorker.getRegistrations().then(function(r){r.forEach(function(x){x.unregister();});});}catch(e){}}).then(done,done);});</script></body>
+</body>
 </html>
